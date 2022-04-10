@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "254572340571",
+    "project_id": "uniaccess-3a8a9",
+    "storage_bucket": "uniaccess-3a8a9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254572340571:android:2327db7f10b6a98d72267e",
+        "android_client_info": {
+          "package_name": "com.example.flutter_uni_access"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "254572340571-87rnne443tjke4fgco4aer0tk4jn0vqn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBk-HktS38rJrG-ctjOuhEbwQ3T4NcJT8M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "254572340571-87rnne443tjke4fgco4aer0tk4jn0vqn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
