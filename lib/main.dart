@@ -4,9 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_uni_access/screens/auth_screen.dart';
 
-import 'package:flutter_uni_access/screens/student_info_screen.dart';
 import 'package:flutter_uni_access/screens/tabs_screen.dart';
 import 'package:flutter_uni_access/screens/teacher_info_screen.dart';
+
+import 'models/uni_user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
 
             var _id = '';
             late bool _isTeacher;
+            UniUser _uniUser;
 
             if (_user != null) {
               _id = _user.uid;
@@ -52,9 +54,16 @@ class MyApp extends StatelessWidget {
                     if (snapshot.connectionState == ConnectionState.done) {
                       Map<String, dynamic> data =
                           snapshot.data!.data() as Map<String, dynamic>;
+                      _uniUser = UniUser(
+                          id: data['id'],
+                          name: data['name'],
+                          surname: data['surname'],
+                          email: data['email'],
+                          isTeacher: data['isTeacher'],
+                          image: data['image']);
 
-                      if (!data['isTeacher']) {
-                        return TabsScreen(_id);
+                      if (!_uniUser.isTeacher!) {
+                        return TabsScreen(_uniUser);
                       } else {
                         return TeacherInfoScreen();
                       }

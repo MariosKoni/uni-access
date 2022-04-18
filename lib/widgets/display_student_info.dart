@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_uni_access/models/uni_user.dart';
 
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 
 class DisplayStudentInfo extends StatelessWidget {
-  final data;
+  final UniUser uniUser;
 
-  DisplayStudentInfo(this.data);
+  DisplayStudentInfo(this.uniUser);
 
   @override
   Widget build(BuildContext context) {
@@ -19,35 +20,35 @@ class DisplayStudentInfo extends StatelessWidget {
                     bottomLeft: Radius.circular(15.0),
                     bottomRight: Radius.circular(15.0)),
                 image: DecorationImage(
-                    image: NetworkImage(data['image']), fit: BoxFit.cover)),
+                    image: NetworkImage(uniUser.image!), fit: BoxFit.cover)),
           ),
         ),
         const SizedBox(
           height: 10,
         ),
         Text(
-          '${data['id']}',
+          uniUser.id!,
           style: Theme.of(context).textTheme.headline4,
         ),
         const SizedBox(
           height: 10,
         ),
         Text(
-          '${data['name'].toString().capitalize()} ${data['surname'].toString().capitalize()}',
+          '${uniUser.name.toString().capitalize()} ${uniUser.surname.toString().capitalize()}',
           style: Theme.of(context).textTheme.headline4,
         ),
         const SizedBox(
           height: 10,
         ),
         Text(
-          '${data['email']}',
+          '${uniUser.email}',
           style: Theme.of(context).textTheme.headline4,
         ),
         const SizedBox(
           height: 10,
         ),
         Text(
-          !data['isTeacher'] ? 'Student' : 'Teacher',
+          !uniUser.isTeacher! ? 'Student' : 'Teacher',
           style: Theme.of(context).textTheme.headline4,
         )
       ],

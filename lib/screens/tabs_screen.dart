@@ -1,12 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/screens/student_classes_screen.dart';
 import 'package:flutter_uni_access/screens/student_info_screen.dart';
 
 class TabsScreen extends StatefulWidget {
-  late final String id;
+  late final UniUser user;
 
-  TabsScreen(this.id);
+  TabsScreen(this.user);
 
   @override
   State<TabsScreen> createState() => _TabsScreenState();
@@ -19,8 +20,8 @@ class _TabsScreenState extends State<TabsScreen> {
   @override
   void initState() {
     _pages = [
-      {'page': StudentInfoScreen(widget.id), 'title': 'Info'},
-      {'page': StudentClassesScreen(), 'title': 'Classes'}
+      {'page': StudentInfoScreen(widget.user), 'title': 'Info'},
+      {'page': StudentClassesScreen(widget.user), 'title': 'Classes'}
     ];
     super.initState();
   }
@@ -44,7 +45,7 @@ class _TabsScreenState extends State<TabsScreen> {
       ),
       body: _pages[_selectedIndex]['page'] as Widget,
       bottomNavigationBar: BottomNavigationBar(
-        unselectedItemColor: Colors.white,
+        unselectedItemColor: Colors.grey,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         type: BottomNavigationBarType.shifting,
         items: const [
