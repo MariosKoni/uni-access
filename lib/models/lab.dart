@@ -6,7 +6,7 @@ class Lab {
   final String? id;
   final String? name;
   final String? subjectId;
-  final List<UniUser>? users;
+  final List<String>? users;
 
   Lab(
       {@required this.id,
