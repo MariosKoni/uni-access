@@ -28,7 +28,7 @@ class _StudentClassesScreenState extends State<StudentClassesScreen> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Loading");
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.connectionState == ConnectionState.done) {
