@@ -24,7 +24,7 @@ class _StudentClassesScreenState extends State<StudentClassesScreen> {
         future: labs.where('users', arrayContains: widget.user.id).get(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            return const Text('Something went wrong');
+            return Center(child: Text(snapshot.error.toString()));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -39,12 +39,12 @@ class _StudentClassesScreenState extends State<StudentClassesScreen> {
                   id: element['id'],
                   name: element['name'],
                   subjectId: element['subjectId'],
-                  users: List<String>.from(element['users']));
+                  userIds: List<String>.from(element['users']));
               _userLabs.add(_lab);
             }
             return DisplayStudentClasses(_userLabs);
           }
-          return const Text('Hang...');
+          return const CircularProgressIndicator();
         });
   }
 }

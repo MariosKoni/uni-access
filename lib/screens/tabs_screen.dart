@@ -45,7 +45,7 @@ class _TabsScreenState extends State<TabsScreen> {
       ),
       body: _pages[_selectedIndex]['page'] as Widget,
       bottomNavigationBar: BottomNavigationBar(
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Theme.of(context).colorScheme.secondary,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         type: BottomNavigationBarType.shifting,
         items: const [

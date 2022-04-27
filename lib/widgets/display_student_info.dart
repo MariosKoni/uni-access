@@ -11,6 +11,7 @@ class DisplayStudentInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorScheme.secondary,
       elevation: 5,
       child: Column(children: [
         Container(
@@ -23,11 +24,11 @@ class DisplayStudentInfo extends StatelessWidget {
                     image: NetworkImage(uniUser.image!), fit: BoxFit.cover))),
         SizedBox(height: MediaQuery.of(context).size.height / 10),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'ID: ',
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headline4,
             ),
             Text(
               uniUser.id!,
@@ -36,11 +37,11 @@ class DisplayStudentInfo extends StatelessWidget {
           ],
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'Name: ',
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headline4,
             ),
             Text(
               '${uniUser.name.toString().capitalize()} ${uniUser.surname.toString().capitalize()}',
@@ -49,11 +50,11 @@ class DisplayStudentInfo extends StatelessWidget {
           ],
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'E-mail: ',
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headline4,
             ),
             Text(
               '${uniUser.email}',
@@ -62,11 +63,11 @@ class DisplayStudentInfo extends StatelessWidget {
           ],
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'Property: ',
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headline4,
             ),
             Text(
               !uniUser.isTeacher! ? 'Student' : 'Teacher',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,8 @@ import 'models/uni_user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await Firebase.initializeApp();
 
   runApp(const MyApp());
@@ -23,8 +26,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'UniAccess',
-      theme:
-          ThemeData(primarySwatch: Colors.blue, backgroundColor: Colors.grey),
+      theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
+              .copyWith(secondary: const Color.fromRGBO(255, 127, 80, 1.0)),
+          fontFamily: 'RobotoCondensed',
+          textTheme: ThemeData.light().textTheme.copyWith(
+                bodyText1: const TextStyle(color: Colors.white),
+                bodyText2: const TextStyle(color: Colors.white),
+                headline5: const TextStyle(color: Colors.white),
+                headline4: const TextStyle(color: Colors.white),
+                headline1: const TextStyle(color: Colors.white),
+              ),
+          backgroundColor: const Color.fromRGBO(255, 127, 80, 1.0)),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (ctx, userSnapshot) {
@@ -34,7 +47,6 @@ class MyApp extends StatelessWidget {
                 FirebaseFirestore.instance.collection('users');
 
             var _id = '';
-            late bool _isTeacher;
             UniUser _uniUser;
 
             if (_user != null) {
@@ -44,11 +56,12 @@ class MyApp extends StatelessWidget {
                   future: _users.doc(_id).get(),
                   builder: (_, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (snapshot.hasError) {
-                      print('Has error');
+                      return Center(child: Text(snapshot.error.toString()));
                     }
 
                     if (snapshot.hasData && !snapshot.data!.exists) {
-                      print('Document does not exist');
+                      return const Center(
+                          child: Text('Document does not exist'));
                     }
 
                     if (snapshot.connectionState == ConnectionState.done) {

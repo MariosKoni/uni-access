@@ -6,3 +6,4 @@ My app for my diplomatic assigment.
 
 * Made with Flutter
 * Uses Firebase for authentication and backend
+* Uses Roboto Condensed as the font

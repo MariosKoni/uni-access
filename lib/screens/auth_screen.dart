@@ -61,13 +61,14 @@ class _AuthScreenState extends State<AuthScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('Welcome to UniAccess',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
             const Image(
-              image: AssetImage('lib/images/pada-logo.png'),
+              image: AssetImage('assets/images/pada-logo.png'),
               height: 270,
             ),
             AuthForm(_submitAuthForm, _isLoading),
