@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
                       if (!_uniUser.isTeacher!) {
                         return TabsScreen(_uniUser);
                       } else {
-                        return TeacherInfoScreen();
+                        return const TeacherInfoScreen();
                       }
                     }
 

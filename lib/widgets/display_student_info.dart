@@ -11,6 +11,10 @@ class DisplayStudentInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(15.0),
+              bottomRight: Radius.circular(15.0))),
       color: Theme.of(context).colorScheme.secondary,
       elevation: 5,
       child: Column(children: [
@@ -22,7 +26,7 @@ class DisplayStudentInfo extends StatelessWidget {
                     bottomRight: Radius.circular(15.0)),
                 image: DecorationImage(
                     image: NetworkImage(uniUser.image!), fit: BoxFit.cover))),
-        SizedBox(height: MediaQuery.of(context).size.height / 10),
+        const SizedBox(height: 25),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

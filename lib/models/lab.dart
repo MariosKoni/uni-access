@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class Lab {
   final String? id;
   final String? name;
-  final String? subjectId;
+  final List<String>? subjectId;
   final List<String>? userIds;
 
   Lab(
