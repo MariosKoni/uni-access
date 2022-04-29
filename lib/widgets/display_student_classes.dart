@@ -1,33 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/student_classes_card.dart';
 
-class DisplayStudentClasses extends StatelessWidget {
-  final List<StudentClassesCard> cards;
+class DisplayStudentClasses extends StatefulWidget {
+  final StudentClassesCard card;
 
-  DisplayStudentClasses(this.cards);
+  DisplayStudentClasses(this.card);
+
+  @override
+  State<DisplayStudentClasses> createState() => _DisplayStudentClassesState();
+}
+
+class _DisplayStudentClassesState extends State<DisplayStudentClasses> {
+  bool _showContent = false;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: cards.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Card(
-          elevation: 5,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(15.0),
-                  bottomRight: Radius.circular(15.0))),
-          color: Theme.of(context).colorScheme.secondary,
-          child: Column(children: [
-            Text(cards[index].lab!),
-            ListView.builder(
-                itemCount: cards[index].subjects?.length,
+    return Card(
+      elevation: 5,
+      margin: const EdgeInsets.all(10),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(15.0),
+              bottomRight: Radius.circular(15.0))),
+      color: Theme.of(context).colorScheme.secondary,
+      child: Column(children: [
+        ListTile(
+          title: Center(
+              child: Text(
+            'Lab: ${widget.card.lab!}',
+            style: const TextStyle(color: Colors.white),
+          )),
+          trailing: IconButton(
+            icon: Icon(
+                _showContent ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+            onPressed: () {
+              setState(() {
+                _showContent = !_showContent;
+              });
+            },
+          ),
+        ),
+        _showContent
+            ? ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: widget.card.subjects?.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return Text(cards[index].subjects![index]);
-                }),
-          ]),
-        );
-      },
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                            child: Text(
+                          '${widget.card.subjects![index].keys.first} - ${widget.card.subjects![index].values.first}',
+                          style: const TextStyle(fontSize: 20),
+                        )),
+                      ),
+                      index != ((widget.card.subjects?.length)! - 1)
+                          ? const Divider(
+                              color: Colors.white,
+                            )
+                          : Container()
+                    ],
+                  );
+                })
+            : Container()
+      ]),
     );
   }
 }

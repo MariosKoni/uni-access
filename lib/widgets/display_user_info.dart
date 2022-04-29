@@ -3,10 +3,10 @@ import 'package:flutter_uni_access/models/uni_user.dart';
 
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 
-class DisplayStudentInfo extends StatelessWidget {
+class DisplayUserInfo extends StatelessWidget {
   final UniUser uniUser;
 
-  DisplayStudentInfo(this.uniUser);
+  DisplayUserInfo(this.uniUser);
 
   @override
   Widget build(BuildContext context) {

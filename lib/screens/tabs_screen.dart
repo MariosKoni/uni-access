@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
-import 'package:flutter_uni_access/screens/student_classes_screen.dart';
-import 'package:flutter_uni_access/screens/student_info_screen.dart';
+import 'package:flutter_uni_access/screens/user_classes_screen.dart';
+import 'package:flutter_uni_access/screens/user_info_screen.dart';
 
 class TabsScreen extends StatefulWidget {
   late final UniUser user;
@@ -19,10 +19,17 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   void initState() {
-    _pages = [
-      {'page': StudentInfoScreen(widget.user), 'title': 'Info'},
-      {'page': StudentClassesScreen(widget.user), 'title': 'Classes'}
-    ];
+    if (!widget.user.isTeacher!) {
+      _pages = [
+        {'page': UsertInfoScreen(widget.user), 'title': 'Info'},
+        {'page': UserClassesScreen(widget.user), 'title': 'Classes'}
+      ];
+    } else {
+      _pages = [
+        {'page': UsertInfoScreen(widget.user), 'title': 'Info'},
+        {'page': UserClassesScreen(widget.user), 'title': 'Classes'}
+      ];
+    }
     super.initState();
   }
 

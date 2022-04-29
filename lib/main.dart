@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_uni_access/screens/auth_screen.dart';
 
 import 'package:flutter_uni_access/screens/tabs_screen.dart';
-import 'package:flutter_uni_access/screens/teacher_info_screen.dart';
 
 import 'models/uni_user.dart';
 
@@ -73,13 +72,10 @@ class MyApp extends StatelessWidget {
                           surname: data['surname'],
                           email: data['email'],
                           isTeacher: data['isTeacher'],
-                          image: data['image']);
+                          image: data['image'],
+                          access: List.from(data['access']));
 
-                      if (!_uniUser.isTeacher!) {
-                        return TabsScreen(_uniUser);
-                      } else {
-                        return const TeacherInfoScreen();
-                      }
+                      return TabsScreen(_uniUser);
                     }
 
                     return const Center(child: CircularProgressIndicator());

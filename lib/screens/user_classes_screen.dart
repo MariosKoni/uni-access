@@ -1,21 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_uni_access/models/lab.dart';
 import 'package:flutter_uni_access/models/student_classes_card.dart';
 import 'package:flutter_uni_access/models/subject.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/widgets/display_student_classes.dart';
 
-class StudentClassesScreen extends StatefulWidget {
+class UserClassesScreen extends StatelessWidget {
   final UniUser user;
 
-  StudentClassesScreen(this.user);
+  UserClassesScreen(this.user);
 
-  @override
-  State<StudentClassesScreen> createState() => _StudentClassesScreenState();
-}
-
-class _StudentClassesScreenState extends State<StudentClassesScreen> {
   CollectionReference labs = FirebaseFirestore.instance.collection('labs');
   CollectionReference subjects =
       FirebaseFirestore.instance.collection('subjects');
@@ -24,8 +19,8 @@ class _StudentClassesScreenState extends State<StudentClassesScreen> {
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: Future.wait([
-          labs.where('users', arrayContains: widget.user.id).get(),
-          subjects.where('users', arrayContains: widget.user.id).get()
+          labs.where('users', arrayContains: user.id).get(),
+          subjects.where('users', arrayContains: user.id).get()
         ]),
         builder: (BuildContext context,
             AsyncSnapshot<List<QuerySnapshot<Object?>>> snapshot) {
@@ -59,19 +54,31 @@ class _StudentClassesScreenState extends State<StudentClassesScreen> {
               _userSubjects.add(_subject);
             }
 
-            final _subjectsOfLab = List<String>.empty(growable: true);
-            for (var lab in _userLabs) {
-              for (var subject in _userSubjects) {
-                if (lab.subjectId!.contains(subject.id)) {
-                  _subjectsOfLab.add(subject.name!);
+            for (var accessLab in user.access!) {
+              final _subjectsOfLab =
+                  List<Map<String, String>>.empty(growable: true);
+              final _lab = _userLabs
+                  .firstWhere((element) => element.id == accessLab.keys.first);
+              for (var val in accessLab.values) {
+                for (var subject in val) {
+                  if (_lab.subjectId!.contains(subject.keys.first)) {
+                    final _subjectName = _userSubjects
+                        .firstWhere(
+                            (element) => element.id == subject.keys.first)
+                        .name;
+                    _subjectsOfLab.add({_subjectName!: subject.values.first});
+                  }
                 }
               }
               final _studentClassCard =
-                  StudentClassesCard(lab: lab.name, subjects: lab.subjectId);
+                  StudentClassesCard(lab: _lab.name, subjects: _subjectsOfLab);
               _userClasses.add(_studentClassCard);
             }
 
-            return DisplayStudentClasses(_userClasses);
+            return ListView.builder(
+                itemCount: _userClasses.length,
+                itemBuilder: (BuildContext context, int index) =>
+                    DisplayStudentClasses(_userClasses[index]));
           }
           return const CircularProgressIndicator();
         });
