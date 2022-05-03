@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:flutter_uni_access/screens/new_session_screen.dart';
 import 'package:flutter_uni_access/screens/user_classes_screen.dart';
 import 'package:flutter_uni_access/screens/user_info_screen.dart';
 
@@ -27,7 +28,8 @@ class _TabsScreenState extends State<TabsScreen> {
     } else {
       _pages = [
         {'page': UsertInfoScreen(widget.user), 'title': 'Info'},
-        {'page': UserClassesScreen(widget.user), 'title': 'Classes'}
+        {'page': UserClassesScreen(widget.user), 'title': 'Classes'},
+        {'page': NewSessionScreen(widget.user), 'title': 'Session'}
       ];
     }
     super.initState();
@@ -55,10 +57,21 @@ class _TabsScreenState extends State<TabsScreen> {
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         type: BottomNavigationBarType.shifting,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Info'),
-          BottomNavigationBarItem(icon: Icon(Icons.calculate), label: 'Classes')
-        ],
+        items: widget.user.isTeacher!
+            ? const [
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.person), label: 'Info'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.school), label: 'Classes'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.class_), label: 'Session')
+              ]
+            : const [
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.person), label: 'Info'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.school), label: 'Classes')
+              ],
         currentIndex: _selectedIndex,
         onTap: _onTabTapped,
       ),

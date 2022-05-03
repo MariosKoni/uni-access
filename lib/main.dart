@@ -72,8 +72,7 @@ class MyApp extends StatelessWidget {
                           surname: data['surname'],
                           email: data['email'],
                           isTeacher: data['isTeacher'],
-                          image: data['image'],
-                          access: List.from(data['access']));
+                          image: data['image']);
 
                       return TabsScreen(_uniUser);
                     }

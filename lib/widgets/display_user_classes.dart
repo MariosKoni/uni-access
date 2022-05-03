@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/student_classes_card.dart';
 
-class DisplayStudentClasses extends StatefulWidget {
+class DisplayUserClasses extends StatefulWidget {
   final StudentClassesCard card;
 
-  DisplayStudentClasses(this.card);
+  DisplayUserClasses(this.card);
 
   @override
-  State<DisplayStudentClasses> createState() => _DisplayStudentClassesState();
+  State<DisplayUserClasses> createState() => _DisplayUserClassesState();
 }
 
-class _DisplayStudentClassesState extends State<DisplayStudentClasses> {
+class _DisplayUserClassesState extends State<DisplayUserClasses> {
   bool _showContent = false;
 
   @override
