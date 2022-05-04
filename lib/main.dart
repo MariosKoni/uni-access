@@ -32,9 +32,10 @@ class MyApp extends StatelessWidget {
           textTheme: ThemeData.light().textTheme.copyWith(
                 bodyText1: const TextStyle(color: Colors.white),
                 bodyText2: const TextStyle(color: Colors.white),
-                headline5: const TextStyle(color: Colors.white),
-                headline4: const TextStyle(color: Colors.white),
                 headline1: const TextStyle(color: Colors.white),
+                headline4: const TextStyle(color: Colors.white),
+                headline5: const TextStyle(color: Colors.white),
+                headline6: const TextStyle(color: Colors.white),
               ),
           backgroundColor: const Color.fromRGBO(255, 127, 80, 1.0)),
       home: StreamBuilder(
