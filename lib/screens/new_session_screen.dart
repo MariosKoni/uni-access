@@ -16,7 +16,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
   bool _isAvailable = true;
 
   void _checkNFC() async {
-    bool _r = await NfcManager.instance.isAvailable();
+    final bool _r = await NfcManager.instance.isAvailable();
     setState(() {
       _isAvailable = _r;
     });
@@ -31,14 +31,20 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isAvailable) {
-      return DisplayNewSessionForm();
+      return const DisplayNewSessionForm();
     }
 
     return Center(
-        child: Text(
-      'NFC is not available.',
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.secondary,
+        child: Card(
+      color: Theme.of(context).colorScheme.secondary,
+      elevation: 5,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(15.0),
+              bottomRight: Radius.circular(15.0))),
+      child: const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Text('NFC is not available.'),
       ),
     ));
   }
