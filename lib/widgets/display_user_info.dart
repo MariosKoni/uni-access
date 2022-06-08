@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
+
+import 'package:flutter_uni_access/models/uni_user.dart';
 
 class DisplayUserInfo extends StatelessWidget {
   final UniUser uniUser;
@@ -10,6 +12,13 @@ class DisplayUserInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int _denominator;
+    if (uniUser.isTeacher!) {
+      _denominator = 2;
+    } else {
+      _denominator = 3;
+    }
+
     return Card(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -21,7 +30,7 @@ class DisplayUserInfo extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(children: [
           Container(
-              height: MediaQuery.of(context).size.height / 2,
+              height: MediaQuery.of(context).size.height / _denominator,
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(15.0),
@@ -81,6 +90,18 @@ class DisplayUserInfo extends StatelessWidget {
               )
             ],
           ),
+          if (!uniUser.isTeacher!)
+            Column(
+              children: [
+                const Divider(color: Colors.white),
+                QrImage(
+                  data: uniUser.id!,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                  backgroundColor: Colors.white,
+                )
+              ],
+            )
         ]),
       ),
     );
