@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:provider/provider.dart';
 
-class NewSessionScreen extends StatelessWidget {
+import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:flutter_uni_access/providers/session.dart';
+
+class NewSessionScreen extends StatefulWidget {
   final UniUser user;
 
   NewSessionScreen(this.user);
 
+  @override
+  State<NewSessionScreen> createState() => _NewSessionScreenState();
+}
+
+class _NewSessionScreenState extends State<NewSessionScreen> {
   String _lab = 'One';
+
   String _subject = 'One';
+
   bool _showAttendence = false;
 
   @override
   Widget build(BuildContext context) {
-    print('Build first');
     return Card(
       color: Theme.of(context).colorScheme.secondary,
       elevation: 5,
@@ -40,9 +50,9 @@ class NewSessionScreen extends StatelessWidget {
           const SizedBox(height: 10),
           ElevatedButton(
               onPressed: () {
-                print('Tapped');
-                _showAttendence = true;
-                print(_showAttendence);
+                setState(() {
+                  _showAttendence = true;
+                });
               },
               child: const Text('Start')),
           const Divider(
@@ -107,41 +117,50 @@ class _FormOptionState extends State<FormOption> {
   }
 }
 
-String result = '';
-
 class AttendanceWidget extends StatelessWidget {
-  bool _startedScanning = false;
-
   @override
   Widget build(BuildContext context) {
-    print('Build');
-    return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Card(
-          color: const Color.fromRGBO(255, 255, 255, 0.6),
-          elevation: 8,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(15.0),
-                  bottomRight: Radius.circular(15.0))),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height / 2.5,
-            child: _startedScanning
-                ? ListView.builder(
-                    itemBuilder: (_, int index) => ListTile(
-                          leading: const Icon(Icons.check_circle_rounded),
-                          title: Text(result),
-                        ))
-                : Center(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) => const Scan())),
-                      child: const Text('Scan'),
-                    ),
+    final sessionUsers = Provider.of<Session>(context).sessionUsers;
+
+    return Column(
+      children: [
+        Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              color: const Color.fromRGBO(255, 255, 255, 0.6),
+              elevation: 8,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(15.0),
+                      bottomRight: Radius.circular(15.0))),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height / 2.5,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: sessionUsers
+                        .map((e) => ListTile(
+                            leading: const Icon(Icons.check_circle_rounded),
+                            title: Text(e),
+                            subtitle: const Text('Student'),
+                            onTap: () => ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(
+                                    content: Text(e),
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor))))
+                        .toList(),
                   ),
+                ),
+              ),
+            )),
+        Center(
+          child: ElevatedButton(
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => const Scan())),
+            child: const Text('Scan'),
           ),
-        ));
+        )
+      ],
+    );
   }
 }
 
@@ -157,8 +176,11 @@ class Scan extends StatelessWidget {
             print('NULL BARCODE');
           }
 
-          result = barcode.rawValue!;
+          final result = barcode.rawValue!;
+          HapticFeedback.vibrate();
           print(result);
+          Provider.of<Session>(context, listen: false).addUserToSession(result);
+
           Navigator.of(context).pop();
         });
   }

@@ -1,6 +1,6 @@
 # Uni Access
 
-My app for my diplomatic assigment.
+My app for my Diploma thesis.
 
 ## Quick Info
 
