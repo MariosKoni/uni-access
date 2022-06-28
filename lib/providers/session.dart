@@ -10,6 +10,10 @@ class Session with ChangeNotifier {
   final List<String>? _labs;
   final List<Map<String, dynamic>>? _subjects;
 
+  String? _selectedLab;
+  String? _selectedSubject;
+  bool _hasRights = false;
+
   Session(this._sessionUsers, this._labs, this._subjects);
 
   List<UniUser> get sessionUsers {
@@ -36,12 +40,21 @@ class Session with ChangeNotifier {
     return subjects;
   }
 
+  set selectedLab(final String lab) {
+    _selectedLab = lab;
+  }
+
+  set selectedSubject(final String subject) {
+    _selectedSubject = subject;
+  }
+
   Future<void> populateFormData(final UniUser user) async {
     if (_labs!.isNotEmpty && _subjects!.isNotEmpty) {
       return;
     }
 
-    CollectionReference labs = FirebaseFirestore.instance.collection('labs');
+    final CollectionReference labs =
+        FirebaseFirestore.instance.collection('labs');
 
     await labs.get().then((value) {
       for (final element in value.docs) {
@@ -59,16 +72,44 @@ class Session with ChangeNotifier {
         }
       }
     }, onError: (e) => print(e));
-
-    print(_labs);
-    print(_subjects);
   }
 
-  void addUserToSession(final String id) {
+  Future<void> addUserToSession(final String id, final BuildContext ctx) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-    users.where('id', isEqualTo: id).get().then((value) {
+    await users.where('id', isEqualTo: id).get().then((value) {
       // Chech if the user has rights
+      final CollectionReference labs =
+          FirebaseFirestore.instance.collection('labs');
+
+      labs.get().then((value) {
+        for (final element in value.docs) {
+          for (final access in element['access']) {
+            if (access['users'].contains(id) &&
+                (access['info']['subjectName'].toString() +
+                        ': ' +
+                        access['info']['date'].toString()) ==
+                    _selectedSubject &&
+                element['name'].toString() == _selectedLab) {
+              _hasRights = true;
+              break;
+            }
+          }
+          if (_hasRights) {
+            break;
+          }
+        }
+      }, onError: (e) => print(e));
+
+      if (!_hasRights) {
+        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+            duration: const Duration(seconds: 3),
+            content: Text('User with ID: $id cannot be authorized.'),
+            backgroundColor: Theme.of(ctx).errorColor));
+
+        return;
+      }
+
       Map<String, dynamic> data =
           value.docs.first.data() as Map<String, dynamic>;
       final UniUser uniUser = UniUser(
@@ -80,8 +121,7 @@ class Session with ChangeNotifier {
           image: data['image']);
 
       _sessionUsers?.add(uniUser);
-      print(_sessionUsers);
-    });
+    }, onError: (e) => print(e));
 
     notifyListeners();
   }

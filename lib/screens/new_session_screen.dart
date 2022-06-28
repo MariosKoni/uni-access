@@ -16,6 +16,7 @@ class NewSessionScreen extends StatefulWidget {
 
 class _NewSessionScreenState extends State<NewSessionScreen> {
   bool _showAttendence = false;
+  String _triggerButtonText = 'Start';
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +56,16 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          _showAttendence = true;
+                          if (_triggerButtonText == 'Start') {
+                            _triggerButtonText = 'Stop';
+                            _showAttendence = true;
+                          } else {
+                            _triggerButtonText = 'Start';
+                            _showAttendence = false;
+                          }
                         });
                       },
-                      child: const Text('Start')),
+                      child: Text(_triggerButtonText)),
                   const Divider(
                     color: Colors.white,
                   ),
@@ -92,7 +99,17 @@ class _FormOptionState extends State<FormOption> {
   @override
   void initState() {
     super.initState();
+
+    _updateSessionSelectedItem(widget._option.first, context);
     widget._selectedItem = widget._option.first;
+  }
+
+  void _updateSessionSelectedItem(String? newValue, BuildContext context) {
+    if (newValue!.contains(':')) {
+      Provider.of<Session>(context, listen: false).selectedSubject = newValue;
+    } else {
+      Provider.of<Session>(context, listen: false).selectedLab = newValue;
+    }
   }
 
   @override
@@ -114,6 +131,7 @@ class _FormOptionState extends State<FormOption> {
           ),
           onChanged: (String? newValue) {
             setState(() {
+              _updateSessionSelectedItem(newValue, context);
               widget._selectedItem = newValue!;
             });
           },
@@ -192,7 +210,8 @@ class Scan extends StatelessWidget {
           final result = barcode.rawValue!;
           HapticFeedback.vibrate();
           print(result);
-          Provider.of<Session>(context, listen: false).addUserToSession(result);
+          Provider.of<Session>(context, listen: false)
+              .addUserToSession(result, context);
 
           Navigator.of(context).pop();
         });

@@ -16,7 +16,7 @@ class DisplayUserInfo extends StatelessWidget {
     if (uniUser.isTeacher!) {
       _denominator = 2;
     } else {
-      _denominator = 3;
+      _denominator = 4;
     }
 
     return Card(
@@ -37,7 +37,7 @@ class DisplayUserInfo extends StatelessWidget {
                       bottomRight: Radius.circular(15.0)),
                   image: DecorationImage(
                       image: NetworkImage(uniUser.image!), fit: BoxFit.cover))),
-          const SizedBox(height: 50),
+          const SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
