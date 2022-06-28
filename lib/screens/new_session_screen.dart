@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:provider/provider.dart';
-
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/session.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
 
 class NewSessionScreen extends StatefulWidget {
   final UniUser user;
@@ -16,51 +15,57 @@ class NewSessionScreen extends StatefulWidget {
 }
 
 class _NewSessionScreenState extends State<NewSessionScreen> {
-  String _lab = 'One';
-
-  String _subject = 'One';
-
   bool _showAttendence = false;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary,
-      elevation: 5,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
-      child: Column(
-        children: [
-          Text(
-            'Please enter the lab information to begin the procedure',
-            style: Theme.of(context).textTheme.headline6,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 10),
-          FormOption(
-            option: _lab,
-            titleOption: 'Lab',
-          ),
-          FormOption(
-            option: _subject,
-            titleOption: 'Subject',
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _showAttendence = true;
-                });
-              },
-              child: const Text('Start')),
-          const Divider(
-            color: Colors.white,
-          ),
-          if (_showAttendence) AttendanceWidget() else Container(),
-        ],
-      ),
+    return FutureBuilder(
+      future: Provider.of<Session>(context, listen: false)
+          .populateFormData(widget.user),
+      builder: (_, snapshot) => snapshot.connectionState ==
+              ConnectionState.waiting
+          ? const Center(child: CircularProgressIndicator())
+          : Card(
+              color: Theme.of(context).colorScheme.secondary,
+              elevation: 5,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(15.0),
+                      bottomRight: Radius.circular(15.0))),
+              child: Column(
+                children: [
+                  Text(
+                    'Please enter the lab information to begin the procedure',
+                    style: Theme.of(context).textTheme.headline6,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  FormOption(
+                    key: const Key('1'),
+                    option: Provider.of<Session>(context, listen: false).labs,
+                    titleOption: 'Lab',
+                  ),
+                  FormOption(
+                    key: const Key('2'),
+                    option: Provider.of<Session>(context, listen: false)
+                        .stringyfiedSubjects,
+                    titleOption: 'Subject',
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _showAttendence = true;
+                        });
+                      },
+                      child: const Text('Start')),
+                  const Divider(
+                    color: Colors.white,
+                  ),
+                  if (_showAttendence) AttendanceWidget() else Container(),
+                ],
+              ),
+            ),
     );
   }
 }
@@ -68,20 +73,28 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
 class FormOption extends StatefulWidget {
   FormOption({
     Key? key,
-    required String option,
+    required List<String> option,
     required String titleOption,
   })  : _option = option,
         _titleOption = titleOption,
         super(key: key);
 
-  String _option;
-  String _titleOption;
+  final List<String> _option;
+  final String _titleOption;
+
+  String _selectedItem = '';
 
   @override
   State<FormOption> createState() => _FormOptionState();
 }
 
 class _FormOptionState extends State<FormOption> {
+  @override
+  void initState() {
+    super.initState();
+    widget._selectedItem = widget._option.first;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -91,7 +104,7 @@ class _FormOptionState extends State<FormOption> {
         const SizedBox(width: 10),
         DropdownButton<String>(
           dropdownColor: Theme.of(context).colorScheme.primary,
-          value: widget._option,
+          value: widget._selectedItem,
           icon: const Icon(Icons.arrow_drop_down_rounded),
           elevation: 16,
           style: const TextStyle(color: Colors.white),
@@ -101,11 +114,10 @@ class _FormOptionState extends State<FormOption> {
           ),
           onChanged: (String? newValue) {
             setState(() {
-              widget._option = newValue!;
+              widget._selectedItem = newValue!;
             });
           },
-          items: <String>['One', 'Two', 'Free', 'Four']
-              .map<DropdownMenuItem<String>>((String value) {
+          items: widget._option.map<DropdownMenuItem<String>>((value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(value),
@@ -140,11 +152,12 @@ class AttendanceWidget extends StatelessWidget {
                     children: sessionUsers
                         .map((e) => ListTile(
                             leading: const Icon(Icons.check_circle_rounded),
-                            title: Text(e),
+                            title: Text('${e.name} ${e.surname}'),
                             subtitle: const Text('Student'),
                             onTap: () => ScaffoldMessenger.of(context)
                                 .showSnackBar(SnackBar(
-                                    content: Text(e),
+                                    duration: const Duration(seconds: 1),
+                                    content: Text('${e.name} ${e.surname}'),
                                     backgroundColor:
                                         Theme.of(context).primaryColor))))
                         .toList(),

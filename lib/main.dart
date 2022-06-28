@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_uni_access/providers/session.dart';
 import 'package:flutter_uni_access/screens/auth_screen.dart';
-
 import 'package:flutter_uni_access/screens/tabs_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -28,7 +27,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: ((context) => Session(List.empty(growable: true))))
+            create: ((context) => Session(List.empty(growable: true),
+                List.empty(growable: true), List.empty(growable: true))))
       ],
       child: MaterialApp(
         title: 'UniAccess',
