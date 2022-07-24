@@ -186,7 +186,7 @@ class AttendanceWidget extends StatelessWidget {
         Center(
           child: ElevatedButton(
             onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => const Scan())),
+                .push(MaterialPageRoute(builder: (context) => const _Scan())),
             child: const Text('Scan'),
           ),
         )
@@ -195,14 +195,14 @@ class AttendanceWidget extends StatelessWidget {
   }
 }
 
-class Scan extends StatelessWidget {
-  const Scan({Key? key}) : super(key: key);
+class _Scan extends StatelessWidget {
+  const _Scan({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MobileScanner(
         allowDuplicates: false,
-        onDetect: (barcode, args) {
+        onDetect: (barcode, args) async {
           if (barcode.rawValue == null) {
             print('NULL BARCODE');
           }
@@ -210,10 +210,50 @@ class Scan extends StatelessWidget {
           final result = barcode.rawValue!;
           HapticFeedback.vibrate();
           print(result);
-          Provider.of<Session>(context, listen: false)
+          await Provider.of<Session>(context, listen: false)
               .addUserToSession(result, context);
+
+          final bool hasRights =
+              Provider.of<Session>(context, listen: false).rights;
+          print(hasRights);
+
+          await _showAlertDialog(context, hasRights,
+              hasRights ? 'Student Authorized' : 'Student was not authorized');
 
           Navigator.of(context).pop();
         });
+  }
+}
+
+Future<void> _showAlertDialog(BuildContext context, bool ok, String msg) async {
+  return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        Future.delayed(
+            const Duration(seconds: 1), () => Navigator.of(context).pop(true));
+        return _AlertResultWidget(ok: ok, msg: msg);
+      });
+}
+
+class _AlertResultWidget extends StatelessWidget {
+  const _AlertResultWidget({Key? key, required bool ok, required String msg})
+      : _ok = ok,
+        _msg = msg,
+        super(key: key);
+
+  final bool _ok;
+  final String _msg;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Result'),
+      content: Row(children: [
+        Icon(_ok ? Icons.check_circle : Icons.error_rounded),
+        Text(_msg)
+      ]),
+      backgroundColor: _ok ? Colors.green : Colors.red,
+    );
   }
 }

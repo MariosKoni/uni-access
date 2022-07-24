@@ -48,6 +48,10 @@ class Session with ChangeNotifier {
     _selectedSubject = subject;
   }
 
+  bool get rights {
+    return _hasRights;
+  }
+
   Future<void> populateFormData(final UniUser user) async {
     if (_labs!.isNotEmpty && _subjects!.isNotEmpty) {
       return;
@@ -77,12 +81,15 @@ class Session with ChangeNotifier {
   Future<void> addUserToSession(final String id, final BuildContext ctx) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-    await users.where('id', isEqualTo: id).get().then((value) {
-      // Chech if the user has rights
+    await users.where('id', isEqualTo: id).get().then((value) async {
+      // Check if the user has rights
       final CollectionReference labs =
           FirebaseFirestore.instance.collection('labs');
 
-      labs.get().then((value) {
+      await labs.get().then((value) {
+        // final Map<String, dynamic> data = value.docs as Map<String, dynamic>;
+        // print(data);
+
         for (final element in value.docs) {
           for (final access in element['access']) {
             if (access['users'].contains(id) &&
@@ -93,6 +100,9 @@ class Session with ChangeNotifier {
                 element['name'].toString() == _selectedLab) {
               _hasRights = true;
               break;
+            } else {
+              _hasRights = false;
+              break;
             }
           }
           if (_hasRights) {
@@ -102,15 +112,10 @@ class Session with ChangeNotifier {
       }, onError: (e) => print(e));
 
       if (!_hasRights) {
-        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-            duration: const Duration(seconds: 3),
-            content: Text('User with ID: $id cannot be authorized.'),
-            backgroundColor: Theme.of(ctx).errorColor));
-
         return;
       }
 
-      Map<String, dynamic> data =
+      final Map<String, dynamic> data =
           value.docs.first.data() as Map<String, dynamic>;
       final UniUser uniUser = UniUser(
           id: data['id'],
