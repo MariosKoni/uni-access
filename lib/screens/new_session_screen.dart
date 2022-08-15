@@ -69,7 +69,23 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                   const Divider(
                     color: Colors.white,
                   ),
-                  if (_showAttendence) AttendanceWidget() else Container(),
+                  if (_showAttendence)
+                    AttendanceWidget()
+                  else
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height / 3,
+                      child: Center(
+                          child: Column(
+                        children: const [
+                          Icon(
+                            Icons.class_rounded,
+                            size: 100.0,
+                            color: Colors.white,
+                          ),
+                          Text('Select a Lab and Subject to start the proccess')
+                        ],
+                      )),
+                    ),
                 ],
               ),
             ),
