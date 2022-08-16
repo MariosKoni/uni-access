@@ -57,9 +57,11 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                       onPressed: () {
                         setState(() {
                           if (_triggerButtonText == 'Start') {
-                            _triggerButtonText = 'Stop';
+                            _triggerButtonText = 'Save';
                             _showAttendence = true;
                           } else {
+                            Provider.of<Session>(context, listen: false)
+                                .saveSession();
                             _triggerButtonText = 'Start';
                             _showAttendence = false;
                           }
@@ -70,21 +72,28 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                     color: Colors.white,
                   ),
                   if (_showAttendence)
-                    AttendanceWidget()
+                    const AttendanceWidget()
                   else
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 3,
-                      child: Center(
-                          child: Column(
-                        children: const [
-                          Icon(
-                            Icons.class_rounded,
-                            size: 100.0,
-                            color: Colors.white,
-                          ),
-                          Text('Select a Lab and Subject to start the proccess')
-                        ],
-                      )),
+                    Column(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height / 6,
+                        ),
+                        SizedBox(
+                          child: Center(
+                              child: Column(
+                            children: const [
+                              Icon(
+                                Icons.class_rounded,
+                                size: 100.0,
+                                color: Colors.white,
+                              ),
+                              Text(
+                                  'Select a Lab and Subject to start the proccess')
+                            ],
+                          )),
+                        ),
+                      ],
                     ),
                 ],
               ),
@@ -164,6 +173,8 @@ class _FormOptionState extends State<FormOption> {
 }
 
 class AttendanceWidget extends StatelessWidget {
+  const AttendanceWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final sessionUsers = Provider.of<Session>(context).sessionUsers;

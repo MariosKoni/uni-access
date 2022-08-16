@@ -79,7 +79,8 @@ class Session with ChangeNotifier {
   }
 
   Future<void> addUserToSession(final String id, final BuildContext ctx) async {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    final CollectionReference users =
+        FirebaseFirestore.instance.collection('users');
 
     await users.where('id', isEqualTo: id).get().then((value) async {
       // Check if the user has rights
@@ -129,5 +130,28 @@ class Session with ChangeNotifier {
     }, onError: (e) => print(e));
 
     notifyListeners();
+  }
+
+  Future<void> saveSession() async {
+    final List<String> ids = List.empty(growable: true);
+
+    for (final UniUser student in _sessionUsers!) {
+      ids.add(student.id!);
+    }
+
+    final session = <String, dynamic>{
+      'lab': _selectedLab,
+      'subject': _selectedSubject,
+      'students': ids,
+      'timestamp': DateTime.now()
+    };
+
+    await FirebaseFirestore.instance
+        .collection('sessions')
+        .doc()
+        .set(session)
+        .onError((error, stackTrace) => print('Error: $error'));
+
+    _sessionUsers?.clear();
   }
 }
