@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/session.dart';
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
+import 'package:flutter_uni_access/widgets/formOptionWidget.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -42,12 +43,12 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10),
-                  FormOption(
+                  FormOptionWidget(
                     key: const Key('1'),
                     option: Provider.of<Session>(context, listen: false).labs,
                     titleOption: 'Lab',
                   ),
-                  FormOption(
+                  FormOptionWidget(
                     key: const Key('2'),
                     option: Provider.of<Session>(context, listen: false)
                         .stringyfiedSubjects,
@@ -60,9 +61,19 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                           if (_triggerButtonText == 'Start') {
                             _triggerButtonText = 'Save';
                             _showAttendence = true;
+                            Provider.of<Session>(context, listen: false)
+                                .startedScanning = true;
                           } else {
                             Provider.of<Session>(context, listen: false)
                                 .saveSession();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                duration: const Duration(seconds: 1),
+                                content:
+                                    const Text('Session saved successfully'),
+                                backgroundColor:
+                                    Theme.of(context).primaryColor));
+                            Provider.of<Session>(context, listen: false)
+                                .startedScanning = false;
                             _triggerButtonText = 'Start';
                             _showAttendence = false;
                           }
@@ -103,76 +114,6 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
   }
 }
 
-class FormOption extends StatefulWidget {
-  FormOption({
-    Key? key,
-    required List<String> option,
-    required String titleOption,
-  })  : _option = option,
-        _titleOption = titleOption,
-        super(key: key);
-
-  final List<String> _option;
-  final String _titleOption;
-
-  String _selectedItem = '';
-
-  @override
-  State<FormOption> createState() => _FormOptionState();
-}
-
-class _FormOptionState extends State<FormOption> {
-  @override
-  void initState() {
-    super.initState();
-
-    _updateSessionSelectedItem(widget._option.first, context);
-    widget._selectedItem = widget._option.first;
-  }
-
-  void _updateSessionSelectedItem(String? newValue, BuildContext context) {
-    if (newValue!.contains(':')) {
-      Provider.of<Session>(context, listen: false).selectedSubject = newValue;
-    } else {
-      Provider.of<Session>(context, listen: false).selectedLab = newValue;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(widget._titleOption, style: Theme.of(context).textTheme.headline6),
-        const SizedBox(width: 10),
-        DropdownButton<String>(
-          dropdownColor: Theme.of(context).colorScheme.primary,
-          value: widget._selectedItem,
-          icon: const Icon(Icons.arrow_drop_down_rounded),
-          elevation: 16,
-          style: const TextStyle(color: Colors.white),
-          underline: Container(
-            height: 2,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          onChanged: (String? newValue) {
-            setState(() {
-              _updateSessionSelectedItem(newValue, context);
-              widget._selectedItem = newValue!;
-            });
-          },
-          items: widget._option.map<DropdownMenuItem<String>>((value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-}
-
 class AttendanceWidget extends StatelessWidget {
   const AttendanceWidget({Key? key}) : super(key: key);
 
@@ -194,18 +135,24 @@ class AttendanceWidget extends StatelessWidget {
               child: SizedBox(
                 height: MediaQuery.of(context).size.height / 2.5,
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: sessionUsers
-                        .map((e) => ListTile(
-                            leading: const Icon(Icons.check_circle_rounded),
-                            title: Text(
-                                '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
-                            subtitle: Text('Student - ${e.id}'),
-                            onTap: () async {
-                              await _showStudentProfileAlertDialog(context, e);
-                            }))
-                        .toList(),
-                  ),
+                  child: sessionUsers.isEmpty
+                      ? const Center(
+                          child: Text(''),
+                        )
+                      : Column(
+                          children: sessionUsers
+                              .map((e) => ListTile(
+                                  leading:
+                                      const Icon(Icons.check_circle_rounded),
+                                  title: Text(
+                                      '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
+                                  subtitle: Text('Student - ${e.id}'),
+                                  onTap: () async {
+                                    await _showStudentProfileAlertDialog(
+                                        context, e);
+                                  }))
+                              .toList(),
+                        ),
                 ),
               ),
             )),

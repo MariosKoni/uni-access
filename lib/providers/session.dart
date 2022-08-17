@@ -13,6 +13,8 @@ class Session with ChangeNotifier {
   String? _selectedLab;
   String? _selectedSubject;
   bool _hasRights = false;
+  bool startedScanning = false;
+  bool abortSessionFromTabChange = false;
 
   Session(this._sessionUsers, this._labs, this._subjects);
 
@@ -152,6 +154,11 @@ class Session with ChangeNotifier {
         .set(session)
         .onError((error, stackTrace) => print('Error: $error'));
 
+    stopSession();
+  }
+
+  void stopSession() {
     _sessionUsers?.clear();
+    startedScanning = false;
   }
 }
