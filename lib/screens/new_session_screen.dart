@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/session.dart';
+import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -197,14 +198,12 @@ class AttendanceWidget extends StatelessWidget {
                     children: sessionUsers
                         .map((e) => ListTile(
                             leading: const Icon(Icons.check_circle_rounded),
-                            title: Text('${e.name} ${e.surname}'),
-                            subtitle: const Text('Student'),
-                            onTap: () => ScaffoldMessenger.of(context)
-                                .showSnackBar(SnackBar(
-                                    duration: const Duration(seconds: 1),
-                                    content: Text('${e.name} ${e.surname}'),
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor))))
+                            title: Text(
+                                '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
+                            subtitle: Text('Student - ${e.id}'),
+                            onTap: () async {
+                              await _showStudentProfileAlertDialog(context, e);
+                            }))
                         .toList(),
                   ),
                 ),
@@ -218,6 +217,51 @@ class AttendanceWidget extends StatelessWidget {
           ),
         )
       ],
+    );
+  }
+}
+
+Future<void> _showStudentProfileAlertDialog(
+    BuildContext context, UniUser user) async {
+  return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: ((context) => _AlertStudentProfile(user: user)));
+}
+
+class _AlertStudentProfile extends StatelessWidget {
+  const _AlertStudentProfile({Key? key, required UniUser user})
+      : _user = user,
+        super(key: key);
+
+  final UniUser _user;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text(
+        'Student Info',
+        style: TextStyle(color: Colors.black),
+      ),
+      content: SizedBox(
+          height: MediaQuery.of(context).size.height / 2,
+          child: Column(
+            children: [
+              Image(
+                  image: NetworkImage(_user.image!),
+                  height: MediaQuery.of(context).size.height / 3),
+              Text(_user.id!),
+              Text(_user.name.toString().capitalize()),
+              Text(_user.surname.toString().capitalize()),
+              Text(_user.email.toString().capitalize()),
+            ],
+          )),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'))
+      ],
+      actionsAlignment: MainAxisAlignment.center,
     );
   }
 }
@@ -236,15 +280,13 @@ class _Scan extends StatelessWidget {
 
           final result = barcode.rawValue!;
           HapticFeedback.vibrate();
-          print(result);
           await Provider.of<Session>(context, listen: false)
               .addUserToSession(result, context);
 
           final bool hasRights =
               Provider.of<Session>(context, listen: false).rights;
-          print(hasRights);
 
-          await _showAlertDialog(context, hasRights,
+          await _showAuthorizeAlertDialog(context, hasRights,
               hasRights ? 'Student Authorized' : 'Student was not authorized');
 
           Navigator.of(context).pop();
@@ -252,7 +294,8 @@ class _Scan extends StatelessWidget {
   }
 }
 
-Future<void> _showAlertDialog(BuildContext context, bool ok, String msg) async {
+Future<void> _showAuthorizeAlertDialog(
+    BuildContext context, bool ok, String msg) async {
   return showDialog(
       barrierDismissible: false,
       context: context,
