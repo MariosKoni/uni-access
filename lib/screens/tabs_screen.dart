@@ -44,16 +44,22 @@ class _TabsScreenState extends State<TabsScreen> {
   }
 
   void _checkIfUserExitsFromSession(int index) async {
-    // We are on sessions screen and
-    //authorization proccess has started
-    if (_selectedIndex == 2 &&
-        index != _selectedIndex &&
-        Provider.of<Session>(context, listen: false).startedScanning) {
-      await _showExitDialog(context);
-    }
+    if (widget.user.isTeacher!) {
+      // We are on sessions screen and
+      //authorization proccess has started
+      if (_selectedIndex == 2 &&
+          index != _selectedIndex &&
+          Provider.of<Session>(context, listen: false).startedScanning) {
+        await _showExitDialog(context);
+      } else {
+        _changeTab(index);
+      }
 
-    if (Provider.of<Session>(context, listen: false)
-        .abortSessionFromTabChange) {
+      if (Provider.of<Session>(context, listen: false)
+          .abortSessionFromTabChange) {
+        _changeTab(index);
+      }
+    } else {
       _changeTab(index);
     }
   }
@@ -66,7 +72,7 @@ class _TabsScreenState extends State<TabsScreen> {
         actions: [
           IconButton(
               onPressed: () => FirebaseAuth.instance.signOut(),
-              icon: const Icon(Icons.logout))
+              icon: const Tooltip(message: 'Logout', child: Icon(Icons.logout)))
         ],
       ),
       body: _pages[_selectedIndex]['page'] as Widget,
@@ -77,17 +83,27 @@ class _TabsScreenState extends State<TabsScreen> {
         items: widget.user.isTeacher!
             ? const [
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.person), label: 'Info'),
+                    icon: Icon(Icons.person),
+                    label: 'Info',
+                    tooltip: 'User info'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.school), label: 'Classes'),
+                    icon: Icon(Icons.school),
+                    label: 'Classes',
+                    tooltip: 'User\'s classes'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.class_), label: 'Session')
+                    icon: Icon(Icons.class_),
+                    label: 'Session',
+                    tooltip: 'Start a session')
               ]
             : const [
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.person), label: 'Info'),
+                    icon: Icon(Icons.person),
+                    label: 'Info',
+                    tooltip: 'User info'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.school), label: 'Classes')
+                    icon: Icon(Icons.school),
+                    label: 'Classes',
+                    tooltip: 'User\'s classes')
               ],
         currentIndex: _selectedIndex,
         onTap: _checkIfUserExitsFromSession,
@@ -109,27 +125,37 @@ class _ExitDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(15.0),
+              bottomRight: Radius.circular(15.0))),
       title: const Text(
         'Authorization cancel',
         style: TextStyle(color: Colors.black),
       ),
       content: const Text('Do you want to cancel the authorization proccess?'),
       actions: [
-        TextButton(
-            onPressed: () {
-              Provider.of<Session>(context, listen: false)
-                  .abortSessionFromTabChange = true;
-              Provider.of<Session>(context, listen: false).stopSession();
-              Navigator.of(context).pop();
-            },
-            child: const Text('Confirm')),
-        TextButton(
-            onPressed: () {
-              Provider.of<Session>(context, listen: false)
-                  .abortSessionFromTabChange = false;
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel')),
+        Tooltip(
+          message: 'Confirm',
+          child: TextButton(
+              onPressed: () {
+                Provider.of<Session>(context, listen: false)
+                    .abortSessionFromTabChange = true;
+                Provider.of<Session>(context, listen: false).stopSession();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Confirm')),
+        ),
+        Tooltip(
+          message: 'Cancel',
+          child: TextButton(
+              onPressed: () {
+                Provider.of<Session>(context, listen: false)
+                    .abortSessionFromTabChange = false;
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel')),
+        ),
       ],
     );
   }

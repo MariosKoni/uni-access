@@ -31,6 +31,7 @@ class _DisplayUserClassesState extends State<DisplayUserClasses> {
             style: const TextStyle(color: Colors.white),
           )),
           trailing: IconButton(
+            tooltip: 'Expand/Collapse user\'s classes',
             icon: Icon(
                 _showContent ? Icons.arrow_drop_up : Icons.arrow_drop_down),
             onPressed: () {

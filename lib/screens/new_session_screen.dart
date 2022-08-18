@@ -6,6 +6,7 @@ import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 import 'package:flutter_uni_access/widgets/formOptionWidget.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class NewSessionScreen extends StatefulWidget {
   final UniUser user;
@@ -55,31 +56,35 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                     titleOption: 'Subject',
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_triggerButtonText == 'Start') {
-                            _triggerButtonText = 'Save';
-                            _showAttendence = true;
-                            Provider.of<Session>(context, listen: false)
-                                .startedScanning = true;
-                          } else {
-                            Provider.of<Session>(context, listen: false)
-                                .saveSession();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                duration: const Duration(seconds: 1),
-                                content:
-                                    const Text('Session saved successfully'),
-                                backgroundColor:
-                                    Theme.of(context).primaryColor));
-                            Provider.of<Session>(context, listen: false)
-                                .startedScanning = false;
-                            _triggerButtonText = 'Start';
-                            _showAttendence = false;
-                          }
-                        });
-                      },
-                      child: Text(_triggerButtonText)),
+                  Tooltip(
+                    message: 'Start/Save the authorization process',
+                    child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            if (_triggerButtonText == 'Start') {
+                              _triggerButtonText = 'Save';
+                              _showAttendence = true;
+                              Provider.of<Session>(context, listen: false)
+                                  .startedScanning = true;
+                            } else {
+                              Provider.of<Session>(context, listen: false)
+                                  .saveSession();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      duration: const Duration(seconds: 1),
+                                      content: const Text(
+                                          'Session saved successfully'),
+                                      backgroundColor:
+                                          Theme.of(context).primaryColor));
+                              Provider.of<Session>(context, listen: false)
+                                  .startedScanning = false;
+                              _triggerButtonText = 'Start';
+                              _showAttendence = false;
+                            }
+                          });
+                        },
+                        child: Text(_triggerButtonText)),
+                  ),
                   const Divider(
                     color: Colors.white,
                   ),
@@ -120,6 +125,7 @@ class AttendanceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sessionUsers = Provider.of<Session>(context).sessionUsers;
+    final GlobalKey one = GlobalKey();
 
     return Column(
       children: [
@@ -141,26 +147,34 @@ class AttendanceWidget extends StatelessWidget {
                         )
                       : Column(
                           children: sessionUsers
-                              .map((e) => ListTile(
-                                  leading:
-                                      const Icon(Icons.check_circle_rounded),
-                                  title: Text(
-                                      '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
-                                  subtitle: Text('Student - ${e.id}'),
-                                  onTap: () async {
-                                    await _showStudentProfileAlertDialog(
-                                        context, e);
-                                  }))
+                              .map((e) => Showcase(
+                                    key: one,
+                                    description:
+                                        'Tap to see the user\'s profile',
+                                    child: ListTile(
+                                        leading: const Icon(
+                                            Icons.check_circle_rounded),
+                                        title: Text(
+                                            '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
+                                        subtitle: Text('Student - ${e.id}'),
+                                        onTap: () async {
+                                          await _showStudentProfileAlertDialog(
+                                              context, e);
+                                        }),
+                                  ))
                               .toList(),
                         ),
                 ),
               ),
             )),
         Center(
-          child: ElevatedButton(
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => const _Scan())),
-            child: const Text('Scan'),
+          child: Tooltip(
+            message: 'Scan a barcode',
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => const _Scan())),
+              child: const Text('Scan'),
+            ),
           ),
         )
       ],
@@ -186,10 +200,15 @@ class _AlertStudentProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text(
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(15.0),
+              bottomRight: Radius.circular(15.0))),
+      title: const Center(
+          child: Text(
         'Student Info',
         style: TextStyle(color: Colors.black),
-      ),
+      )),
       content: SizedBox(
           height: MediaQuery.of(context).size.height / 2,
           child: Column(
@@ -204,9 +223,12 @@ class _AlertStudentProfile extends StatelessWidget {
             ],
           )),
       actions: [
-        TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'))
+        Tooltip(
+          message: 'Close',
+          child: TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close')),
+        )
       ],
       actionsAlignment: MainAxisAlignment.center,
     );
@@ -265,6 +287,10 @@ class _AlertResultWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(15.0),
+              bottomRight: Radius.circular(15.0))),
       title: const Text('Result'),
       content: Row(children: [
         Icon(_ok ? Icons.check_circle : Icons.error_rounded),
