@@ -119,54 +119,69 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
   }
 }
 
-class AttendanceWidget extends StatelessWidget {
+class AttendanceWidget extends StatefulWidget {
   const AttendanceWidget({Key? key}) : super(key: key);
+
+  @override
+  State<AttendanceWidget> createState() => _AttendanceWidgetState();
+}
+
+class _AttendanceWidgetState extends State<AttendanceWidget> {
+  final GlobalKey _one = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ShowCaseWidget.of(context).startShowCase([_one]));
+  }
 
   @override
   Widget build(BuildContext context) {
     final sessionUsers = Provider.of<Session>(context).sessionUsers;
-    final GlobalKey one = GlobalKey();
 
     return Column(
       children: [
-        Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              color: const Color.fromRGBO(255, 255, 255, 0.6),
-              elevation: 8,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(15.0),
-                      bottomRight: Radius.circular(15.0))),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height / 2.5,
-                child: SingleChildScrollView(
-                  child: sessionUsers.isEmpty
-                      ? const Center(
-                          child: Text(''),
-                        )
-                      : Column(
-                          children: sessionUsers
-                              .map((e) => Showcase(
-                                    key: one,
-                                    description:
-                                        'Tap to see the user\'s profile',
-                                    child: ListTile(
-                                        leading: const Icon(
-                                            Icons.check_circle_rounded),
-                                        title: Text(
-                                            '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
-                                        subtitle: Text('Student - ${e.id}'),
-                                        onTap: () async {
-                                          await _showStudentProfileAlertDialog(
-                                              context, e);
-                                        }),
-                                  ))
-                              .toList(),
-                        ),
+        Showcase(
+          key: _one,
+          description: 'Tap on a user to see his/her profile',
+          child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Card(
+                color: const Color.fromRGBO(255, 255, 255, 0.6),
+                elevation: 8,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15.0),
+                        bottomRight: Radius.circular(15.0))),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 2.5,
+                  child: SingleChildScrollView(
+                    child: sessionUsers.isEmpty
+                        ? const Center(
+                            child: Text(''),
+                          )
+                        : Column(
+                            children: sessionUsers
+                                .map(
+                                  (e) => ListTile(
+                                      leading: const Icon(
+                                          Icons.check_circle_rounded),
+                                      title: Text(
+                                          '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
+                                      subtitle: Text('Student - ${e.id}'),
+                                      onTap: () async {
+                                        await _showStudentProfileAlertDialog(
+                                            context, e);
+                                      }),
+                                )
+                                .toList(),
+                          ),
+                  ),
                 ),
-              ),
-            )),
+              )),
+        ),
         Center(
           child: Tooltip(
             message: 'Scan a barcode',

@@ -5,6 +5,7 @@ import 'package:flutter_uni_access/providers/session.dart';
 import 'package:flutter_uni_access/screens/new_session_screen.dart';
 import 'package:flutter_uni_access/screens/user_classes_screen.dart';
 import 'package:flutter_uni_access/screens/user_info_screen.dart';
+import 'package:flutter_uni_access/widgets/dialog_widget.dart';
 import 'package:provider/provider.dart';
 
 class TabsScreen extends StatefulWidget {
@@ -64,6 +65,29 @@ class _TabsScreenState extends State<TabsScreen> {
     }
   }
 
+  Future<void> _showExitDialog(BuildContext context) async {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: ((context) => const _ExitDialogWidget()));
+  }
+
+  void _logout() {
+    FirebaseAuth.instance.signOut();
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: ((context) => DialogWidget(
+            titleText: 'Logout',
+            contentText: 'Are you sure you want to logout?',
+            confirmFunction: _logout,
+            cancelFunction: null)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +95,7 @@ class _TabsScreenState extends State<TabsScreen> {
         title: Text(_pages[_selectedIndex]['title'] as String),
         actions: [
           IconButton(
-              onPressed: () => FirebaseAuth.instance.signOut(),
+              onPressed: () => _showLogoutDialog(context),
               icon: const Tooltip(message: 'Logout', child: Icon(Icons.logout)))
         ],
       ),
@@ -110,13 +134,6 @@ class _TabsScreenState extends State<TabsScreen> {
       ),
     );
   }
-}
-
-Future<void> _showExitDialog(BuildContext context) async {
-  return showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: ((context) => const _ExitDialogWidget()));
 }
 
 class _ExitDialogWidget extends StatelessWidget {
