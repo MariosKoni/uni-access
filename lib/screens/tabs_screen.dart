@@ -65,16 +65,38 @@ class _TabsScreenState extends State<TabsScreen> {
     }
   }
 
+  void _cancelChangeTabFromNewSession() {
+    Provider.of<Session>(context, listen: false).abortSessionFromTabChange =
+        false;
+    Navigator.of(context).pop();
+  }
+
+  void _confirmChangeTabFromNewSession() {
+    Provider.of<Session>(context, listen: false).abortSessionFromTabChange =
+        true;
+    Provider.of<Session>(context, listen: false).stopSession();
+    Navigator.of(context).pop();
+  }
+
   Future<void> _showExitDialog(BuildContext context) async {
     return showDialog(
         barrierDismissible: false,
         context: context,
-        builder: ((context) => const _ExitDialogWidget()));
+        builder: ((context) => DialogWidget(
+              titleText: 'Authorization cancel',
+              contentText: 'Do you want to cancel the authorization proccess?',
+              confirmFunction: _confirmChangeTabFromNewSession,
+              cancelFunction: _cancelChangeTabFromNewSession,
+            )));
   }
 
-  void _logout() {
-    FirebaseAuth.instance.signOut();
+  void _logout() async {
+    if (Provider.of<Session>(context, listen: false).startedScanning) {
+      Provider.of<Session>(context, listen: false).stopSession();
+    }
+
     Navigator.of(context).pop();
+    await FirebaseAuth.instance.signOut();
   }
 
   Future<void> _showLogoutDialog(BuildContext context) async {
@@ -132,48 +154,6 @@ class _TabsScreenState extends State<TabsScreen> {
         currentIndex: _selectedIndex,
         onTap: _checkIfUserExitsFromSession,
       ),
-    );
-  }
-}
-
-class _ExitDialogWidget extends StatelessWidget {
-  const _ExitDialogWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
-      title: const Text(
-        'Authorization cancel',
-        style: TextStyle(color: Colors.black),
-      ),
-      content: const Text('Do you want to cancel the authorization proccess?'),
-      actions: [
-        Tooltip(
-          message: 'Confirm',
-          child: TextButton(
-              onPressed: () {
-                Provider.of<Session>(context, listen: false)
-                    .abortSessionFromTabChange = true;
-                Provider.of<Session>(context, listen: false).stopSession();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Confirm')),
-        ),
-        Tooltip(
-          message: 'Cancel',
-          child: TextButton(
-              onPressed: () {
-                Provider.of<Session>(context, listen: false)
-                    .abortSessionFromTabChange = false;
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel')),
-        ),
-      ],
     );
   }
 }
