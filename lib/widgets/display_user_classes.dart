@@ -28,7 +28,6 @@ class _DisplayUserClassesState extends State<DisplayUserClasses> {
           title: Center(
               child: Text(
             'Lab: ${widget.card.lab!}',
-            style: const TextStyle(color: Colors.white),
           )),
           trailing: IconButton(
             tooltip: 'Expand/Collapse user\'s classes',
@@ -59,7 +58,7 @@ class _DisplayUserClassesState extends State<DisplayUserClasses> {
                       ),
                       index != ((widget.card.subjects?.length)! - 1)
                           ? const Divider(
-                              color: Colors.white,
+                              thickness: 2.0,
                             )
                           : Container()
                     ],

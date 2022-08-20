@@ -16,7 +16,7 @@ class DisplayUserInfo extends StatelessWidget {
     if (uniUser.isTeacher!) {
       _denominator = 2;
     } else {
-      _denominator = 4;
+      _denominator = 3;
     }
 
     return Card(
@@ -93,7 +93,9 @@ class DisplayUserInfo extends StatelessWidget {
           if (!uniUser.isTeacher!)
             Column(
               children: [
-                const Divider(color: Colors.white),
+                const Divider(
+                  thickness: 3.0,
+                ),
                 QrImage(
                   data: uniUser.id!,
                   version: QrVersions.auto,

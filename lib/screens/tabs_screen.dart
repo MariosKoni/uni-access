@@ -124,32 +124,37 @@ class _TabsScreenState extends State<TabsScreen> {
       body: _pages[_selectedIndex]['page'] as Widget,
       bottomNavigationBar: BottomNavigationBar(
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
+        selectedItemColor: Theme.of(context).backgroundColor,
         type: BottomNavigationBarType.shifting,
         items: widget.user.isTeacher!
-            ? const [
+            ? [
                 BottomNavigationBarItem(
                     icon: Icon(Icons.person),
                     label: 'Info',
-                    tooltip: 'User info'),
-                BottomNavigationBarItem(
+                    tooltip: 'User info',
+                    backgroundColor: Theme.of(context).primaryColor),
+                const BottomNavigationBarItem(
                     icon: Icon(Icons.school),
                     label: 'Classes',
-                    tooltip: 'User\'s classes'),
-                BottomNavigationBarItem(
+                    tooltip: 'User\'s classes',
+                    backgroundColor: Color.fromRGBO(66, 183, 42, 1.0)),
+                const BottomNavigationBarItem(
                     icon: Icon(Icons.class_),
                     label: 'Session',
-                    tooltip: 'Start a session')
+                    tooltip: 'Start a session',
+                    backgroundColor: Color.fromRGBO(232, 52, 93, 1.0))
               ]
-            : const [
+            : [
                 BottomNavigationBarItem(
                     icon: Icon(Icons.person),
                     label: 'Info',
-                    tooltip: 'User info'),
-                BottomNavigationBarItem(
+                    tooltip: 'User info',
+                    backgroundColor: Theme.of(context).primaryColor),
+                const BottomNavigationBarItem(
                     icon: Icon(Icons.school),
                     label: 'Classes',
-                    tooltip: 'User\'s classes')
+                    tooltip: 'User\'s classes',
+                    backgroundColor: Color.fromRGBO(66, 183, 42, 1.0))
               ],
         currentIndex: _selectedIndex,
         onTap: _checkIfUserExitsFromSession,

@@ -51,7 +51,6 @@ class _FormOptionState extends State<FormOptionWidget> {
               message: 'Expand options',
               child: Icon(Icons.arrow_drop_down_rounded)),
           elevation: 16,
-          style: const TextStyle(color: Colors.white),
           underline: Container(
             height: 2,
             color: Theme.of(context).colorScheme.primary,

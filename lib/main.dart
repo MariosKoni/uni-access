@@ -33,18 +33,11 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'UniAccess',
         theme: ThemeData(
-            colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
-                .copyWith(secondary: const Color.fromRGBO(255, 127, 80, 1.0)),
+            colorScheme: ColorScheme.fromSwatch().copyWith(
+                primary: const Color.fromRGBO(36, 110, 233, 1.0),
+                secondary: const Color.fromRGBO(240, 242, 245, 1.0)),
             fontFamily: 'RobotoCondensed',
-            textTheme: ThemeData.light().textTheme.copyWith(
-                  bodyText1: const TextStyle(color: Colors.white),
-                  bodyText2: const TextStyle(color: Colors.white),
-                  headline1: const TextStyle(color: Colors.white),
-                  headline4: const TextStyle(color: Colors.white),
-                  headline5: const TextStyle(color: Colors.white),
-                  headline6: const TextStyle(color: Colors.white),
-                ),
-            backgroundColor: const Color.fromRGBO(255, 127, 80, 1.0)),
+            backgroundColor: Colors.white),
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (ctx, userSnapshot) {

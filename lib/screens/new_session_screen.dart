@@ -85,9 +85,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                         },
                         child: Text(_triggerButtonText)),
                   ),
-                  const Divider(
-                    color: Colors.white,
-                  ),
+                  const Divider(thickness: 5.0),
                   if (_showAttendence)
                     const AttendanceWidget()
                   else
@@ -106,7 +104,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                                 color: Colors.white,
                               ),
                               Text(
-                                  'Select a Lab and Subject to start the proccess')
+                                  'Select a Lab and Subject to start the process')
                             ],
                           )),
                         ),
