@@ -27,8 +27,11 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: ((context) => Session(List.empty(growable: true),
-                List.empty(growable: true), List.empty(growable: true))))
+            create: ((context) => Session(
+                List.empty(growable: true),
+                List.empty(growable: true),
+                List.empty(growable: true),
+                List.empty(growable: true))))
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

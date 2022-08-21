@@ -185,7 +185,9 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                           size: 35),
                                       title: Text(
                                           '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
-                                      subtitle: Text('Student - ${e.id}'),
+                                      subtitle: e.isTeacher!
+                                          ? Text('Teacher - ${e.id}')
+                                          : Text('Student - ${e.id}'),
                                       onTap: () async {
                                         await _showStudentProfileAlertDialog(
                                             context, e);
@@ -286,7 +288,7 @@ class _Scan extends StatelessWidget {
               Provider.of<Session>(context, listen: false).rights;
 
           await _showAuthorizeAlertDialog(context, hasRights,
-              hasRights ? 'Student Authorized' : 'Student was not authorized');
+              hasRights ? 'User Authorized' : 'User was not authorized');
 
           Navigator.of(context).pop();
         });

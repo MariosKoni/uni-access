@@ -6,6 +6,7 @@ import 'package:flutter_uni_access/models/uni_user.dart';
 // Defines a session
 class Session with ChangeNotifier {
   final List<UniUser>? _sessionUsers;
+  final List<String>? _sessionUsersIds;
 
   final List<String>? _labs;
   final List<Map<String, dynamic>>? _subjects;
@@ -16,7 +17,8 @@ class Session with ChangeNotifier {
   bool startedScanning = false;
   bool abortSessionFromTabChange = false;
 
-  Session(this._sessionUsers, this._labs, this._subjects);
+  Session(
+      this._sessionUsers, this._sessionUsersIds, this._labs, this._subjects);
 
   List<UniUser> get sessionUsers {
     return [..._sessionUsers!];
@@ -81,6 +83,10 @@ class Session with ChangeNotifier {
   }
 
   Future<void> addUserToSession(final String id, final BuildContext ctx) async {
+    if (_sessionUsersIds!.contains(id)) {
+      return;
+    }
+
     final CollectionReference users =
         FirebaseFirestore.instance.collection('users');
 
@@ -129,6 +135,7 @@ class Session with ChangeNotifier {
           image: data['image']);
 
       _sessionUsers?.add(uniUser);
+      _sessionUsersIds?.add(id);
     }, onError: (e) => print(e));
 
     notifyListeners();
