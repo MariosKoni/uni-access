@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
                 List.empty(growable: true), List.empty(growable: true))))
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'UniAccess',
         theme: ThemeData(
             colorScheme: ColorScheme.fromSwatch().copyWith(

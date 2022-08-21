@@ -30,6 +30,7 @@ class _AuthFormState extends State<AuthForm> {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
+        color: Theme.of(context).colorScheme.secondary,
         margin: const EdgeInsets.all(20),
         child: SingleChildScrollView(
             child: Padding(

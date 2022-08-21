@@ -157,15 +157,32 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                   height: MediaQuery.of(context).size.height / 2.5,
                   child: SingleChildScrollView(
                     child: sessionUsers.isEmpty
-                        ? const Center(
-                            child: Text(''),
+                        ? Padding(
+                            padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height / 10),
+                            child: Center(
+                              child: Center(
+                                child: Column(
+                                  children: const [
+                                    Icon(
+                                      Icons.qr_code_scanner_rounded,
+                                      size: 100.0,
+                                      color: Colors.white,
+                                    ),
+                                    Text('Scan a barcode'),
+                                  ],
+                                ),
+                              ),
+                            ),
                           )
                         : Column(
                             children: sessionUsers
                                 .map(
                                   (e) => ListTile(
                                       leading: const Icon(
-                                          Icons.check_circle_rounded),
+                                          Icons.check_circle_rounded,
+                                          color: Colors.green,
+                                          size: 35),
                                       title: Text(
                                           '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
                                       subtitle: Text('Student - ${e.id}'),
@@ -232,7 +249,7 @@ class _AlertStudentProfile extends StatelessWidget {
               Text(_user.id!),
               Text(_user.name.toString().capitalize()),
               Text(_user.surname.toString().capitalize()),
-              Text(_user.email.toString().capitalize()),
+              Text(_user.email!),
             ],
           )),
       actions: [

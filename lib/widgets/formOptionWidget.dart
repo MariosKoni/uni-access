@@ -45,7 +45,7 @@ class _FormOptionState extends State<FormOptionWidget> {
         Text(widget._titleOption, style: Theme.of(context).textTheme.headline6),
         const SizedBox(width: 10),
         DropdownButton<String>(
-          dropdownColor: Theme.of(context).colorScheme.primary,
+          dropdownColor: Theme.of(context).backgroundColor,
           value: widget._selectedItem,
           icon: const Tooltip(
               message: 'Expand options',
