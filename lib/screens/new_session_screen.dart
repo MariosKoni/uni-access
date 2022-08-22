@@ -21,6 +21,27 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
   bool _showAttendence = false;
   String _triggerButtonText = 'Start';
 
+  void _startNsaveASession() {
+    setState(() {
+      if (_triggerButtonText == 'Start') {
+        _triggerButtonText = 'Save';
+        _showAttendence = true;
+        Provider.of<Session>(context, listen: false).startedScanning = true;
+        Provider.of<Session>(context, listen: false).canSave = false;
+      } else {
+        Provider.of<Session>(context, listen: false).saveSession();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            duration: const Duration(seconds: 2),
+            content: const Text('Session saved successfully.'),
+            backgroundColor: Color.fromRGBO(232, 52, 93, 1.0)));
+        Provider.of<Session>(context, listen: false).startedScanning = false;
+        Provider.of<Session>(context, listen: false).canSave = true;
+        _triggerButtonText = 'Start';
+        _showAttendence = false;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -59,30 +80,9 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                   Tooltip(
                     message: 'Start/Save the authorization process',
                     child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            if (_triggerButtonText == 'Start') {
-                              _triggerButtonText = 'Save';
-                              _showAttendence = true;
-                              Provider.of<Session>(context, listen: false)
-                                  .startedScanning = true;
-                            } else {
-                              Provider.of<Session>(context, listen: false)
-                                  .saveSession();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      duration: const Duration(seconds: 1),
-                                      content: const Text(
-                                          'Session saved successfully'),
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor));
-                              Provider.of<Session>(context, listen: false)
-                                  .startedScanning = false;
-                              _triggerButtonText = 'Start';
-                              _showAttendence = false;
-                            }
-                          });
-                        },
+                        onPressed: Provider.of<Session>(context).canSave
+                            ? _startNsaveASession
+                            : null,
                         child: Text(_triggerButtonText)),
                   ),
                   const Divider(thickness: 5.0),
@@ -141,44 +141,45 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
 
     return Column(
       children: [
-        Showcase(
-          key: _one,
-          description: 'Tap on a user to see his/her profile',
-          child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                color: const Color.fromRGBO(255, 255, 255, 0.6),
-                elevation: 8,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(15.0),
-                        bottomRight: Radius.circular(15.0))),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 2.5,
-                  child: SingleChildScrollView(
-                    child: sessionUsers.isEmpty
-                        ? Padding(
-                            padding: EdgeInsets.only(
-                                top: MediaQuery.of(context).size.height / 10),
+        Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              color: const Color.fromRGBO(255, 255, 255, 0.6),
+              elevation: 8,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(15.0),
+                      bottomRight: Radius.circular(15.0))),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height / 2.5,
+                child: SingleChildScrollView(
+                  child: sessionUsers.isEmpty
+                      ? Padding(
+                          padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height / 10),
+                          child: Center(
                             child: Center(
-                              child: Center(
-                                child: Column(
-                                  children: const [
-                                    Icon(
-                                      Icons.qr_code_scanner_rounded,
-                                      size: 100.0,
-                                      color: Colors.white,
-                                    ),
-                                    Text('Scan a barcode'),
-                                  ],
-                                ),
+                              child: Column(
+                                children: const [
+                                  Icon(
+                                    Icons.qr_code_scanner_rounded,
+                                    size: 100.0,
+                                    color: Colors.white,
+                                  ),
+                                  Text('Scan a barcode'),
+                                ],
                               ),
                             ),
-                          )
-                        : Column(
-                            children: sessionUsers
-                                .map(
-                                  (e) => ListTile(
+                          ),
+                        )
+                      : Column(
+                          children: sessionUsers
+                              .map(
+                                (e) => Showcase(
+                                  key: _one,
+                                  description:
+                                      'Tap on a user to see his/her profile',
+                                  child: ListTile(
                                       leading: const Icon(
                                           Icons.check_circle_rounded,
                                           color: Colors.green,
@@ -192,13 +193,13 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                         await _showStudentProfileAlertDialog(
                                             context, e);
                                       }),
-                                )
-                                .toList(),
-                          ),
-                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
                 ),
-              )),
-        ),
+              ),
+            )),
         Center(
           child: Tooltip(
             message: 'Scan a barcode',

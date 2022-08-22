@@ -16,6 +16,7 @@ class Session with ChangeNotifier {
   bool _hasRights = false;
   bool startedScanning = false;
   bool abortSessionFromTabChange = false;
+  bool canSave = true;
 
   Session(
       this._sessionUsers, this._sessionUsersIds, this._labs, this._subjects);
@@ -83,6 +84,11 @@ class Session with ChangeNotifier {
   }
 
   Future<void> addUserToSession(final String id, final BuildContext ctx) async {
+    if (_sessionUsersIds!.isEmpty) {
+      canSave = true;
+      notifyListeners();
+    }
+
     if (_sessionUsersIds!.contains(id)) {
       return;
     }
@@ -142,16 +148,10 @@ class Session with ChangeNotifier {
   }
 
   Future<void> saveSession() async {
-    final List<String> ids = List.empty(growable: true);
-
-    for (final UniUser student in _sessionUsers!) {
-      ids.add(student.id!);
-    }
-
     final session = <String, dynamic>{
       'lab': _selectedLab,
       'subject': _selectedSubject,
-      'students': ids,
+      'students': _sessionUsersIds,
       'timestamp': DateTime.now()
     };
 
@@ -166,6 +166,7 @@ class Session with ChangeNotifier {
 
   void stopSession() {
     _sessionUsers?.clear();
+    _sessionUsersIds?.clear();
     startedScanning = false;
   }
 }
