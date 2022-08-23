@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_uni_access/providers/session.dart';
+import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:provider/provider.dart';
 
 class FormOptionWidget extends StatefulWidget {
@@ -31,9 +31,11 @@ class _FormOptionState extends State<FormOptionWidget> {
 
   void _updateSessionSelectedItem(String? newValue, BuildContext context) {
     if (newValue!.contains(':')) {
-      Provider.of<Session>(context, listen: false).selectedSubject = newValue;
+      Provider.of<SessionProvider>(context, listen: false).selectedSubject =
+          newValue;
     } else {
-      Provider.of<Session>(context, listen: false).selectedLab = newValue;
+      Provider.of<SessionProvider>(context, listen: false).selectedLab =
+          newValue;
     }
   }
 
@@ -55,15 +57,15 @@ class _FormOptionState extends State<FormOptionWidget> {
             height: 2,
             color: Theme.of(context).colorScheme.primary,
           ),
-          onChanged:
-              Provider.of<Session>(context, listen: false).startedScanning
-                  ? null
-                  : (String? newValue) {
-                      setState(() {
-                        _updateSessionSelectedItem(newValue, context);
-                        widget._selectedItem = newValue!;
-                      });
-                    },
+          onChanged: Provider.of<SessionProvider>(context, listen: false)
+                  .startedScanning
+              ? null
+              : (String? newValue) {
+                  setState(() {
+                    _updateSessionSelectedItem(newValue, context);
+                    widget._selectedItem = newValue!;
+                  });
+                },
           items: widget._option.map<DropdownMenuItem<String>>((value) {
             return DropdownMenuItem<String>(
               value: value,

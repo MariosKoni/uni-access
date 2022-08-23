@@ -3,7 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_uni_access/providers/session.dart';
+import 'package:flutter_uni_access/providers/session_provider.dart';
+import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/screens/auth_screen.dart';
 import 'package:flutter_uni_access/screens/tabs_screen.dart';
 import 'package:provider/provider.dart';
@@ -28,11 +29,12 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(
-              create: ((context) => Session(
+              create: ((context) => SessionProvider(
                   List.empty(growable: true),
                   List.empty(growable: true),
                   List.empty(growable: true),
-                  List.empty(growable: true))))
+                  List.empty(growable: true)))),
+          ChangeNotifierProvider(create: ((context) => UserProvider()))
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -85,7 +87,10 @@ class MyApp extends StatelessWidget {
                                   isTeacher: data['isTeacher'],
                                   image: data['image']);
 
-                              return TabsScreen(_uniUser);
+                              Provider.of<UserProvider>(ctx, listen: false)
+                                  .user = _uniUser;
+
+                              return TabsScreen();
                             }
 
                             return const Center(

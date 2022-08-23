@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
-import 'package:flutter_uni_access/providers/session.dart';
+import 'package:flutter_uni_access/providers/session_provider.dart';
+import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/screens/new_session_screen.dart';
 import 'package:flutter_uni_access/screens/user_classes_screen.dart';
 import 'package:flutter_uni_access/screens/user_info_screen.dart';
@@ -9,10 +10,6 @@ import 'package:flutter_uni_access/widgets/dialog_widget.dart';
 import 'package:provider/provider.dart';
 
 class TabsScreen extends StatefulWidget {
-  late final UniUser user;
-
-  TabsScreen(this.user);
-
   @override
   State<TabsScreen> createState() => _TabsScreenState();
 }
@@ -23,16 +20,19 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   void initState() {
-    if (!widget.user.isTeacher!) {
+    final UniUser user =
+        Provider.of<UserProvider>(context, listen: false).user!;
+
+    if (!user.isTeacher!) {
       _pages = [
-        {'page': UsertInfoScreen(widget.user), 'title': 'Info'},
-        {'page': UserClassesScreen(widget.user), 'title': 'Classes'}
+        {'page': UsertInfoScreen(), 'title': 'Info'},
+        {'page': UserClassesScreen(), 'title': 'Classes'}
       ];
     } else {
       _pages = [
-        {'page': UsertInfoScreen(widget.user), 'title': 'Info'},
-        {'page': UserClassesScreen(widget.user), 'title': 'Classes'},
-        {'page': NewSessionScreen(widget.user), 'title': 'Session'}
+        {'page': UsertInfoScreen(), 'title': 'Info'},
+        {'page': UserClassesScreen(), 'title': 'Classes'},
+        {'page': NewSessionScreen(), 'title': 'Session'}
       ];
     }
     super.initState();
@@ -45,18 +45,22 @@ class _TabsScreenState extends State<TabsScreen> {
   }
 
   void _checkIfUserExitsFromSession(int index) async {
-    if (widget.user.isTeacher!) {
+    final UniUser user =
+        Provider.of<UserProvider>(context, listen: false).user!;
+
+    if (user.isTeacher!) {
       // We are on sessions screen and
       //authorization proccess has started
       if (_selectedIndex == 2 &&
           index != _selectedIndex &&
-          Provider.of<Session>(context, listen: false).startedScanning) {
+          Provider.of<SessionProvider>(context, listen: false)
+              .startedScanning) {
         await _showExitDialog(context);
       } else {
         _changeTab(index);
       }
 
-      if (Provider.of<Session>(context, listen: false)
+      if (Provider.of<SessionProvider>(context, listen: false)
           .abortSessionFromTabChange) {
         _changeTab(index);
       }
@@ -66,15 +70,15 @@ class _TabsScreenState extends State<TabsScreen> {
   }
 
   void _cancelChangeTabFromNewSession() {
-    Provider.of<Session>(context, listen: false).abortSessionFromTabChange =
-        false;
+    Provider.of<SessionProvider>(context, listen: false)
+        .abortSessionFromTabChange = false;
     Navigator.of(context).pop();
   }
 
   void _confirmChangeTabFromNewSession() {
-    Provider.of<Session>(context, listen: false).abortSessionFromTabChange =
-        true;
-    Provider.of<Session>(context, listen: false).stopSession();
+    Provider.of<SessionProvider>(context, listen: false)
+        .abortSessionFromTabChange = true;
+    Provider.of<SessionProvider>(context, listen: false).stopSession();
     Navigator.of(context).pop();
   }
 
@@ -91,8 +95,8 @@ class _TabsScreenState extends State<TabsScreen> {
   }
 
   void _logout() async {
-    if (Provider.of<Session>(context, listen: false).startedScanning) {
-      Provider.of<Session>(context, listen: false).stopSession();
+    if (Provider.of<SessionProvider>(context, listen: false).startedScanning) {
+      Provider.of<SessionProvider>(context, listen: false).stopSession();
     }
 
     Navigator.of(context).pop();
@@ -126,36 +130,37 @@ class _TabsScreenState extends State<TabsScreen> {
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
         selectedItemColor: Theme.of(context).backgroundColor,
         type: BottomNavigationBarType.shifting,
-        items: widget.user.isTeacher!
-            ? [
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'Info',
-                    tooltip: 'User info',
-                    backgroundColor: Theme.of(context).primaryColor),
-                const BottomNavigationBarItem(
-                    icon: Icon(Icons.school),
-                    label: 'Classes',
-                    tooltip: 'User\'s classes',
-                    backgroundColor: Color.fromRGBO(66, 183, 42, 1.0)),
-                const BottomNavigationBarItem(
-                    icon: Icon(Icons.class_),
-                    label: 'Session',
-                    tooltip: 'Start a session',
-                    backgroundColor: Color.fromRGBO(232, 52, 93, 1.0))
-              ]
-            : [
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'Info',
-                    tooltip: 'User info',
-                    backgroundColor: Theme.of(context).primaryColor),
-                const BottomNavigationBarItem(
-                    icon: Icon(Icons.school),
-                    label: 'Classes',
-                    tooltip: 'User\'s classes',
-                    backgroundColor: Color.fromRGBO(66, 183, 42, 1.0))
-              ],
+        items:
+            Provider.of<UserProvider>(context, listen: false).user!.isTeacher!
+                ? [
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.person),
+                        label: 'Info',
+                        tooltip: 'User info',
+                        backgroundColor: Theme.of(context).primaryColor),
+                    const BottomNavigationBarItem(
+                        icon: Icon(Icons.school),
+                        label: 'Classes',
+                        tooltip: 'User\'s classes',
+                        backgroundColor: Color.fromRGBO(66, 183, 42, 1.0)),
+                    const BottomNavigationBarItem(
+                        icon: Icon(Icons.class_),
+                        label: 'Session',
+                        tooltip: 'Start a session',
+                        backgroundColor: Color.fromRGBO(232, 52, 93, 1.0))
+                  ]
+                : [
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.person),
+                        label: 'Info',
+                        tooltip: 'User info',
+                        backgroundColor: Theme.of(context).primaryColor),
+                    const BottomNavigationBarItem(
+                        icon: Icon(Icons.school),
+                        label: 'Classes',
+                        tooltip: 'User\'s classes',
+                        backgroundColor: Color.fromRGBO(66, 183, 42, 1.0))
+                  ],
         currentIndex: _selectedIndex,
         onTap: _checkIfUserExitsFromSession,
       ),

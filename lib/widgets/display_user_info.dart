@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_uni_access/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
@@ -6,13 +8,12 @@ import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 
 class DisplayUserInfo extends StatelessWidget {
-  final UniUser uniUser;
-
-  DisplayUserInfo(this.uniUser);
-
   @override
   Widget build(BuildContext context) {
+    final UniUser uniUser =
+        Provider.of<UserProvider>(context, listen: false).user!;
     int _denominator;
+
     if (uniUser.isTeacher!) {
       _denominator = 2;
     } else {

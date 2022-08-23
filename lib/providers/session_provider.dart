@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter_uni_access/models/uni_user.dart';
 
-// Defines a session
-class Session with ChangeNotifier {
+// Defines a session provider
+class SessionProvider with ChangeNotifier {
   final List<UniUser>? _sessionUsers;
   final List<String>? _sessionUsersIds;
 
@@ -13,12 +13,13 @@ class Session with ChangeNotifier {
 
   String? _selectedLab;
   String? _selectedSubject;
-  bool _hasRights = false;
+  // 1 = authorized, 2 = not authorized, 3 = already authorized
+  int result = 0;
   bool startedScanning = false;
   bool abortSessionFromTabChange = false;
   bool canSave = true;
 
-  Session(
+  SessionProvider(
       this._sessionUsers, this._sessionUsersIds, this._labs, this._subjects);
 
   List<UniUser> get sessionUsers {
@@ -53,12 +54,9 @@ class Session with ChangeNotifier {
     _selectedSubject = subject;
   }
 
-  bool get rights {
-    return _hasRights;
-  }
-
   Future<void> populateFormData(final UniUser user) async {
     if (_labs!.isNotEmpty && _subjects!.isNotEmpty) {
+      result = 3;
       return;
     }
 
@@ -83,12 +81,7 @@ class Session with ChangeNotifier {
     }, onError: (e) => print(e));
   }
 
-  Future<void> addUserToSession(final String id, final BuildContext ctx) async {
-    if (_sessionUsersIds!.isEmpty) {
-      canSave = true;
-      notifyListeners();
-    }
-
+  Future<void> addUserToSession(final String id) async {
     if (_sessionUsersIds!.contains(id)) {
       return;
     }
@@ -101,32 +94,9 @@ class Session with ChangeNotifier {
       final CollectionReference labs =
           FirebaseFirestore.instance.collection('labs');
 
-      await labs.get().then((value) {
-        // final Map<String, dynamic> data = value.docs as Map<String, dynamic>;
-        // print(data);
+      await checkIfUserHasAccess(labs, id);
 
-        for (final element in value.docs) {
-          for (final access in element['access']) {
-            if (access['users'].contains(id) &&
-                (access['info']['subjectName'].toString() +
-                        ': ' +
-                        access['info']['date'].toString()) ==
-                    _selectedSubject &&
-                element['name'].toString() == _selectedLab) {
-              _hasRights = true;
-              break;
-            } else {
-              _hasRights = false;
-              break;
-            }
-          }
-          if (_hasRights) {
-            break;
-          }
-        }
-      }, onError: (e) => print(e));
-
-      if (!_hasRights) {
+      if (result == 2) {
         return;
       }
 
@@ -140,11 +110,44 @@ class Session with ChangeNotifier {
           isTeacher: data['isTeacher'],
           image: data['image']);
 
+      if (_sessionUsersIds!.isEmpty) {
+        canSave = true;
+        notifyListeners();
+      }
+
       _sessionUsers?.add(uniUser);
       _sessionUsersIds?.add(id);
     }, onError: (e) => print(e));
 
     notifyListeners();
+  }
+
+  Future<void> checkIfUserHasAccess(
+      CollectionReference<Object?> labs, String id) async {
+    await labs.get().then((value) {
+      // final Map<String, dynamic> data = value.docs as Map<String, dynamic>;
+      // print(data);
+
+      for (final element in value.docs) {
+        for (final access in element['access']) {
+          if (access['users'].contains(id) &&
+              (access['info']['subjectName'].toString() +
+                      ': ' +
+                      access['info']['date'].toString()) ==
+                  _selectedSubject &&
+              element['name'].toString() == _selectedLab) {
+            result = 1;
+            break;
+          } else {
+            result = 2;
+            break;
+          }
+        }
+        if (result == 1) {
+          break;
+        }
+      }
+    }, onError: (e) => print(e));
   }
 
   Future<void> saveSession() async {

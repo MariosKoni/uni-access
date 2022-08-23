@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_uni_access/models/uni_user.dart';
-import 'package:flutter_uni_access/providers/session.dart';
-import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
+import 'package:flutter_uni_access/providers/session_provider.dart';
+import 'package:flutter_uni_access/providers/user_provider.dart';
+import 'package:flutter_uni_access/widgets/attendence_widget.dart';
 import 'package:flutter_uni_access/widgets/formOptionWidget.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 class NewSessionScreen extends StatefulWidget {
-  final UniUser user;
-
-  NewSessionScreen(this.user);
-
   @override
   State<NewSessionScreen> createState() => _NewSessionScreenState();
 }
@@ -26,16 +19,18 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
       if (_triggerButtonText == 'Start') {
         _triggerButtonText = 'Save';
         _showAttendence = true;
-        Provider.of<Session>(context, listen: false).startedScanning = true;
-        Provider.of<Session>(context, listen: false).canSave = false;
+        Provider.of<SessionProvider>(context, listen: false).startedScanning =
+            true;
+        Provider.of<SessionProvider>(context, listen: false).canSave = false;
       } else {
-        Provider.of<Session>(context, listen: false).saveSession();
+        Provider.of<SessionProvider>(context, listen: false).saveSession();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(seconds: 2),
             content: const Text('Session saved successfully.'),
             backgroundColor: Color.fromRGBO(232, 52, 93, 1.0)));
-        Provider.of<Session>(context, listen: false).startedScanning = false;
-        Provider.of<Session>(context, listen: false).canSave = true;
+        Provider.of<SessionProvider>(context, listen: false).startedScanning =
+            false;
+        Provider.of<SessionProvider>(context, listen: false).canSave = true;
         _triggerButtonText = 'Start';
         _showAttendence = false;
       }
@@ -45,8 +40,9 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<Session>(context, listen: false)
-          .populateFormData(widget.user),
+      future: Provider.of<SessionProvider>(context, listen: false)
+          .populateFormData(
+              Provider.of<UserProvider>(context, listen: false).user!),
       builder: (_, snapshot) => snapshot.connectionState ==
               ConnectionState.waiting
           ? const Center(child: CircularProgressIndicator())
@@ -67,12 +63,13 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                   const SizedBox(height: 10),
                   FormOptionWidget(
                     key: const Key('1'),
-                    option: Provider.of<Session>(context, listen: false).labs,
+                    option: Provider.of<SessionProvider>(context, listen: false)
+                        .labs,
                     titleOption: 'Lab',
                   ),
                   FormOptionWidget(
                     key: const Key('2'),
-                    option: Provider.of<Session>(context, listen: false)
+                    option: Provider.of<SessionProvider>(context, listen: false)
                         .stringyfiedSubjects,
                     titleOption: 'Subject',
                   ),
@@ -80,7 +77,7 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                   Tooltip(
                     message: 'Start/Save the authorization process',
                     child: ElevatedButton(
-                        onPressed: Provider.of<Session>(context).canSave
+                        onPressed: Provider.of<SessionProvider>(context).canSave
                             ? _startNsaveASession
                             : null,
                         child: Text(_triggerButtonText)),
@@ -113,223 +110,6 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
                 ],
               ),
             ),
-    );
-  }
-}
-
-class AttendanceWidget extends StatefulWidget {
-  const AttendanceWidget({Key? key}) : super(key: key);
-
-  @override
-  State<AttendanceWidget> createState() => _AttendanceWidgetState();
-}
-
-class _AttendanceWidgetState extends State<AttendanceWidget> {
-  final GlobalKey _one = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => ShowCaseWidget.of(context).startShowCase([_one]));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final sessionUsers = Provider.of<Session>(context).sessionUsers;
-
-    return Column(
-      children: [
-        Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              color: const Color.fromRGBO(255, 255, 255, 0.6),
-              elevation: 8,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(15.0),
-                      bottomRight: Radius.circular(15.0))),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height / 2.5,
-                child: SingleChildScrollView(
-                  child: sessionUsers.isEmpty
-                      ? Padding(
-                          padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height / 10),
-                          child: Center(
-                            child: Center(
-                              child: Column(
-                                children: const [
-                                  Icon(
-                                    Icons.qr_code_scanner_rounded,
-                                    size: 100.0,
-                                    color: Colors.white,
-                                  ),
-                                  Text('Scan a barcode'),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      : Column(
-                          children: sessionUsers
-                              .map(
-                                (e) => Showcase(
-                                  key: _one,
-                                  description:
-                                      'Tap on a user to see his/her profile',
-                                  child: ListTile(
-                                      leading: const Icon(
-                                          Icons.check_circle_rounded,
-                                          color: Colors.green,
-                                          size: 35),
-                                      title: Text(
-                                          '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}'),
-                                      subtitle: e.isTeacher!
-                                          ? Text('Teacher - ${e.id}')
-                                          : Text('Student - ${e.id}'),
-                                      onTap: () async {
-                                        await _showStudentProfileAlertDialog(
-                                            context, e);
-                                      }),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                ),
-              ),
-            )),
-        Center(
-          child: Tooltip(
-            message: 'Scan a barcode',
-            child: ElevatedButton(
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => const _Scan())),
-              child: const Text('Scan'),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-}
-
-Future<void> _showStudentProfileAlertDialog(
-    BuildContext context, UniUser user) async {
-  return showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: ((context) => _AlertStudentProfile(user: user)));
-}
-
-class _AlertStudentProfile extends StatelessWidget {
-  const _AlertStudentProfile({Key? key, required UniUser user})
-      : _user = user,
-        super(key: key);
-
-  final UniUser _user;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
-      title: const Center(
-          child: Text(
-        'Student Info',
-        style: TextStyle(color: Colors.black),
-      )),
-      content: SizedBox(
-          height: MediaQuery.of(context).size.height / 2,
-          child: Column(
-            children: [
-              Image(
-                  image: NetworkImage(_user.image!),
-                  height: MediaQuery.of(context).size.height / 3),
-              Text(_user.id!),
-              Text(_user.name.toString().capitalize()),
-              Text(_user.surname.toString().capitalize()),
-              Text(_user.email!),
-            ],
-          )),
-      actions: [
-        Tooltip(
-          message: 'Close',
-          child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close')),
-        )
-      ],
-      actionsAlignment: MainAxisAlignment.center,
-    );
-  }
-}
-
-class _Scan extends StatelessWidget {
-  const _Scan({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MobileScanner(
-        allowDuplicates: false,
-        onDetect: (barcode, args) async {
-          if (barcode.rawValue == null) {
-            print('NULL BARCODE');
-          }
-
-          final result = barcode.rawValue!;
-          HapticFeedback.vibrate();
-          await Provider.of<Session>(context, listen: false)
-              .addUserToSession(result, context);
-
-          final bool hasRights =
-              Provider.of<Session>(context, listen: false).rights;
-
-          await _showAuthorizeAlertDialog(context, hasRights,
-              hasRights ? 'User Authorized' : 'User was not authorized');
-
-          Navigator.of(context).pop();
-        });
-  }
-}
-
-Future<void> _showAuthorizeAlertDialog(
-    BuildContext context, bool ok, String msg) async {
-  return showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        Future.delayed(
-            const Duration(seconds: 1), () => Navigator.of(context).pop(true));
-        return _AlertResultWidget(ok: ok, msg: msg);
-      });
-}
-
-class _AlertResultWidget extends StatelessWidget {
-  const _AlertResultWidget({Key? key, required bool ok, required String msg})
-      : _ok = ok,
-        _msg = msg,
-        super(key: key);
-
-  final bool _ok;
-  final String _msg;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
-      title: const Text('Result'),
-      content: Row(children: [
-        Icon(_ok ? Icons.check_circle : Icons.error_rounded),
-        Text(_msg)
-      ]),
-      backgroundColor: _ok ? Colors.green : Colors.red,
     );
   }
 }
