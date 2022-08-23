@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class FormOptionWidget extends StatefulWidget {
   FormOptionWidget({
     Key? key,
@@ -47,6 +48,7 @@ class _FormOptionState extends State<FormOptionWidget> {
         Text(widget._titleOption, style: Theme.of(context).textTheme.headline6),
         const SizedBox(width: 10),
         DropdownButton<String>(
+          borderRadius: BorderRadius.circular(15),
           dropdownColor: Theme.of(context).backgroundColor,
           value: widget._selectedItem,
           icon: const Tooltip(
