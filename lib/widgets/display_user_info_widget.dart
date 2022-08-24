@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
+import 'package:flutter_uni_access/widgets/qr_image_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 
 import 'package:flutter_uni_access/models/uni_user.dart';
 
 class DisplayUserInfo extends StatelessWidget {
+  Future<void> _showUserQrCode(BuildContext context, final String id) async {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: ((context) => AlertQrImageWidget(id: id)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final UniUser uniUser =
@@ -97,11 +104,19 @@ class DisplayUserInfo extends StatelessWidget {
                 const Divider(
                   thickness: 3.0,
                 ),
-                QrImage(
-                  data: uniUser.id!,
-                  version: QrVersions.auto,
-                  size: 200.0,
-                  backgroundColor: Colors.white,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 15,
+                ),
+                Tooltip(
+                  message: 'Show QR code',
+                  child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                          fixedSize:
+                              Size(MediaQuery.of(context).size.width / 2, 80)),
+                      onPressed: () async =>
+                          await _showUserQrCode(context, uniUser.id!),
+                      icon: const Icon(Icons.qr_code_scanner_rounded),
+                      label: const Text('Show QR code')),
                 )
               ],
             )

@@ -87,10 +87,9 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                       subtitle: e.isTeacher!
                                           ? Text('Teacher - ${e.id}')
                                           : Text('Student - ${e.id}'),
-                                      onTap: () async {
-                                        await _showStudentProfileAlertDialog(
-                                            context, e);
-                                      }),
+                                      onTap: () async =>
+                                          await _showStudentProfileAlertDialog(
+                                              context, e)),
                                 )
                                 .toList(),
                           ),

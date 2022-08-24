@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_uni_access/models/student_classes_card.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
-import 'package:flutter_uni_access/widgets/display_user_classes.dart';
+import 'package:flutter_uni_access/widgets/display_user_classes_widget.dart';
 import 'package:provider/provider.dart';
 
 class UserClassesScreen extends StatelessWidget {

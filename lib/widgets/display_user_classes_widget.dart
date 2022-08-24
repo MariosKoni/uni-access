@@ -25,6 +25,7 @@ class _DisplayUserClassesState extends State<DisplayUserClasses> {
       color: Theme.of(context).colorScheme.secondary,
       child: Column(children: [
         ListTile(
+          leading: Icon(Icons.school),
           title: Center(
               child: Text(
             'Lab: ${widget.card.lab!}',

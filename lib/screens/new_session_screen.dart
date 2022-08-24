@@ -19,18 +19,22 @@ class _NewSessionScreenState extends State<NewSessionScreen> {
       if (_triggerButtonText == 'Start') {
         _triggerButtonText = 'Save';
         _showAttendence = true;
+
         Provider.of<SessionProvider>(context, listen: false).startedScanning =
             true;
         Provider.of<SessionProvider>(context, listen: false).canSave = false;
       } else {
         Provider.of<SessionProvider>(context, listen: false).saveSession();
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(seconds: 2),
             content: const Text('Session saved successfully.'),
             backgroundColor: Color.fromRGBO(232, 52, 93, 1.0)));
+
         Provider.of<SessionProvider>(context, listen: false).startedScanning =
             false;
         Provider.of<SessionProvider>(context, listen: false).canSave = true;
+
         _triggerButtonText = 'Start';
         _showAttendence = false;
       }
