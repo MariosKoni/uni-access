@@ -7,7 +7,9 @@ import 'package:flutter_uni_access/screens/new_session_screen.dart';
 import 'package:flutter_uni_access/screens/user_classes_screen.dart';
 import 'package:flutter_uni_access/screens/user_info_screen.dart';
 import 'package:flutter_uni_access/widgets/dialog_widget.dart';
+import 'package:flutter_uni_access/widgets/new_session_dialog_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class TabsScreen extends StatefulWidget {
   @override
@@ -17,6 +19,8 @@ class TabsScreen extends StatefulWidget {
 class _TabsScreenState extends State<TabsScreen> {
   late List<Map<String, Object>> _pages;
   int _selectedIndex = 0;
+
+  final GlobalKey _one = GlobalKey();
 
   @override
   void initState() {
@@ -35,6 +39,10 @@ class _TabsScreenState extends State<TabsScreen> {
         {'page': NewSessionScreen(), 'title': 'Session'}
       ];
     }
+
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ShowCaseWidget.of(context).startShowCase([_one]));
+
     super.initState();
   }
 
@@ -114,6 +122,13 @@ class _TabsScreenState extends State<TabsScreen> {
             cancelFunction: null)));
   }
 
+  Future<void> _showNewSessionDialog() async {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: ((context) => NewSessionDialogWidget()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,6 +141,18 @@ class _TabsScreenState extends State<TabsScreen> {
         ],
       ),
       body: _pages[_selectedIndex]['page'] as Widget,
+      floatingActionButton: _selectedIndex == 2
+          ? Showcase(
+              key: _one,
+              description: 'Tap on it, to start a new session',
+              child: FloatingActionButton(
+                onPressed: _showNewSessionDialog,
+                tooltip: 'Add a new session',
+                backgroundColor: Color.fromRGBO(232, 52, 93, 1.0),
+                child: const Icon(Icons.add),
+              ),
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
         selectedItemColor: Theme.of(context).backgroundColor,

@@ -11,10 +11,12 @@ class SessionProvider with ChangeNotifier {
   final List<String>? _labs;
   final List<Map<String, dynamic>>? _subjects;
 
-  String? _selectedLab;
-  String? _selectedSubject;
+  String? _selectedLab = null;
+  String? _selectedSubject = null;
+
   // 1 = authorized, 2 = not authorized, 3 = already authorized
   int result = 0;
+
   bool startedScanning = false;
   bool abortSessionFromTabChange = false;
   bool canSave = true;
@@ -46,13 +48,19 @@ class SessionProvider with ChangeNotifier {
     return subjects;
   }
 
-  set selectedLab(final String lab) {
+  set selectedLab(final String? lab) {
     _selectedLab = lab;
+    notifyListeners();
   }
 
-  set selectedSubject(final String subject) {
+  set selectedSubject(final String? subject) {
     _selectedSubject = subject;
+    notifyListeners();
   }
+
+  String? get selectedLab => _selectedLab;
+
+  String? get selectedSubject => _selectedSubject;
 
   Future<void> populateFormData(final UniUser user) async {
     if (_labs!.isNotEmpty && _subjects!.isNotEmpty) {
