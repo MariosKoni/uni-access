@@ -23,11 +23,27 @@ class AlertQrImageWidget extends StatelessWidget {
         'QR code',
         style: TextStyle(color: Colors.black),
       )),
-      content: QrImage(
-        data: id,
-        version: QrVersions.auto,
-        size: 100,
-        backgroundColor: Colors.white,
+      content: Container(
+        width: 200,
+        height: 250,
+        child: Column(
+          children: [
+            Center(
+              child: QrImage(
+                data: id,
+                version: QrVersions.auto,
+                size: 200,
+                backgroundColor: Colors.white,
+              ),
+            ),
+            Tooltip(
+              message: 'Show QR code',
+              child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close')),
+            )
+          ],
+        ),
       ),
     );
   }

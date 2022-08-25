@@ -7,8 +7,6 @@ class NewSessionDialogWidget extends StatelessWidget {
   const NewSessionDialogWidget({Key? key}) : super(key: key);
 
   void _startSession(BuildContext context) {
-    // _showAttendence = true;
-
     Provider.of<SessionProvider>(context, listen: false).startedScanning = true;
     Provider.of<SessionProvider>(context, listen: false).canSave = false;
     Navigator.of(context).pop();
@@ -33,6 +31,9 @@ class NewSessionDialogWidget extends StatelessWidget {
               option: Provider.of<SessionProvider>(context, listen: false).labs,
               titleOption: 'Lab',
             ),
+            const SizedBox(
+              height: 10,
+            ),
             FormOptionWidget(
               key: const Key('subject'),
               option: Provider.of<SessionProvider>(context, listen: false)
@@ -41,7 +42,7 @@ class NewSessionDialogWidget extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Tooltip(
-              message: 'Start/Save the authorization process',
+              message: 'Start the authorization process',
               child: ElevatedButton(
                   onPressed:
                       Provider.of<SessionProvider>(context).selectedLab !=

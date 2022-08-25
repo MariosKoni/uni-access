@@ -22,13 +22,6 @@ class FormOptionWidget extends StatefulWidget {
 }
 
 class _FormOptionState extends State<FormOptionWidget> {
-  @override
-  void initState() {
-    super.initState();
-
-    _updateSessionSelectedItem(widget._option.first, context);
-  }
-
   void _updateSessionSelectedItem(String? newValue, BuildContext context) {
     if (newValue!.contains(':')) {
       Provider.of<SessionProvider>(context, listen: false).selectedSubject =
@@ -45,9 +38,16 @@ class _FormOptionState extends State<FormOptionWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 200,
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
+          width: MediaQuery.of(context).size.width / 1.5,
+          child: InputDecorator(
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15)))),
+            child: DropdownButtonFormField<String>(
+              decoration: InputDecoration.collapsed(hintText: ''),
+              isExpanded: true,
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(15.0),
                   bottomRight: Radius.circular(15.0)),
@@ -57,19 +57,12 @@ class _FormOptionState extends State<FormOptionWidget> {
               icon: const Tooltip(
                   message: 'Expand options',
                   child: Icon(Icons.arrow_drop_down_rounded)),
-              underline: Container(
-                height: 2,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              onChanged: Provider.of<SessionProvider>(context, listen: false)
-                      .startedScanning
-                  ? null
-                  : (String? newValue) {
-                      setState(() {
-                        _updateSessionSelectedItem(newValue, context);
-                        widget._selectedItem = newValue!;
-                      });
-                    },
+              onChanged: (String? newValue) {
+                _updateSessionSelectedItem(newValue, context);
+                setState(() {
+                  widget._selectedItem = newValue!;
+                });
+              },
               items: widget._option.map<DropdownMenuItem<String>>((value) {
                 return DropdownMenuItem<String>(
                   value: value,
