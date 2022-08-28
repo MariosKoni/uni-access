@@ -50,12 +50,12 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                       bottomLeft: Radius.circular(15.0),
                       bottomRight: Radius.circular(15.0))),
               child: SizedBox(
-                height: MediaQuery.of(context).size.height / 2.5,
+                height: MediaQuery.of(context).size.height / 2,
                 child: SingleChildScrollView(
                   child: sessionUsers.isEmpty
                       ? Padding(
                           padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height / 10),
+                              top: MediaQuery.of(context).size.height / 6),
                           child: Center(
                             child: Center(
                               child: Column(
@@ -101,6 +101,8 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
           child: Tooltip(
             message: 'Scan a barcode',
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  primary: Color.fromRGBO(232, 52, 93, 1.0)),
               onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const ScanWidget())),
               child: const Text('Scan'),

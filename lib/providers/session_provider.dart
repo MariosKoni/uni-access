@@ -17,7 +17,7 @@ class SessionProvider with ChangeNotifier {
   // 1 = authorized, 2 = not authorized, 3 = already authorized
   int result = 0;
 
-  bool startedScanning = false;
+  bool _startedScanning = false;
   bool abortSessionFromTabChange = false;
   bool canSave = true;
 
@@ -37,12 +37,15 @@ class SessionProvider with ChangeNotifier {
   }
 
   List<String> get stringyfiedSubjects {
+    print('CALLED');
     final List<String> subjects = List.empty(growable: true);
 
-    for (final subject in _subjects!) {
-      subject.forEach((key, value) {
-        subjects.add('$key: $value');
-      });
+    if (_subjects!.isNotEmpty) {
+      for (final subject in _subjects!) {
+        subject.forEach((key, value) {
+          subjects.add('$key: $value');
+        });
+      }
     }
 
     return subjects;
@@ -58,35 +61,67 @@ class SessionProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  set startedScanning(final bool sScanning) {
+    _startedScanning = sScanning;
+    notifyListeners();
+  }
+
   String? get selectedLab => _selectedLab;
 
   String? get selectedSubject => _selectedSubject;
 
-  Future<void> populateFormData(final UniUser user) async {
-    if (_labs!.isNotEmpty && _subjects!.isNotEmpty) {
-      result = 3;
-      return;
-    }
+  bool get startedScanning => _startedScanning;
 
+  Future<void> populateFormData(
+      final int sw, final String? id, final BuildContext context) async {
     final CollectionReference labs =
         FirebaseFirestore.instance.collection('labs');
 
-    await labs.get().then((value) {
-      for (final element in value.docs) {
-        for (final access in element['access']) {
-          if (!access['users'].contains(user.id)) {
-            continue;
-          }
+    switch (sw) {
+      // load labs
+      case 1:
+        await labs.get().then((value) {
+          for (final element in value.docs) {
+            for (final access in element['access']) {
+              if (!access['users'].toString().contains(id!)) {
+                continue;
+              }
 
-          final labName = element['name'];
-          if (!_labs!.contains(labName)) {
-            _labs?.add(element['name']);
+              final String labName = element['name'];
+              if (!_labs!.contains(labName)) {
+                _labs?.add(element['name'] as String);
+              }
+            }
           }
-          _subjects
-              ?.add({access['info']['subjectName']: access['info']['date']});
-        }
-      }
-    }, onError: (e) => print(e));
+        }, onError: (e) {
+          print(e);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: const Text('Could not fetch labs'),
+              backgroundColor: Theme.of(context).errorColor));
+        });
+
+        break;
+      // load subjects
+      case 2:
+        await labs.where('name', isEqualTo: _selectedLab).get().then((value) {
+          for (final element in value.docs) {
+            for (final access in element['access']) {
+              if (!access['users'].toString().contains(id!)) {
+                continue;
+              }
+              _subjects?.add(
+                  {access['info']['subjectName']: access['info']['date']});
+            }
+          }
+        }, onError: (e) {
+          print(e);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: const Text('Could not fetch subjects'),
+              backgroundColor: Theme.of(context).errorColor));
+        });
+
+        break;
+    }
   }
 
   Future<void> addUserToSession(final String id) async {

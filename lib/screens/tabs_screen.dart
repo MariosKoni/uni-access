@@ -7,6 +7,7 @@ import 'package:flutter_uni_access/screens/new_session_screen.dart';
 import 'package:flutter_uni_access/screens/user_classes_screen.dart';
 import 'package:flutter_uni_access/screens/user_info_screen.dart';
 import 'package:flutter_uni_access/widgets/dialog_widget.dart';
+import 'package:flutter_uni_access/widgets/formOptionWidget.dart';
 import 'package:flutter_uni_access/widgets/new_session_dialog_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -123,10 +124,15 @@ class _TabsScreenState extends State<TabsScreen> {
   }
 
   Future<void> _showNewSessionDialog() async {
-    return showDialog(
-        barrierDismissible: false,
+    return showModalBottomSheet<void>(
+        isDismissible: false,
+        enableDrag: false,
         context: context,
-        builder: ((context) => NewSessionDialogWidget()));
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15.0),
+                topRight: Radius.circular(15.0))),
+        builder: (context) => NewSessionDialogWidget());
   }
 
   @override
@@ -141,12 +147,22 @@ class _TabsScreenState extends State<TabsScreen> {
         ],
       ),
       body: _pages[_selectedIndex]['page'] as Widget,
-      floatingActionButton: _selectedIndex == 2
+      floatingActionButton: _selectedIndex == 2 &&
+              !Provider.of<SessionProvider>(context).startedScanning
           ? Showcase(
               key: _one,
               description: 'Tap on it, to start a new session',
               child: FloatingActionButton(
-                onPressed: _showNewSessionDialog,
+                onPressed: () async {
+                  await Provider.of<SessionProvider>(context, listen: false)
+                      .populateFormData(
+                          1,
+                          Provider.of<UserProvider>(context, listen: false)
+                              .user
+                              ?.id,
+                          context);
+                  _showNewSessionDialog();
+                },
                 tooltip: 'Add a new session',
                 backgroundColor: Color.fromRGBO(232, 52, 93, 1.0),
                 child: const Icon(Icons.add),

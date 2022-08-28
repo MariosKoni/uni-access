@@ -14,21 +14,18 @@ class NewSessionDialogWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15.0),
-                bottomRight: Radius.circular(15.0))),
-        title: Text('Register a new session',
-            style: Theme.of(context).textTheme.headline5,
-            textAlign: TextAlign.center),
-        content: Column(
+    return Container(
+      height: MediaQuery.of(context).size.height / 3,
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
+            Text('Register a new session',
+                style: Theme.of(context).textTheme.headline5),
             const SizedBox(height: 10),
             FormOptionWidget(
               key: const Key('lab'),
-              option: Provider.of<SessionProvider>(context, listen: false).labs,
+              option: Provider.of<SessionProvider>(context).labs,
               titleOption: 'Lab',
             ),
             const SizedBox(
@@ -44,6 +41,8 @@ class NewSessionDialogWidget extends StatelessWidget {
             Tooltip(
               message: 'Start the authorization process',
               child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      primary: Color.fromRGBO(232, 52, 93, 1.0)),
                   onPressed:
                       Provider.of<SessionProvider>(context).selectedLab !=
                                   null &&
@@ -54,7 +53,7 @@ class NewSessionDialogWidget extends StatelessWidget {
                           : null,
                   child: const Text('Start')),
             ),
-          ],
-        ));
+          ]),
+    );
   }
 }
