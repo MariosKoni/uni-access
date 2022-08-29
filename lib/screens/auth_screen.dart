@@ -67,9 +67,9 @@ class _AuthScreenState extends State<AuthScreen> {
           children: [
             const Text('Welcome to UniAccess',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
-            const Image(
+            Image(
               image: AssetImage('assets/images/pada-logo.png'),
-              height: 270,
+              height: MediaQuery.of(context).size.height / 3,
             ),
             AuthForm(_submitAuthForm, _isLoading),
           ],

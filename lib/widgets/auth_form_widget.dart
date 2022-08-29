@@ -30,6 +30,10 @@ class _AuthFormState extends State<AuthForm> {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15.0),
+                bottomRight: Radius.circular(15.0))),
         color: Theme.of(context).colorScheme.secondary,
         margin: const EdgeInsets.all(20),
         child: SingleChildScrollView(
