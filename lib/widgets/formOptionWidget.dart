@@ -35,8 +35,7 @@ class _FormOptionState extends State<FormOptionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Container(
+    return Container(
       width: MediaQuery.of(context).size.width / 1.5,
       child: InputDecorator(
         decoration: InputDecoration(
@@ -58,12 +57,11 @@ class _FormOptionState extends State<FormOptionWidget> {
               child: Icon(Icons.arrow_drop_down_rounded)),
           onChanged: widget.key.toString().compareTo('[<\'lab\'>]') == 0 ||
                   (widget.key.toString().compareTo('[<\'subject\'>]') == 0 &&
-                      Provider.of<SessionProvider>(context).selectedLab != null)
+                      Provider.of<SessionProvider>(context, listen: false)
+                              .selectedLab !=
+                          null)
               ? (String? newValue) async {
                   _updateSessionSelectedItem(newValue, context);
-                  setState(() {
-                    widget._selectedItem = newValue!;
-                  });
                   if (widget.key.toString().compareTo('[<\'lab\'>]') == 0) {
                     await Provider.of<SessionProvider>(context, listen: false)
                         .populateFormData(
@@ -73,6 +71,9 @@ class _FormOptionState extends State<FormOptionWidget> {
                                 ?.id,
                             context);
                   }
+                  setState(() {
+                    widget._selectedItem = newValue!;
+                  });
                 }
               : null,
           items: widget._option.map<DropdownMenuItem<String>>((value) {
@@ -83,6 +84,6 @@ class _FormOptionState extends State<FormOptionWidget> {
           }).toList(),
         ),
       ),
-    ));
+    );
   }
 }

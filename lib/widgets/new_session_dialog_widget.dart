@@ -25,7 +25,7 @@ class NewSessionDialogWidget extends StatelessWidget {
             const SizedBox(height: 10),
             FormOptionWidget(
               key: const Key('lab'),
-              option: Provider.of<SessionProvider>(context).labs,
+              option: Provider.of<SessionProvider>(context, listen: false).labs,
               titleOption: 'Lab',
             ),
             const SizedBox(
@@ -33,8 +33,7 @@ class NewSessionDialogWidget extends StatelessWidget {
             ),
             FormOptionWidget(
               key: const Key('subject'),
-              option: Provider.of<SessionProvider>(context, listen: false)
-                  .stringyfiedSubjects,
+              option: Provider.of<SessionProvider>(context).subjects,
               titleOption: 'Subject',
             ),
             const SizedBox(height: 10),

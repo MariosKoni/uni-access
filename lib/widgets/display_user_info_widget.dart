@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
+import 'package:flutter_uni_access/widgets/custom_bottom_outline_button.dart';
 import 'package:flutter_uni_access/widgets/qr_image_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -8,23 +9,24 @@ import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 
 class DisplayUserInfo extends StatelessWidget {
-  Future<void> _showUserQrCode(BuildContext context, final String id) async {
+  Future<void> _showUserQrCode(
+      final BuildContext context, final String? id) async {
     return showDialog(
         barrierDismissible: false,
         context: context,
-        builder: ((context) => AlertQrImageWidget(id: id)));
+        builder: ((context) => AlertQrImageWidget(id: id!)));
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final UniUser uniUser =
         Provider.of<UserProvider>(context, listen: false).user!;
-    int _denominator;
+    int denominator;
 
     if (uniUser.isTeacher!) {
-      _denominator = 2;
+      denominator = 2;
     } else {
-      _denominator = 3;
+      denominator = 3;
     }
 
     return Card(
@@ -38,7 +40,7 @@ class DisplayUserInfo extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(children: [
           Container(
-              height: MediaQuery.of(context).size.height / _denominator,
+              height: MediaQuery.of(context).size.height / denominator,
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(15.0),
@@ -89,7 +91,7 @@ class DisplayUserInfo extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Property: ',
+                'Role: ',
                 style: Theme.of(context).textTheme.headline5,
               ),
               Text(
@@ -107,17 +109,14 @@ class DisplayUserInfo extends StatelessWidget {
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 15,
                 ),
-                Tooltip(
-                  message: 'Show QR code',
-                  child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                          fixedSize:
-                              Size(MediaQuery.of(context).size.width / 2, 80)),
-                      onPressed: () async =>
-                          await _showUserQrCode(context, uniUser.id!),
-                      icon: const Icon(Icons.qr_code_scanner_rounded),
-                      label: const Text('Show QR code')),
-                )
+                CustomBottomOutlineButton(
+                    hintMessage: 'Show QR code',
+                    width: MediaQuery.of(context).size.width / 2,
+                    height: MediaQuery.of(context).size.height / 15,
+                    onPressedMethod: () async =>
+                        await _showUserQrCode(context, uniUser.id),
+                    icon: Icons.qr_code_scanner_rounded,
+                    label: 'Show QR code')
               ],
             )
         ]),

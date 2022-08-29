@@ -4,8 +4,15 @@ import 'package:flutter_uni_access/widgets/attendence_widget.dart';
 import 'package:provider/provider.dart';
 
 class NewSessionScreen extends StatelessWidget {
+  Future<void> saveSession(final BuildContext context) async {
+    await Provider.of<SessionProvider>(context, listen: false)
+        .saveSession(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool canSave = Provider.of<SessionProvider>(context).canSave;
+
     return Card(
       color: Theme.of(context).colorScheme.secondary,
       elevation: 5,
@@ -30,13 +37,16 @@ class NewSessionScreen extends StatelessWidget {
                   message: 'Save session',
                   child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                          primary: Color.fromRGBO(232, 52, 93, 1.0),
-                          fixedSize:
-                              Size(MediaQuery.of(context).size.width / 2, 80)),
-                      onPressed: () async => await Provider.of<SessionProvider>(
-                              context,
-                              listen: false)
-                          .saveSession(),
+                          primary: canSave
+                              ? Color.fromRGBO(232, 52, 93, 1.0)
+                              : Theme.of(context).backgroundColor,
+                          fixedSize: Size(MediaQuery.of(context).size.width / 2,
+                              MediaQuery.of(context).size.height / 15)),
+                      onPressed: () async => canSave
+                          ? await Provider.of<SessionProvider>(context,
+                                  listen: false)
+                              .saveSession(context)
+                          : null,
                       icon: const Icon(Icons.save_rounded),
                       label: const Text('Save session')),
                 )

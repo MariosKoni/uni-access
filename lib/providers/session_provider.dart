@@ -9,7 +9,7 @@ class SessionProvider with ChangeNotifier {
   final List<String>? _sessionUsersIds;
 
   final List<String>? _labs;
-  final List<Map<String, dynamic>>? _subjects;
+  List<String>? _labSubjects;
 
   String? _selectedLab = null;
   String? _selectedSubject = null;
@@ -19,10 +19,10 @@ class SessionProvider with ChangeNotifier {
 
   bool _startedScanning = false;
   bool abortSessionFromTabChange = false;
-  bool canSave = true;
+  bool canSave = false;
 
   SessionProvider(
-      this._sessionUsers, this._sessionUsersIds, this._labs, this._subjects);
+      this._sessionUsers, this._sessionUsersIds, this._labs, this._labSubjects);
 
   List<UniUser> get sessionUsers {
     return [..._sessionUsers!];
@@ -32,24 +32,7 @@ class SessionProvider with ChangeNotifier {
     return [..._labs!];
   }
 
-  List<Map<String, dynamic>> get subjects {
-    return [..._subjects!];
-  }
-
-  List<String> get stringyfiedSubjects {
-    print('CALLED');
-    final List<String> subjects = List.empty(growable: true);
-
-    if (_subjects!.isNotEmpty) {
-      for (final subject in _subjects!) {
-        subject.forEach((key, value) {
-          subjects.add('$key: $value');
-        });
-      }
-    }
-
-    return subjects;
-  }
+  List<String> get subjects => [...?_labSubjects];
 
   set selectedLab(final String? lab) {
     _selectedLab = lab;
@@ -103,14 +86,15 @@ class SessionProvider with ChangeNotifier {
         break;
       // load subjects
       case 2:
+        final List<String> subjects = List.empty(growable: true);
         await labs.where('name', isEqualTo: _selectedLab).get().then((value) {
           for (final element in value.docs) {
             for (final access in element['access']) {
               if (!access['users'].toString().contains(id!)) {
                 continue;
               }
-              _subjects?.add(
-                  {access['info']['subjectName']: access['info']['date']});
+              subjects.add(
+                  '${access['info']['subjectName']}: ${access['info']['date']}');
             }
           }
         }, onError: (e) {
@@ -119,6 +103,9 @@ class SessionProvider with ChangeNotifier {
               content: const Text('Could not fetch subjects'),
               backgroundColor: Theme.of(context).errorColor));
         });
+
+        _labSubjects = subjects;
+        notifyListeners();
 
         break;
     }
@@ -193,7 +180,7 @@ class SessionProvider with ChangeNotifier {
     }, onError: (e) => print(e));
   }
 
-  Future<void> saveSession() async {
+  Future<void> saveSession(BuildContext context) async {
     final session = <String, dynamic>{
       'lab': _selectedLab,
       'subject': _selectedSubject,
@@ -205,8 +192,16 @@ class SessionProvider with ChangeNotifier {
         .collection('sessions')
         .doc()
         .set(session)
-        .onError((error, stackTrace) => print('Error: $error'));
+        .onError((error, stackTrace) {
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Could save session'),
+          backgroundColor: Theme.of(context).errorColor));
+    });
 
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Session saved'),
+        backgroundColor: Color.fromRGBO(232, 52, 93, 1.0)));
     stopSession();
   }
 
