@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
+import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 import 'package:flutter_uni_access/widgets/custom_bottom_outline_button.dart';
 import 'package:flutter_uni_access/widgets/qr_image_widget.dart';
 import 'package:provider/provider.dart';
 
-import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
-
-import 'package:flutter_uni_access/models/uni_user.dart';
-
 class DisplayUserInfo extends StatelessWidget {
   Future<void> _showUserQrCode(
-      final BuildContext context, final String? id) async {
+    BuildContext context,
+    String? id,
+  ) async {
     return showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: ((context) => AlertQrImageWidget(id: id!)));
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertQrImageWidget(id: id!),
+    );
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     final UniUser uniUser =
         Provider.of<UserProvider>(context, listen: false).user!;
     int denominator;
@@ -31,95 +32,105 @@ class DisplayUserInfo extends StatelessWidget {
 
     return Card(
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(15.0),
+          bottomRight: Radius.circular(15.0),
+        ),
+      ),
       color: Theme.of(context).colorScheme.secondary,
       elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(children: [
-          Container(
+        child: Column(
+          children: [
+            Container(
               height: MediaQuery.of(context).size.height / denominator,
               decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(15.0),
-                      bottomRight: Radius.circular(15.0)),
-                  image: DecorationImage(
-                      image: NetworkImage(uniUser.image!), fit: BoxFit.cover))),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'ID: ',
-                style: Theme.of(context).textTheme.headline5,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(15.0),
+                  bottomRight: Radius.circular(15.0),
+                ),
+                image: DecorationImage(
+                  image: NetworkImage(uniUser.image!),
+                  fit: BoxFit.cover,
+                ),
               ),
-              Text(
-                uniUser.id!,
-                style: Theme.of(context).textTheme.headline5,
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Name: ',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              Text(
-                '${uniUser.name.toString().capitalize()} ${uniUser.surname.toString().capitalize()}',
-                style: Theme.of(context).textTheme.headline5,
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'E-mail: ',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              Text(
-                '${uniUser.email}',
-                style: Theme.of(context).textTheme.headline5,
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Role: ',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              Text(
-                !uniUser.isTeacher! ? 'Student' : 'Teacher',
-                style: Theme.of(context).textTheme.headline5,
-              )
-            ],
-          ),
-          if (!uniUser.isTeacher!)
-            Column(
+            ),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Divider(
-                  thickness: 3.0,
+                Text(
+                  'ID: ',
+                  style: Theme.of(context).textTheme.headline5,
                 ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 15,
+                Text(
+                  uniUser.id!,
+                  style: Theme.of(context).textTheme.headline5,
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Name: ',
+                  style: Theme.of(context).textTheme.headline5,
                 ),
-                CustomBottomOutlineButton(
+                Text(
+                  '${uniUser.name.toString().capitalize()} ${uniUser.surname.toString().capitalize()}',
+                  style: Theme.of(context).textTheme.headline5,
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'E-mail: ',
+                  style: Theme.of(context).textTheme.headline5,
+                ),
+                Text(
+                  '${uniUser.email}',
+                  style: Theme.of(context).textTheme.headline5,
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Role: ',
+                  style: Theme.of(context).textTheme.headline5,
+                ),
+                Text(
+                  !uniUser.isTeacher! ? 'Student' : 'Teacher',
+                  style: Theme.of(context).textTheme.headline5,
+                )
+              ],
+            ),
+            if (!uniUser.isTeacher!)
+              Column(
+                children: [
+                  const Divider(
+                    thickness: 3.0,
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 15,
+                  ),
+                  CustomBottomOutlineButton(
                     hintMessage: 'Show QR code',
                     width: MediaQuery.of(context).size.width / 2,
                     height: MediaQuery.of(context).size.height / 15,
                     onPressedMethod: () async =>
-                        await _showUserQrCode(context, uniUser.id),
+                        _showUserQrCode(context, uniUser.id),
                     icon: Icons.qr_code_scanner_rounded,
-                    label: 'Show QR code')
-              ],
-            )
-        ]),
+                    label: 'Show QR code',
+                  )
+                ],
+              )
+          ],
+        ),
       ),
     );
   }

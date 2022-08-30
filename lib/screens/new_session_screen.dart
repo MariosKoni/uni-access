@@ -4,7 +4,7 @@ import 'package:flutter_uni_access/widgets/attendence_widget.dart';
 import 'package:provider/provider.dart';
 
 class NewSessionScreen extends StatelessWidget {
-  Future<void> saveSession(final BuildContext context) async {
+  Future<void> saveSession(BuildContext context) async {
     await Provider.of<SessionProvider>(context, listen: false)
         .saveSession(context);
   }
@@ -17,9 +17,11 @@ class NewSessionScreen extends StatelessWidget {
       color: Theme.of(context).colorScheme.secondary,
       elevation: 5,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(15.0),
+          bottomRight: Radius.circular(15.0),
+        ),
+      ),
       child: Column(
         children: [
           if (!Provider.of<SessionProvider>(context).startedScanning)
@@ -36,19 +38,23 @@ class NewSessionScreen extends StatelessWidget {
                 Tooltip(
                   message: 'Save session',
                   child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                          primary: canSave
-                              ? Color.fromRGBO(232, 52, 93, 1.0)
-                              : Theme.of(context).backgroundColor,
-                          fixedSize: Size(MediaQuery.of(context).size.width / 2,
-                              MediaQuery.of(context).size.height / 15)),
-                      onPressed: () async => canSave
-                          ? await Provider.of<SessionProvider>(context,
-                                  listen: false)
-                              .saveSession(context)
-                          : null,
-                      icon: const Icon(Icons.save_rounded),
-                      label: const Text('Save session')),
+                    style: OutlinedButton.styleFrom(
+                      primary: canSave
+                          ? const Color.fromRGBO(232, 52, 93, 1.0)
+                          : Theme.of(context).backgroundColor,
+                      fixedSize: Size(
+                        MediaQuery.of(context).size.width / 2,
+                        MediaQuery.of(context).size.height / 15,
+                      ),
+                    ),
+                    onPressed: () async => canSave
+                        ? await Provider.of<SessionProvider>(context,
+                                listen: false)
+                            .saveSession(context)
+                        : null,
+                    icon: const Icon(Icons.save_rounded),
+                    label: const Text('Save session'),
+                  ),
                 )
               ],
             )
@@ -57,16 +63,17 @@ class NewSessionScreen extends StatelessWidget {
               children: [
                 SizedBox(
                   child: Center(
-                      child: Column(
-                    children: const [
-                      Icon(
-                        Icons.class_rounded,
-                        size: 100.0,
-                        color: Colors.white,
-                      ),
-                      Text('Register a new session')
-                    ],
-                  )),
+                    child: Column(
+                      children: const [
+                        Icon(
+                          Icons.class_rounded,
+                          size: 100.0,
+                          color: Colors.white,
+                        ),
+                        Text('Register a new session')
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

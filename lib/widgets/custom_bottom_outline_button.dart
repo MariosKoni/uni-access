@@ -27,12 +27,13 @@ class CustomBottomOutlineButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-        message: _hintMessage,
-        child: OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(fixedSize: Size(_width, _height)),
-          onPressed: _onPressedMethod,
-          icon: Icon(_icon),
-          label: Text(_label),
-        ));
+      message: _hintMessage,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(fixedSize: Size(_width, _height)),
+        onPressed: _onPressedMethod,
+        icon: Icon(_icon),
+        label: Text(_label),
+      ),
+    );
   }
 }

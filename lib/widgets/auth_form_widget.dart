@@ -5,7 +5,8 @@ class AuthForm extends StatefulWidget {
       submitFn;
   final bool isLoading;
 
-  AuthForm(this.submitFn, this.isLoading);
+  // ignore: avoid_positional_boolean_parameters
+  const AuthForm(this.submitFn, this.isLoading);
 
   @override
   State<AuthForm> createState() => _AuthFormState();
@@ -31,59 +32,65 @@ class _AuthFormState extends State<AuthForm> {
     return Center(
       child: Card(
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15.0),
-                bottomRight: Radius.circular(15.0))),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(15.0),
+            bottomRight: Radius.circular(15.0),
+          ),
+        ),
         color: Theme.of(context).colorScheme.secondary,
         margin: const EdgeInsets.all(20),
         child: SingleChildScrollView(
-            child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  key: const ValueKey('email'),
-                  validator: (value) {
-                    if (value!.isEmpty ||
-                        !value.contains('@') ||
-                        !value.contains('uni')) {
-                      return 'Please enter a valid email address.';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email address'),
-                  textInputAction: TextInputAction.next,
-                  autofocus: true,
-                  onSaved: (value) => _userEmail = value!,
-                ),
-                TextFormField(
-                  key: const ValueKey('password'),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Password must not be empty';
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  onSaved: (value) => _userPassword = value!,
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
-                if (widget.isLoading) const CircularProgressIndicator(),
-                if (!widget.isLoading)
-                  ElevatedButton(
-                      onPressed: _trySubmit, child: const Text('Login'))
-              ],
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    key: const ValueKey('email'),
+                    validator: (value) {
+                      if (value!.isEmpty ||
+                          !value.contains('@') ||
+                          !value.contains('uni')) {
+                        return 'Please enter a valid email address.';
+                      }
+                      return null;
+                    },
+                    keyboardType: TextInputType.emailAddress,
+                    decoration:
+                        const InputDecoration(labelText: 'Email address'),
+                    textInputAction: TextInputAction.next,
+                    autofocus: true,
+                    onSaved: (value) => _userEmail = value!,
+                  ),
+                  TextFormField(
+                    key: const ValueKey('password'),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Password must not be empty';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(labelText: 'Password'),
+                    obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    onSaved: (value) => _userPassword = value!,
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  if (widget.isLoading) const CircularProgressIndicator(),
+                  if (!widget.isLoading)
+                    ElevatedButton(
+                      onPressed: _trySubmit,
+                      child: const Text('Login'),
+                    )
+                ],
+              ),
             ),
           ),
-        )),
+        ),
       ),
     );
   }

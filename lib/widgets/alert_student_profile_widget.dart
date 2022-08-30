@@ -13,33 +13,48 @@ class AlertStudentProfileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(15.0),
+          bottomRight: Radius.circular(15.0),
+        ),
+      ),
       title: const Center(
-          child: Text(
-        'Student Info',
-        style: TextStyle(color: Colors.black),
-      )),
+        child: Text(
+          'Student Info',
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
       content: SizedBox(
-          height: MediaQuery.of(context).size.height / 2,
-          child: Column(
-            children: [
-              Image(
-                  image: NetworkImage(_user.image!),
-                  height: MediaQuery.of(context).size.height / 3),
-              Text(_user.id!),
-              Text(_user.name.toString().capitalize()),
-              Text(_user.surname.toString().capitalize()),
-              Text(_user.email!),
-            ],
-          )),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.person, size: 150.0),
+            Text(
+              _user.id!,
+              style: const TextStyle(fontSize: 25),
+            ),
+            Text(
+              _user.name.toString().capitalize(),
+              style: const TextStyle(fontSize: 25),
+            ),
+            Text(
+              _user.surname.toString().capitalize(),
+              style: const TextStyle(fontSize: 25),
+            ),
+            Text(
+              _user.email!,
+              style: const TextStyle(fontSize: 25),
+            ),
+          ],
+        ),
+      ),
       actions: [
         Tooltip(
           message: 'Close',
           child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close')),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
         )
       ],
       actionsAlignment: MainAxisAlignment.center,

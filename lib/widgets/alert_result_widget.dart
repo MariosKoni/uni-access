@@ -31,9 +31,11 @@ class AlertResultWidget extends StatelessWidget {
 
     return AlertDialog(
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(15.0),
-              bottomRight: Radius.circular(15.0))),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(15.0),
+          bottomRight: Radius.circular(15.0),
+        ),
+      ),
       title: const Text('Result'),
       content: Row(children: [Icon(icon), Text(_msg)]),
       backgroundColor: color,

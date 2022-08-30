@@ -4,10 +4,11 @@ import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/screens/new_session_screen.dart';
+import 'package:flutter_uni_access/screens/session_overview_screen.dart';
 import 'package:flutter_uni_access/screens/user_classes_screen.dart';
 import 'package:flutter_uni_access/screens/user_info_screen.dart';
 import 'package:flutter_uni_access/widgets/dialog_widget.dart';
-import 'package:flutter_uni_access/widgets/formOptionWidget.dart';
+import 'package:flutter_uni_access/widgets/filters_session_overview_dialog_widget.dart';
 import 'package:flutter_uni_access/widgets/new_session_dialog_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -37,12 +38,14 @@ class _TabsScreenState extends State<TabsScreen> {
       _pages = [
         {'page': UsertInfoScreen(), 'title': 'Info'},
         {'page': UserClassesScreen(), 'title': 'Classes'},
-        {'page': NewSessionScreen(), 'title': 'Session'}
+        {'page': NewSessionScreen(), 'title': 'Session'},
+        {'page': const SessionOverviewScreen(), 'title': 'Sessions Overview'},
       ];
     }
 
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => ShowCaseWidget.of(context).startShowCase([_one]));
+      (_) => ShowCaseWidget.of(context).startShowCase([_one]),
+    );
 
     super.initState();
   }
@@ -53,7 +56,10 @@ class _TabsScreenState extends State<TabsScreen> {
     });
   }
 
-  void _checkIfUserExitsFromSession(int index) async {
+  Future<void> _checkIfUserExitsFromSession(
+    int index,
+    bool abortFromTabChange,
+  ) async {
     final UniUser user =
         Provider.of<UserProvider>(context, listen: false).user!;
 
@@ -69,8 +75,7 @@ class _TabsScreenState extends State<TabsScreen> {
         _changeTab(index);
       }
 
-      if (Provider.of<SessionProvider>(context, listen: false)
-          .abortSessionFromTabChange) {
+      if (abortFromTabChange) {
         _changeTab(index);
       }
     } else {
@@ -93,17 +98,18 @@ class _TabsScreenState extends State<TabsScreen> {
 
   Future<void> _showExitDialog(BuildContext context) async {
     return showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: ((context) => DialogWidget(
-              titleText: 'Authorization cancel',
-              contentText: 'Do you want to cancel the authorization proccess?',
-              confirmFunction: _confirmChangeTabFromNewSession,
-              cancelFunction: _cancelChangeTabFromNewSession,
-            )));
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => DialogWidget(
+        titleText: 'Authorization cancel',
+        contentText: 'Do you want to cancel the authorization proccess?',
+        confirmFunction: _confirmChangeTabFromNewSession,
+        cancelFunction: _cancelChangeTabFromNewSession,
+      ),
+    );
   }
 
-  void _logout() async {
+  Future<void> _logout() async {
     if (Provider.of<SessionProvider>(context, listen: false).startedScanning) {
       Provider.of<SessionProvider>(context, listen: false).stopSession();
     }
@@ -114,58 +120,89 @@ class _TabsScreenState extends State<TabsScreen> {
 
   Future<void> _showLogoutDialog(BuildContext context) async {
     return showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: ((context) => DialogWidget(
-            titleText: 'Logout',
-            contentText: 'Are you sure you want to logout?',
-            confirmFunction: _logout,
-            cancelFunction: null)));
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => DialogWidget(
+        titleText: 'Logout',
+        contentText: 'Are you sure you want to logout?',
+        confirmFunction: _logout,
+      ),
+    );
   }
 
   Future<void> _showNewSessionDialog() async {
     return showModalBottomSheet<void>(
-        isDismissible: false,
-        enableDrag: false,
-        context: context,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(15.0),
-                topRight: Radius.circular(15.0))),
-        builder: (context) => NewSessionDialogWidget());
+      isDismissible: false,
+      enableDrag: false,
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15.0),
+          topRight: Radius.circular(15.0),
+        ),
+      ),
+      builder: (context) => const NewSessionDialogWidget(),
+    );
+  }
+
+  Future<void> _showFiltersDialog() async {
+    return showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15.0),
+          topRight: Radius.circular(15.0),
+        ),
+      ),
+      builder: (context) => const FiltersSessionOverviewDialogWidget(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_pages[_selectedIndex]['title'] as String),
+        title: Text(_pages[_selectedIndex]['title']! as String),
         actions: [
           IconButton(
-              onPressed: () => _showLogoutDialog(context),
-              icon: const Tooltip(message: 'Logout', child: Icon(Icons.logout)))
+            onPressed: () => _showLogoutDialog(context),
+            icon: const Tooltip(message: 'Logout', child: Icon(Icons.logout)),
+          )
         ],
       ),
-      body: _pages[_selectedIndex]['page'] as Widget,
-      floatingActionButton: _selectedIndex == 2 &&
-              !Provider.of<SessionProvider>(context).startedScanning
+      body: _pages[_selectedIndex]['page']! as Widget,
+      floatingActionButton: (_selectedIndex == 2 &&
+                  !Provider.of<SessionProvider>(context).startedScanning) ||
+              _selectedIndex == 3
           ? Showcase(
               key: _one,
-              description: 'Tap on it, to start a new session',
+              description: _selectedIndex == 2
+                  ? 'Tap on it, to start a new session'
+                  : 'Tap on it, to add filters',
               child: FloatingActionButton(
-                onPressed: () async {
-                  await Provider.of<SessionProvider>(context, listen: false)
-                      .populateFormData(
+                onPressed: _selectedIndex == 2
+                    ? () async {
+                        await Provider.of<SessionProvider>(
+                          context,
+                          listen: false,
+                        ).populateFormData(
                           1,
                           Provider.of<UserProvider>(context, listen: false)
-                              .user
-                              ?.id,
-                          context);
-                  _showNewSessionDialog();
-                },
-                tooltip: 'Add a new session',
-                backgroundColor: Color.fromRGBO(232, 52, 93, 1.0),
-                child: const Icon(Icons.add),
+                              .user!
+                              .id!,
+                          context,
+                        );
+                        _showNewSessionDialog();
+                      }
+                    : () async => _showFiltersDialog(),
+                tooltip:
+                    _selectedIndex == 2 ? 'Add a new session' : 'Add filters',
+                backgroundColor: _selectedIndex == 2
+                    ? const Color.fromRGBO(232, 52, 93, 1.0)
+                    : const Color.fromARGB(255, 204, 170, 49),
+                child: _selectedIndex == 2
+                    ? const Icon(Icons.add)
+                    : const Icon(Icons.settings),
               ),
             )
           : null,
@@ -177,35 +214,50 @@ class _TabsScreenState extends State<TabsScreen> {
             Provider.of<UserProvider>(context, listen: false).user!.isTeacher!
                 ? [
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.person),
-                        label: 'Info',
-                        tooltip: 'User info',
-                        backgroundColor: Theme.of(context).primaryColor),
+                      icon: const Icon(Icons.person),
+                      label: 'Info',
+                      tooltip: 'User info',
+                      backgroundColor: Theme.of(context).primaryColor,
+                    ),
                     const BottomNavigationBarItem(
-                        icon: Icon(Icons.school),
-                        label: 'Classes',
-                        tooltip: 'User\'s classes',
-                        backgroundColor: Color.fromRGBO(66, 183, 42, 1.0)),
+                      icon: Icon(Icons.school),
+                      label: 'Classes',
+                      tooltip: "User's classes",
+                      backgroundColor: Color.fromRGBO(66, 183, 42, 1.0),
+                    ),
                     const BottomNavigationBarItem(
-                        icon: Icon(Icons.class_),
-                        label: 'Session',
-                        tooltip: 'Start a session',
-                        backgroundColor: Color.fromRGBO(232, 52, 93, 1.0))
+                      icon: Icon(Icons.class_),
+                      label: 'Session',
+                      tooltip: 'Start a session',
+                      backgroundColor: Color.fromRGBO(232, 52, 93, 1.0),
+                    ),
+                    const BottomNavigationBarItem(
+                      icon: Icon(Icons.list_alt_rounded),
+                      label: 'Overview',
+                      tooltip: 'Show sessions',
+                      backgroundColor: Color.fromARGB(255, 204, 170, 49),
+                    ),
                   ]
                 : [
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.person),
-                        label: 'Info',
-                        tooltip: 'User info',
-                        backgroundColor: Theme.of(context).primaryColor),
+                      icon: const Icon(Icons.person),
+                      label: 'Info',
+                      tooltip: 'User info',
+                      backgroundColor: Theme.of(context).primaryColor,
+                    ),
                     const BottomNavigationBarItem(
-                        icon: Icon(Icons.school),
-                        label: 'Classes',
-                        tooltip: 'User\'s classes',
-                        backgroundColor: Color.fromRGBO(66, 183, 42, 1.0))
+                      icon: Icon(Icons.school),
+                      label: 'Classes',
+                      tooltip: "User's classes",
+                      backgroundColor: Color.fromRGBO(66, 183, 42, 1.0),
+                    )
                   ],
         currentIndex: _selectedIndex,
-        onTap: _checkIfUserExitsFromSession,
+        onTap: (index) => _checkIfUserExitsFromSession(
+          index,
+          Provider.of<SessionProvider>(context, listen: false)
+              .abortSessionFromTabChange,
+        ),
       ),
     );
   }

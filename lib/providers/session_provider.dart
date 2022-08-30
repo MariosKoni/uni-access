@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:flutter_uni_access/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 // Defines a session provider
 class SessionProvider with ChangeNotifier {
@@ -11,10 +13,12 @@ class SessionProvider with ChangeNotifier {
   final List<String>? _labs;
   List<String>? _labSubjects;
 
-  String? _selectedLab = null;
-  String? _selectedSubject = null;
+  String? _selectedLab;
+  String? _selectedSubject;
 
-  // 1 = authorized, 2 = not authorized, 3 = already authorized
+  // 1 = authorized,
+  // 2 = not authorized,
+  // 3 = already authorized
   int result = 0;
 
   bool _startedScanning = false;
@@ -34,17 +38,17 @@ class SessionProvider with ChangeNotifier {
 
   List<String> get subjects => [...?_labSubjects];
 
-  set selectedLab(final String? lab) {
+  set selectedLab(String? lab) {
     _selectedLab = lab;
     notifyListeners();
   }
 
-  set selectedSubject(final String? subject) {
+  set selectedSubject(String? subject) {
     _selectedSubject = subject;
     notifyListeners();
   }
 
-  set startedScanning(final bool sScanning) {
+  set startedScanning(bool sScanning) {
     _startedScanning = sScanning;
     notifyListeners();
   }
@@ -55,8 +59,7 @@ class SessionProvider with ChangeNotifier {
 
   bool get startedScanning => _startedScanning;
 
-  Future<void> populateFormData(
-      final int sw, final String? id, final BuildContext context) async {
+  Future<void> populateFormData(int sw, String id, BuildContext context) async {
     final CollectionReference labs =
         FirebaseFirestore.instance.collection('labs');
 
@@ -66,11 +69,14 @@ class SessionProvider with ChangeNotifier {
         await labs.get().then((value) {
           for (final element in value.docs) {
             for (final access in element['access']) {
-              if (!access['users'].toString().contains(id!)) {
+              final Map<String, dynamic>? accessData =
+                  access as Map<String, dynamic>?;
+
+              if (!accessData!['users'].toString().contains(id)) {
                 continue;
               }
 
-              final String labName = element['name'];
+              final String labName = element['name'] as String;
               if (!_labs!.contains(labName)) {
                 _labs?.add(element['name'] as String);
               }
@@ -78,9 +84,12 @@ class SessionProvider with ChangeNotifier {
           }
         }, onError: (e) {
           print(e);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
               content: const Text('Could not fetch labs'),
-              backgroundColor: Theme.of(context).errorColor));
+              backgroundColor: Theme.of(context).errorColor,
+            ),
+          );
         });
 
         break;
@@ -90,18 +99,24 @@ class SessionProvider with ChangeNotifier {
         await labs.where('name', isEqualTo: _selectedLab).get().then((value) {
           for (final element in value.docs) {
             for (final access in element['access']) {
-              if (!access['users'].toString().contains(id!)) {
+              final Map<String, dynamic>? accessData =
+                  access as Map<String, dynamic>?;
+              if (!accessData!['users'].toString().contains(id)) {
                 continue;
               }
               subjects.add(
-                  '${access['info']['subjectName']}: ${access['info']['date']}');
+                '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
+              );
             }
           }
         }, onError: (e) {
           print(e);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
               content: const Text('Could not fetch subjects'),
-              backgroundColor: Theme.of(context).errorColor));
+              backgroundColor: Theme.of(context).errorColor,
+            ),
+          );
         });
 
         _labSubjects = subjects;
@@ -111,7 +126,7 @@ class SessionProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addUserToSession(final String id) async {
+  Future<void> addUserToSession(String id) async {
     if (_sessionUsersIds!.contains(id)) {
       return;
     }
@@ -130,15 +145,16 @@ class SessionProvider with ChangeNotifier {
         return;
       }
 
-      final Map<String, dynamic> data =
-          value.docs.first.data() as Map<String, dynamic>;
+      final Map<String, dynamic>? data =
+          value.docs.first.data() as Map<String, dynamic>?;
       final UniUser uniUser = UniUser(
-          id: data['id'],
-          name: data['name'],
-          surname: data['surname'],
-          email: data['email'],
-          isTeacher: data['isTeacher'],
-          image: data['image']);
+        id: data!['id'] as String,
+        name: data['name'] as String,
+        surname: data['surname'] as String,
+        email: data['email'] as String,
+        isTeacher: data['isTeacher'] as bool,
+        image: data['image'] as String,
+      );
 
       if (_sessionUsersIds!.isEmpty) {
         canSave = true;
@@ -153,17 +169,22 @@ class SessionProvider with ChangeNotifier {
   }
 
   Future<void> checkIfUserHasAccess(
-      CollectionReference<Object?> labs, String id) async {
+    CollectionReference<Object?> labs,
+    String id,
+  ) async {
     await labs.get().then((value) {
       // final Map<String, dynamic> data = value.docs as Map<String, dynamic>;
       // print(data);
 
       for (final element in value.docs) {
         for (final access in element['access']) {
-          if (access['users'].contains(id) &&
-              (access['info']['subjectName'].toString() +
-                      ': ' +
-                      access['info']['date'].toString()) ==
+          final Map<String, dynamic>? accessData =
+              access as Map<String, dynamic>?;
+          final List<dynamic> userIdsList =
+              accessData!['users'] as List<dynamic>;
+          if (userIdsList.contains(id) &&
+              // ignore: avoid_dynamic_calls
+              ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
                   _selectedSubject &&
               element['name'].toString() == _selectedLab) {
             result = 1;
@@ -185,7 +206,8 @@ class SessionProvider with ChangeNotifier {
       'lab': _selectedLab,
       'subject': _selectedSubject,
       'students': _sessionUsersIds,
-      'timestamp': DateTime.now()
+      'timestamp': DateTime.now(),
+      'teacher': Provider.of<UserProvider>(context, listen: false).user?.id
     };
 
     await FirebaseFirestore.instance
@@ -194,14 +216,26 @@ class SessionProvider with ChangeNotifier {
         .set(session)
         .onError((error, stackTrace) {
       print(error);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: const Text('Could save session'),
-          backgroundColor: Theme.of(context).errorColor));
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      );
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Session saved'),
-        backgroundColor: Color.fromRGBO(232, 52, 93, 1.0)));
+    // TODO: Move it to frontend
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Session saved'),
+        backgroundColor: Color.fromRGBO(
+          232,
+          52,
+          93,
+          1.0,
+        ),
+      ),
+    );
     stopSession();
   }
 
