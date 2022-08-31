@@ -4,8 +4,8 @@ import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
-class FormOptionWidget extends StatefulWidget {
-  FormOptionWidget({
+class NewSessionFormOptionWidget extends StatefulWidget {
+  const NewSessionFormOptionWidget({
     Key? key,
     required List<String> option,
     required String titleOption,
@@ -16,13 +16,13 @@ class FormOptionWidget extends StatefulWidget {
   final List<String> _option;
   final String _titleOption;
 
-  String? _selectedItem;
-
   @override
-  State<FormOptionWidget> createState() => _FormOptionState();
+  State<NewSessionFormOptionWidget> createState() => _FormOptionState();
 }
 
-class _FormOptionState extends State<FormOptionWidget> {
+class _FormOptionState extends State<NewSessionFormOptionWidget> {
+  String? _selectedItem;
+
   void _updateSessionSelectedItem(String? newValue, BuildContext context) {
     if (newValue!.contains(':')) {
       Provider.of<SessionProvider>(context, listen: false).selectedSubject =
@@ -55,7 +55,7 @@ class _FormOptionState extends State<FormOptionWidget> {
           ),
           dropdownColor: Theme.of(context).backgroundColor,
           hint: Text(widget._titleOption),
-          value: widget._selectedItem ??= null,
+          value: _selectedItem ??= null,
           icon: const Tooltip(
               message: 'Expand options',
               child: Icon(Icons.arrow_drop_down_rounded)),
@@ -77,7 +77,7 @@ class _FormOptionState extends State<FormOptionWidget> {
                     );
                   }
                   setState(() {
-                    widget._selectedItem = newValue;
+                    _selectedItem = newValue;
                   });
                 }
               : null,

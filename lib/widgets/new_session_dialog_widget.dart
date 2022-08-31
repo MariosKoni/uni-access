@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
-import 'package:flutter_uni_access/widgets/form_option_widget.dart';
+import 'package:flutter_uni_access/widgets/new_session_form_option_widget.dart';
 import 'package:provider/provider.dart';
 
 class NewSessionDialogWidget extends StatelessWidget {
@@ -25,7 +25,7 @@ class NewSessionDialogWidget extends StatelessWidget {
             style: Theme.of(context).textTheme.headline5,
           ),
           const SizedBox(height: 10),
-          FormOptionWidget(
+          NewSessionFormOptionWidget(
             key: const Key('lab'),
             option: Provider.of<SessionProvider>(context, listen: false).labs,
             titleOption: 'Lab',
@@ -33,7 +33,7 @@ class NewSessionDialogWidget extends StatelessWidget {
           const SizedBox(
             height: 10,
           ),
-          FormOptionWidget(
+          NewSessionFormOptionWidget(
             key: const Key('subject'),
             option: Provider.of<SessionProvider>(context).subjects,
             titleOption: 'Subject',
@@ -43,7 +43,7 @@ class NewSessionDialogWidget extends StatelessWidget {
             message: 'Start the authorization process',
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: const Color.fromRGBO(232, 52, 93, 1.0),
+                backgroundColor: const Color.fromRGBO(232, 52, 93, 1.0),
               ),
               onPressed: Provider.of<SessionProvider>(context).selectedLab !=
                           null &&

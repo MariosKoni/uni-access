@@ -22,7 +22,8 @@ class _TabsScreenState extends State<TabsScreen> {
   late List<Map<String, Object>> _pages;
   int _selectedIndex = 0;
 
-  final GlobalKey _one = GlobalKey();
+  final GlobalKey _newSession = GlobalKey();
+  final GlobalKey _sessionOverview = GlobalKey();
 
   @override
   void initState() {
@@ -44,7 +45,9 @@ class _TabsScreenState extends State<TabsScreen> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ShowCaseWidget.of(context).startShowCase([_one]),
+      (_) => ShowCaseWidget.of(context).startShowCase(
+        [if (_selectedIndex == 2) _newSession else _sessionOverview],
+      ),
     );
 
     super.initState();
@@ -175,7 +178,7 @@ class _TabsScreenState extends State<TabsScreen> {
                   !Provider.of<SessionProvider>(context).startedScanning) ||
               _selectedIndex == 3
           ? Showcase(
-              key: _one,
+              key: _selectedIndex == 2 ? _newSession : _sessionOverview,
               description: _selectedIndex == 2
                   ? 'Tap on it, to start a new session'
                   : 'Tap on it, to add filters',

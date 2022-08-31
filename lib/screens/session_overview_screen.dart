@@ -3,8 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/session.dart';
+import 'package:flutter_uni_access/providers/session_overview_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
-import 'package:flutter_uni_access/widgets/session_overview_card_widget.dart';
+import 'package:flutter_uni_access/widgets/session_overview_list_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class SessionOverviewScreen extends StatelessWidget {
@@ -54,19 +56,23 @@ class SessionOverviewScreen extends StatelessWidget {
               studentsIds: studentsIds,
               subject: element['subject'] as String,
               teacher: element['teacher'] as String,
-              timestamp: DateTime.fromMillisecondsSinceEpoch(
-                element['timestamp'].millisecondsSinceEpoch as int,
+              timestamp: DateFormat('yyy-MM-dd kk:mm').format(
+                DateTime.fromMillisecondsSinceEpoch(
+                  element['timestamp'].millisecondsSinceEpoch as int,
+                ),
               ),
             );
 
             sessions.add(session);
           }
 
-          return ListView.builder(
-            itemCount: sessions.length,
-            itemBuilder: (_, int index) =>
-                SessionOverviewCardWidget(session: sessions[index]),
-          );
+          Provider.of<SessionOverviewProvider>(context, listen: false)
+              .sessions = sessions;
+          Provider.of<SessionOverviewProvider>(context, listen: false)
+              .populateLists();
+
+          // TODO: Maybe more efficient?
+          return const SessionOverviewsListWidget();
         }
         return const CircularProgressIndicator();
       },

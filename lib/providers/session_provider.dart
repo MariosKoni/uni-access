@@ -1,5 +1,6 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
@@ -26,7 +27,11 @@ class SessionProvider with ChangeNotifier {
   bool canSave = false;
 
   SessionProvider(
-      this._sessionUsers, this._sessionUsersIds, this._labs, this._labSubjects);
+    this._sessionUsers,
+    this._sessionUsersIds,
+    this._labs,
+    this._labSubjects,
+  );
 
   List<UniUser> get sessionUsers {
     return [..._sessionUsers!];
@@ -66,58 +71,64 @@ class SessionProvider with ChangeNotifier {
     switch (sw) {
       // load labs
       case 1:
-        await labs.get().then((value) {
-          for (final element in value.docs) {
-            for (final access in element['access']) {
-              final Map<String, dynamic>? accessData =
-                  access as Map<String, dynamic>?;
+        await labs.get().then(
+          (value) {
+            for (final element in value.docs) {
+              for (final access in element['access']) {
+                final Map<String, dynamic>? accessData =
+                    access as Map<String, dynamic>?;
 
-              if (!accessData!['users'].toString().contains(id)) {
-                continue;
-              }
+                if (!accessData!['users'].toString().contains(id)) {
+                  continue;
+                }
 
-              final String labName = element['name'] as String;
-              if (!_labs!.contains(labName)) {
-                _labs?.add(element['name'] as String);
+                final String labName = element['name'] as String;
+                if (!_labs!.contains(labName)) {
+                  _labs?.add(element['name'] as String);
+                }
               }
             }
-          }
-        }, onError: (e) {
-          print(e);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Could not fetch labs'),
-              backgroundColor: Theme.of(context).errorColor,
-            ),
-          );
-        });
+          },
+          onError: (e) {
+            print(e);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Could not fetch labs'),
+                backgroundColor: Theme.of(context).errorColor,
+              ),
+            );
+          },
+        );
 
         break;
       // load subjects
       case 2:
         final List<String> subjects = List.empty(growable: true);
-        await labs.where('name', isEqualTo: _selectedLab).get().then((value) {
-          for (final element in value.docs) {
-            for (final access in element['access']) {
-              final Map<String, dynamic>? accessData =
-                  access as Map<String, dynamic>?;
-              if (!accessData!['users'].toString().contains(id)) {
-                continue;
+        await labs.where('name', isEqualTo: _selectedLab).get().then(
+          (value) {
+            for (final element in value.docs) {
+              for (final access in element['access']) {
+                final Map<String, dynamic>? accessData =
+                    access as Map<String, dynamic>?;
+                if (!accessData!['users'].toString().contains(id)) {
+                  continue;
+                }
+                subjects.add(
+                  '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
+                );
               }
-              subjects.add(
-                '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
-              );
             }
-          }
-        }, onError: (e) {
-          print(e);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Could not fetch subjects'),
-              backgroundColor: Theme.of(context).errorColor,
-            ),
-          );
-        });
+          },
+          onError: (e) {
+            print(e);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Could not fetch subjects'),
+                backgroundColor: Theme.of(context).errorColor,
+              ),
+            );
+          },
+        );
 
         _labSubjects = subjects;
         notifyListeners();
@@ -134,36 +145,39 @@ class SessionProvider with ChangeNotifier {
     final CollectionReference users =
         FirebaseFirestore.instance.collection('users');
 
-    await users.where('id', isEqualTo: id).get().then((value) async {
-      // Check if the user has rights
-      final CollectionReference labs =
-          FirebaseFirestore.instance.collection('labs');
+    await users.where('id', isEqualTo: id).get().then(
+      (value) async {
+        // Check if the user has rights
+        final CollectionReference labs =
+            FirebaseFirestore.instance.collection('labs');
 
-      await checkIfUserHasAccess(labs, id);
+        await checkIfUserHasAccess(labs, id);
 
-      if (result == 2) {
-        return;
-      }
+        if (result == 2) {
+          return;
+        }
 
-      final Map<String, dynamic>? data =
-          value.docs.first.data() as Map<String, dynamic>?;
-      final UniUser uniUser = UniUser(
-        id: data!['id'] as String,
-        name: data['name'] as String,
-        surname: data['surname'] as String,
-        email: data['email'] as String,
-        isTeacher: data['isTeacher'] as bool,
-        image: data['image'] as String,
-      );
+        final Map<String, dynamic>? data =
+            value.docs.first.data() as Map<String, dynamic>?;
+        final UniUser uniUser = UniUser(
+          id: data!['id'] as String,
+          name: data['name'] as String,
+          surname: data['surname'] as String,
+          email: data['email'] as String,
+          isTeacher: data['isTeacher'] as bool,
+          image: data['image'] as String,
+        );
 
-      if (_sessionUsersIds!.isEmpty) {
-        canSave = true;
-        notifyListeners();
-      }
+        if (_sessionUsersIds!.isEmpty) {
+          canSave = true;
+          notifyListeners();
+        }
 
-      _sessionUsers?.add(uniUser);
-      _sessionUsersIds?.add(id);
-    }, onError: (e) => print(e));
+        _sessionUsers?.add(uniUser);
+        _sessionUsersIds?.add(id);
+      },
+      onError: (e) => print(e),
+    );
 
     notifyListeners();
   }
@@ -172,33 +186,36 @@ class SessionProvider with ChangeNotifier {
     CollectionReference<Object?> labs,
     String id,
   ) async {
-    await labs.get().then((value) {
-      // final Map<String, dynamic> data = value.docs as Map<String, dynamic>;
-      // print(data);
+    await labs.get().then(
+      (value) {
+        // final Map<String, dynamic> data = value.docs as Map<String, dynamic>;
+        // print(data);
 
-      for (final element in value.docs) {
-        for (final access in element['access']) {
-          final Map<String, dynamic>? accessData =
-              access as Map<String, dynamic>?;
-          final List<dynamic> userIdsList =
-              accessData!['users'] as List<dynamic>;
-          if (userIdsList.contains(id) &&
-              // ignore: avoid_dynamic_calls
-              ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
-                  _selectedSubject &&
-              element['name'].toString() == _selectedLab) {
-            result = 1;
-            break;
-          } else {
-            result = 2;
+        for (final element in value.docs) {
+          for (final access in element['access']) {
+            final Map<String, dynamic>? accessData =
+                access as Map<String, dynamic>?;
+            final List<dynamic> userIdsList =
+                accessData!['users'] as List<dynamic>;
+            if (userIdsList.contains(id) &&
+                // ignore: avoid_dynamic_calls
+                ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
+                    _selectedSubject &&
+                element['name'].toString() == _selectedLab) {
+              result = 1;
+              break;
+            } else {
+              result = 2;
+              break;
+            }
+          }
+          if (result == 1) {
             break;
           }
         }
-        if (result == 1) {
-          break;
-        }
-      }
-    }, onError: (e) => print(e));
+      },
+      onError: (e) => print(e),
+    );
   }
 
   Future<void> saveSession(BuildContext context) async {

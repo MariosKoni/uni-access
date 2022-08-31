@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:flutter_uni_access/providers/session_overview_provider.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/screens/auth_screen.dart';
@@ -36,7 +37,15 @@ class MyApp extends StatelessWidget {
             List.empty(growable: true),
           ),
         ),
-        ChangeNotifierProvider(create: (context) => UserProvider())
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(
+          create: (context) => SessionOverviewProvider(
+            List.empty(growable: true),
+            List.empty(growable: true),
+            List.empty(growable: true),
+            List.empty(growable: true),
+          ),
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -59,8 +68,7 @@ class MyApp extends StatelessWidget {
                   final CollectionReference users =
                       FirebaseFirestore.instance.collection('users');
 
-                  var id = '';
-                  UniUser uniUser;
+                  String id;
 
                   if (user != null) {
                     id = user.uid;
@@ -83,7 +91,7 @@ class MyApp extends StatelessWidget {
                         if (snapshot.connectionState == ConnectionState.done) {
                           final Map<String, dynamic>? data =
                               snapshot.data?.data() as Map<String, dynamic>?;
-                          uniUser = UniUser(
+                          final uniUser = UniUser(
                             id: data!['id'] as String,
                             name: data['name'] as String,
                             surname: data['surname'] as String,

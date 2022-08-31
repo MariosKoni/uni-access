@@ -22,8 +22,11 @@ class SessionOverviewCardWidget extends StatelessWidget {
       color: Theme.of(context).colorScheme.secondary,
       child: ExpansionTile(
         leading: const Icon(Icons.list_alt_rounded),
-        title: Text('Session at ${_session.timestamp}'),
-        subtitle: const Text('Tap the arrow to see the details/attendants.'),
+        title: Text(
+          '${_session.lab} - ${_session.subject!}',
+          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('Saved at ${_session.timestamp}'),
         collapsedIconColor: const Color.fromARGB(255, 204, 170, 49),
         childrenPadding: const EdgeInsets.all(8.0),
         children: _session.studentsIds!
@@ -34,7 +37,6 @@ class SessionOverviewCardWidget extends StatelessWidget {
                 leading: Text('${e.key + 1}'),
                 title: Center(child: Text(e.value)),
                 trailing: const Icon(Icons.person),
-                onTap: () {},
               ),
             )
             .toList(),
