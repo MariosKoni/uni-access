@@ -23,7 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } on PlatformException catch (err) {
-      var message = 'An error occured, please check your credentials';
+      var message = 'An error occurred, please check your credentials';
 
       if (err.message != null) {
         message = err.message!;
@@ -79,7 +79,7 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
             Image(
               image: const AssetImage('assets/images/pada-logo.png'),
-              height: MediaQuery.of(context).size.height / 3,
+              height: MediaQuery.of(context).size.height / 4,
             ),
             AuthForm(_submitAuthForm, _isLoading),
           ],

@@ -44,9 +44,12 @@ class _TabsScreenState extends State<TabsScreen> {
       ];
     }
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ShowCaseWidget.of(context).startShowCase(
-        [if (_selectedIndex == 2) _newSession else _sessionOverview],
+    Future.delayed(
+      const Duration(seconds: 5),
+      () => WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ShowCaseWidget.of(context).startShowCase(
+          [if (_selectedIndex == 2) _newSession else _sessionOverview],
+        ),
       ),
     );
 
@@ -68,7 +71,7 @@ class _TabsScreenState extends State<TabsScreen> {
 
     if (user.isTeacher!) {
       // We are on sessions screen and
-      //authorization proccess has started
+      //authorization process has started
       if (_selectedIndex == 2 &&
           index != _selectedIndex &&
           Provider.of<SessionProvider>(context, listen: false)
@@ -105,7 +108,7 @@ class _TabsScreenState extends State<TabsScreen> {
       context: context,
       builder: (context) => DialogWidget(
         titleText: 'Authorization cancel',
-        contentText: 'Do you want to cancel the authorization proccess?',
+        contentText: 'Do you want to cancel the authorization process?',
         confirmFunction: _confirmChangeTabFromNewSession,
         cancelFunction: _cancelChangeTabFromNewSession,
       ),

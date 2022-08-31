@@ -115,7 +115,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
             message: 'Scan a barcode',
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: const Color.fromRGBO(232, 52, 93, 1.0),
+                backgroundColor: const Color.fromRGBO(232, 52, 93, 1.0),
               ),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const ScanWidget()),
