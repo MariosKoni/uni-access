@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:flutter_uni_access/providers/classes_provider.dart';
 import 'package:flutter_uni_access/providers/session_overview_provider.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
@@ -44,8 +45,14 @@ class MyApp extends StatelessWidget {
             List.empty(growable: true),
             List.empty(growable: true),
             List.empty(growable: true),
+            List.empty(growable: true),
           ),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ClassesProvider(
+            List.empty(growable: true),
+          ),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

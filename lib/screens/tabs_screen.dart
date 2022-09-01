@@ -44,12 +44,9 @@ class _TabsScreenState extends State<TabsScreen> {
       ];
     }
 
-    Future.delayed(
-      const Duration(seconds: 5),
-      () => WidgetsBinding.instance.addPostFrameCallback(
-        (_) => ShowCaseWidget.of(context).startShowCase(
-          [if (_selectedIndex == 2) _newSession else _sessionOverview],
-        ),
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => ShowCaseWidget.of(context).startShowCase(
+        [if (_selectedIndex == 2) _newSession else _sessionOverview],
       ),
     );
 

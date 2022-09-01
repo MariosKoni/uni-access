@@ -51,11 +51,14 @@ class _FilterSessionOverviewFormOptionWidgetState
             child: Icon(Icons.arrow_drop_down_rounded),
           ),
           onChanged: (String? newValue) {
+            final List<String>? filters =
+                Provider.of<SessionOverviewProvider>(context, listen: false)
+                    .filters;
+            if (!filters!.contains(newValue)) {
+              filters.add(newValue!);
+            }
             Provider.of<SessionOverviewProvider>(context, listen: false)
-                .applyFilter(
-              widget.key.toString().compareTo("[<'lab'>]") == 0 ? 1 : 2,
-              newValue,
-            );
+                .filter();
             setState(() {
               _selectedItem = newValue;
             });

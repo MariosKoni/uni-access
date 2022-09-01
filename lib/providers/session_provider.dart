@@ -139,6 +139,7 @@ class SessionProvider with ChangeNotifier {
 
   Future<void> addUserToSession(String id) async {
     if (_sessionUsersIds!.contains(id)) {
+      result = 3;
       return;
     }
 
@@ -188,9 +189,6 @@ class SessionProvider with ChangeNotifier {
   ) async {
     await labs.get().then(
       (value) {
-        // final Map<String, dynamic> data = value.docs as Map<String, dynamic>;
-        // print(data);
-
         for (final element in value.docs) {
           for (final access in element['access']) {
             final Map<String, dynamic>? accessData =
@@ -204,14 +202,15 @@ class SessionProvider with ChangeNotifier {
                 element['name'].toString() == _selectedLab) {
               result = 1;
               break;
-            } else {
-              result = 2;
-              break;
             }
           }
           if (result == 1) {
             break;
           }
+        }
+
+        if (result != 1) {
+          result = 2;
         }
       },
       onError: (e) => print(e),
@@ -253,6 +252,7 @@ class SessionProvider with ChangeNotifier {
         ),
       ),
     );
+
     stopSession();
   }
 
