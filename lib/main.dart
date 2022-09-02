@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, cast_nullable_to_non_nullable
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -71,11 +73,11 @@ class MyApp extends StatelessWidget {
               stream: FirebaseAuth.instance.authStateChanges(),
               builder: (ctx, userSnapshot) {
                 if (userSnapshot.hasData) {
-                  final user = FirebaseAuth.instance.currentUser;
-                  final CollectionReference users =
+                  late final User? user = FirebaseAuth.instance.currentUser;
+                  late final CollectionReference users =
                       FirebaseFirestore.instance.collection('users');
 
-                  String id;
+                  late String id;
 
                   if (user != null) {
                     id = user.uid;
@@ -89,17 +91,19 @@ class MyApp extends StatelessWidget {
                           );
                         }
 
-                        if (snapshot.hasData && !snapshot.data!.exists) {
+                        if (snapshot.hasData &&
+                            (snapshot.data == null || !snapshot.data!.exists)) {
                           return const Center(
                             child: Text('Document does not exist'),
                           );
                         }
 
                         if (snapshot.connectionState == ConnectionState.done) {
-                          final Map<String, dynamic>? data =
-                              snapshot.data?.data() as Map<String, dynamic>?;
+                          final Map<String, dynamic> data =
+                              snapshot.data!.data() as Map<String, dynamic>;
+
                           final uniUser = UniUser(
-                            id: data!['id'] as String,
+                            id: data['id'] as String,
                             name: data['name'] as String,
                             surname: data['surname'] as String,
                             email: data['email'] as String,

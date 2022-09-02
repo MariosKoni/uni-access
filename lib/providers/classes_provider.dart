@@ -1,4 +1,6 @@
 // Defines a class provider
+// ignore_for_file: avoid_dynamic_calls
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/student_classes_card.dart';

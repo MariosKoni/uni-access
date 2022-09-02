@@ -11,7 +11,6 @@ import 'package:flutter_uni_access/widgets/dialog_widget.dart';
 import 'package:flutter_uni_access/widgets/filters_session_overview_dialog_widget.dart';
 import 'package:flutter_uni_access/widgets/new_session_dialog_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 class TabsScreen extends StatefulWidget {
   @override
@@ -21,9 +20,6 @@ class TabsScreen extends StatefulWidget {
 class _TabsScreenState extends State<TabsScreen> {
   late List<Map<String, Object>> _pages;
   int _selectedIndex = 0;
-
-  final GlobalKey _newSession = GlobalKey();
-  final GlobalKey _sessionOverview = GlobalKey();
 
   @override
   void initState() {
@@ -43,12 +39,6 @@ class _TabsScreenState extends State<TabsScreen> {
         {'page': const SessionOverviewScreen(), 'title': 'Sessions Overview'},
       ];
     }
-
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ShowCaseWidget.of(context).startShowCase(
-        [if (_selectedIndex == 2) _newSession else _sessionOverview],
-      ),
-    );
 
     super.initState();
   }
@@ -177,36 +167,30 @@ class _TabsScreenState extends State<TabsScreen> {
       floatingActionButton: (_selectedIndex == 2 &&
                   !Provider.of<SessionProvider>(context).startedScanning) ||
               _selectedIndex == 3
-          ? Showcase(
-              key: _selectedIndex == 2 ? _newSession : _sessionOverview,
-              description: _selectedIndex == 2
-                  ? 'Tap on it, to start a new session'
-                  : 'Tap on it, to add filters',
-              child: FloatingActionButton(
-                onPressed: _selectedIndex == 2
-                    ? () async {
-                        await Provider.of<SessionProvider>(
-                          context,
-                          listen: false,
-                        ).populateFormData(
-                          1,
-                          Provider.of<UserProvider>(context, listen: false)
-                              .user!
-                              .id!,
-                          context,
-                        );
-                        _showNewSessionDialog();
-                      }
-                    : () async => _showFiltersDialog(),
-                tooltip:
-                    _selectedIndex == 2 ? 'Add a new session' : 'Add filters',
-                backgroundColor: _selectedIndex == 2
-                    ? const Color.fromRGBO(232, 52, 93, 1.0)
-                    : const Color.fromARGB(255, 204, 170, 49),
-                child: _selectedIndex == 2
-                    ? const Icon(Icons.add)
-                    : const Icon(Icons.settings),
-              ),
+          ? FloatingActionButton(
+              onPressed: _selectedIndex == 2
+                  ? () async {
+                      await Provider.of<SessionProvider>(
+                        context,
+                        listen: false,
+                      ).populateFormData(
+                        1,
+                        Provider.of<UserProvider>(context, listen: false)
+                            .user!
+                            .id!,
+                        context,
+                      );
+                      _showNewSessionDialog();
+                    }
+                  : () async => _showFiltersDialog(),
+              tooltip:
+                  _selectedIndex == 2 ? 'Add a new session' : 'Add filters',
+              backgroundColor: _selectedIndex == 2
+                  ? const Color.fromRGBO(232, 52, 93, 1.0)
+                  : const Color.fromARGB(255, 204, 170, 49),
+              child: _selectedIndex == 2
+                  ? const Icon(Icons.add)
+                  : const Icon(Icons.settings),
             )
           : null,
       bottomNavigationBar: BottomNavigationBar(

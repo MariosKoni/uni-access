@@ -39,7 +39,7 @@ class NewSessionScreen extends StatelessWidget {
                   message: 'Save session',
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      primary: canSave
+                      foregroundColor: canSave
                           ? const Color.fromRGBO(232, 52, 93, 1.0)
                           : Theme.of(context).backgroundColor,
                       fixedSize: Size(
@@ -48,9 +48,10 @@ class NewSessionScreen extends StatelessWidget {
                       ),
                     ),
                     onPressed: () async => canSave
-                        ? await Provider.of<SessionProvider>(context,
-                                listen: false)
-                            .saveSession(context)
+                        ? await Provider.of<SessionProvider>(
+                            context,
+                            listen: false,
+                          ).saveSession(context)
                         : null,
                     icon: const Icon(Icons.save_rounded),
                     label: const Text('Save session'),

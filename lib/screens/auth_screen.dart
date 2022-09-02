@@ -11,11 +11,14 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final _auth = FirebaseAuth.instance;
+  late final _auth = FirebaseAuth.instance;
   var _isLoading = false;
 
   Future<void> _submitAuthForm(
-      String email, String password, BuildContext ctx) async {
+    String email,
+    String password,
+    BuildContext ctx,
+  ) async {
     try {
       setState(() {
         _isLoading = true;
@@ -57,7 +60,6 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = false;
       });
     } catch (err) {
-      print(err);
       setState(() {
         _isLoading = false;
       });
