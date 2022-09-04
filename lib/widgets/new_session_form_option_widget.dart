@@ -57,8 +57,9 @@ class _FormOptionState extends State<NewSessionFormOptionWidget> {
           hint: Text(widget._titleOption),
           value: _selectedItem ??= null,
           icon: const Tooltip(
-              message: 'Expand options',
-              child: Icon(Icons.arrow_drop_down_rounded)),
+            message: 'Expand options',
+            child: Icon(Icons.arrow_drop_down_rounded),
+          ),
           onChanged: widget.key.toString().compareTo("[<'lab'>]") == 0 ||
                   (widget.key.toString().compareTo("[<'subject'>]") == 0 &&
                       Provider.of<SessionProvider>(context, listen: false)

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class CustomBottomOutlineButton extends StatelessWidget {
-  const CustomBottomOutlineButton(
-      {Key? key,
-      required String hintMessage,
-      required double width,
-      required double height,
-      required VoidCallback onPressedMethod,
-      required IconData icon,
-      required String label})
-      : _hintMessage = hintMessage,
+  const CustomBottomOutlineButton({
+    Key? key,
+    required String hintMessage,
+    required double width,
+    required double height,
+    required VoidCallback onPressedMethod,
+    required IconData icon,
+    required String label,
+  })  : _hintMessage = hintMessage,
         _width = width,
         _height = height,
         _onPressedMethod = onPressedMethod,

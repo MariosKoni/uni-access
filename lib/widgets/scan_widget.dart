@@ -9,7 +9,10 @@ class ScanWidget extends StatelessWidget {
   const ScanWidget({Key? key}) : super(key: key);
 
   Future<void> _showAuthorizeAlertDialog(
-      BuildContext context, int mode, String msg) async {
+    BuildContext context,
+    int mode,
+    String msg,
+  ) async {
     return showDialog(
       barrierDismissible: false,
       context: context,
