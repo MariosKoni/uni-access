@@ -36,7 +36,7 @@ class _TabsScreenState extends State<TabsScreen> {
         {'page': UsertInfoScreen(), 'title': 'Info'},
         {'page': UserClassesScreen(), 'title': 'Classes'},
         {'page': NewSessionScreen(), 'title': 'Session'},
-        {'page': const SessionOverviewScreen(), 'title': 'Sessions Overview'},
+        {'page': SessionOverviewScreen(), 'title': 'Sessions Overview'},
       ];
     }
 
