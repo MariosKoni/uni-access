@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
+import 'package:provider/provider.dart';
 
 class AlertStudentProfileWidget extends StatelessWidget {
   const AlertStudentProfileWidget({Key? key, required UniUser user})
@@ -24,29 +26,54 @@ class AlertStudentProfileWidget extends StatelessWidget {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      content: SizedBox(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.person, size: 150.0),
-            Text(
-              _user.id!,
-              style: const TextStyle(fontSize: 25),
-            ),
-            Text(
-              _user.name.toString().capitalize(),
-              style: const TextStyle(fontSize: 25),
-            ),
-            Text(
-              _user.surname.toString().capitalize(),
-              style: const TextStyle(fontSize: 25),
-            ),
-            Text(
-              _user.email!,
-              style: const TextStyle(fontSize: 25),
-            ),
-          ],
-        ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Center(child: Icon(Icons.person_rounded, size: 150.0)),
+          const Text('ID', style: TextStyle(fontWeight: FontWeight.w100)),
+          Text(
+            _user.id!,
+            style: const TextStyle(fontSize: 25),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          const Text('Name', style: TextStyle(fontWeight: FontWeight.w100)),
+          Text(
+            _user.name.toString().capitalize(),
+            style: const TextStyle(fontSize: 25),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          const Text('Surname', style: TextStyle(fontWeight: FontWeight.w100)),
+          Text(
+            _user.surname.toString().capitalize(),
+            style: const TextStyle(fontSize: 25),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          const Text('Email', style: TextStyle(fontWeight: FontWeight.w100)),
+          Text(
+            _user.email!,
+            style: const TextStyle(fontSize: 25),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          const Text(
+            'Attendences',
+            style: TextStyle(fontWeight: FontWeight.w100),
+          ),
+          Text(
+            Provider.of<SessionProvider>(context, listen: false)
+                .currentStudentAttendances
+                .toString(),
+            style: const TextStyle(fontSize: 25),
+          ),
+        ],
       ),
       actions: [
         Tooltip(

@@ -31,6 +31,8 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
     BuildContext context,
     UniUser user,
   ) async {
+    await Provider.of<SessionProvider>(context, listen: false)
+        .findStudentAttendances(user.id!);
     return showDialog(
       barrierDismissible: false,
       context: context,

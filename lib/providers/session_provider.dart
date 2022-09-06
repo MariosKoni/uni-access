@@ -25,6 +25,7 @@ class SessionProvider with ChangeNotifier {
   bool _startedScanning = false;
   bool abortSessionFromTabChange = false;
   bool canSave = false;
+  int? currentStudentAttendances;
 
   SessionProvider(
     this._sessionUsers,
@@ -196,7 +197,6 @@ class SessionProvider with ChangeNotifier {
             final List<dynamic> userIdsList =
                 accessData!['users'] as List<dynamic>;
             if (userIdsList.contains(id) &&
-                // ignore: avoid_dynamic_calls
                 ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
                     _selectedSubject &&
                 element['name'].toString() == _selectedLab) {
@@ -211,6 +211,46 @@ class SessionProvider with ChangeNotifier {
 
         if (result != 1) {
           result = 2;
+        }
+      },
+      onError: (e) => print(e),
+    );
+  }
+
+  Future<void> findStudentAttendances(String id) async {
+    final CollectionReference labs =
+        FirebaseFirestore.instance.collection('labs');
+
+    await labs.where('name', isEqualTo: _selectedLab).get().then(
+      (value) {
+        for (final element in value.docs) {
+          for (final access in element['access']) {
+            final Map<String, dynamic>? accessData =
+                access as Map<String, dynamic>?;
+
+            accessData?.forEach((key, value) {
+              if (key == 'info' &&
+                  (value as String).compareTo(
+                        '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
+                      ) ==
+                      0) {
+                final Map<String, dynamic>? attendance =
+                    accessData['attendance'] as Map<String, dynamic>?;
+                attendance?.forEach((key, value) {
+                  if (key == id) {
+                    currentStudentAttendances = value as int;
+                  }
+                });
+              }
+            });
+
+            if (currentStudentAttendances != null) {
+              break;
+            }
+          }
+          if (currentStudentAttendances != null) {
+            break;
+          }
         }
       },
       onError: (e) => print(e),
