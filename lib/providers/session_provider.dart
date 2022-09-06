@@ -220,6 +220,7 @@ class SessionProvider with ChangeNotifier {
   Future<void> findStudentAttendances(String id) async {
     final CollectionReference labs =
         FirebaseFirestore.instance.collection('labs');
+    bool shouldBreak = false;
 
     await labs.where('name', isEqualTo: _selectedLab).get().then(
       (value) {
@@ -227,28 +228,29 @@ class SessionProvider with ChangeNotifier {
           for (final access in element['access']) {
             final Map<String, dynamic>? accessData =
                 access as Map<String, dynamic>?;
+            final Map<String, dynamic>? info =
+                accessData?['info'] as Map<String, dynamic>?;
 
-            accessData?.forEach((key, value) {
-              if (key == 'info' &&
-                  (value as String).compareTo(
-                        '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
-                      ) ==
-                      0) {
-                final Map<String, dynamic>? attendance =
-                    accessData['attendance'] as Map<String, dynamic>?;
-                attendance?.forEach((key, value) {
-                  if (key == id) {
-                    currentStudentAttendances = value as int;
-                  }
-                });
-              }
-            });
+            if (('${info?['subjectName'] as String}: ${info?['date'] as String}')
+                    .compareTo(
+                  '$selectedSubject',
+                ) ==
+                0) {
+              final Map<String, dynamic>? attendance =
+                  accessData?['attendance'] as Map<String, dynamic>?;
+              attendance?.forEach((key, value) {
+                if (key == id) {
+                  currentStudentAttendances = value as int;
+                  shouldBreak = true;
+                }
+              });
+            }
 
-            if (currentStudentAttendances != null) {
+            if (shouldBreak) {
               break;
             }
           }
-          if (currentStudentAttendances != null) {
+          if (shouldBreak) {
             break;
           }
         }
