@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_uni_access/models/attendances.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -218,48 +219,48 @@ class SessionProvider with ChangeNotifier {
   }
 
   Future<void> findStudentAttendances(String id) async {
-    final CollectionReference labs =
-        FirebaseFirestore.instance.collection('labs');
-    bool shouldBreak = false;
+    final CollectionReference attendances =
+        FirebaseFirestore.instance.collection('attendances');
 
-    await labs.where('name', isEqualTo: _selectedLab).get().then(
+    await attendances.doc(_selectedSubject).get().then(
       (value) {
-        for (final element in value.docs) {
-          for (final access in element['access']) {
-            final Map<String, dynamic>? accessData =
-                access as Map<String, dynamic>?;
-            final Map<String, dynamic>? info =
-                accessData?['info'] as Map<String, dynamic>?;
-
-            if (('${info?['subjectName'] as String}: ${info?['date'] as String}')
-                    .compareTo(
-                  '$selectedSubject',
-                ) ==
-                0) {
-              final Map<String, dynamic>? attendance =
-                  accessData?['attendance'] as Map<String, dynamic>?;
-              attendance?.forEach((key, value) {
-                if (key == id) {
-                  currentStudentAttendances = value as int;
-                  shouldBreak = true;
-                }
-              });
-            }
-
-            if (shouldBreak) {
-              break;
-            }
+        final Attendances attendances = Attendances.fromFirestore(value);
+        attendances.attendants?.forEach((key, value) {
+          if (key == id) {
+            currentStudentAttendances = value as int;
           }
-          if (shouldBreak) {
-            break;
-          }
-        }
+        });
       },
       onError: (e) => print(e),
     );
   }
 
+  Future<void> updateAttendances(BuildContext context) async {
+    final currentAttendances = FirebaseFirestore.instance
+        .collection('attendances')
+        .doc(_selectedSubject);
+    Map<String, dynamic>? attendants;
+
+    await currentAttendances.get().then(
+      (value) {
+        final Attendances attendances = Attendances.fromFirestore(value);
+        for (final student in _sessionUsersIds!) {
+          if (attendances.attendants!.containsKey(student)) {
+            attendances.attendants?['student'] += 1;
+          }
+        }
+
+        attendants = attendances.attendants;
+      },
+      onError: (e) => print(e),
+    );
+
+    currentAttendances.update({'attendants': attendants});
+  }
+
   Future<void> saveSession(BuildContext context) async {
+    await updateAttendances(context);
+
     final session = <String, dynamic>{
       'lab': _selectedLab,
       'subject': _selectedSubject,
