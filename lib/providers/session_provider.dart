@@ -28,11 +28,14 @@ class SessionProvider with ChangeNotifier {
   bool canSave = false;
   int? currentStudentAttendances;
 
+  final Map<String, int> _attendants;
+
   SessionProvider(
     this._sessionUsers,
     this._sessionUsersIds,
     this._labs,
     this._labSubjects,
+    this._attendants,
   );
 
   List<UniUser> get sessionUsers {
@@ -92,7 +95,6 @@ class SessionProvider with ChangeNotifier {
             }
           },
           onError: (e) {
-            print(e);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Could not fetch labs'),
@@ -178,6 +180,8 @@ class SessionProvider with ChangeNotifier {
 
         _sessionUsers?.add(uniUser);
         _sessionUsersIds?.add(id);
+
+        await updateUserAttendance(id);
       },
       onError: (e) => print(e),
     );
@@ -218,6 +222,25 @@ class SessionProvider with ChangeNotifier {
     );
   }
 
+  Future<void> updateUserAttendance(String id) async {
+    await FirebaseFirestore.instance
+        .collection('attendances')
+        .doc(_selectedSubject)
+        .get()
+        .then(
+      (value) {
+        final Attendances attendance = Attendances.fromFirestore(value);
+
+        attendance.attendants?.forEach((key, value) {
+          if (key == id) {
+            _attendants.putIfAbsent(key, () => value + 1 as int);
+          }
+        });
+      },
+      onError: (e) => print(e),
+    );
+  }
+
   Future<void> findStudentAttendances(String id) async {
     final CollectionReference attendances =
         FirebaseFirestore.instance.collection('attendances');
@@ -239,23 +262,8 @@ class SessionProvider with ChangeNotifier {
     final currentAttendances = FirebaseFirestore.instance
         .collection('attendances')
         .doc(_selectedSubject);
-    Map<String, dynamic>? attendants;
 
-    await currentAttendances.get().then(
-      (value) {
-        final Attendances attendances = Attendances.fromFirestore(value);
-        for (final student in _sessionUsersIds!) {
-          if (attendances.attendants!.containsKey(student)) {
-            attendances.attendants?['student'] += 1;
-          }
-        }
-
-        attendants = attendances.attendants;
-      },
-      onError: (e) => print(e),
-    );
-
-    currentAttendances.update({'attendants': attendants});
+    currentAttendances.update({'attendants': _attendants});
   }
 
   Future<void> saveSession(BuildContext context) async {
