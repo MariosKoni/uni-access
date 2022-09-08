@@ -6,7 +6,6 @@ import 'package:flutter_uni_access/models/session.dart';
 import 'package:flutter_uni_access/providers/session_overview_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/widgets/session_overview_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class SessionOverviewScreen extends StatelessWidget {
@@ -38,26 +37,15 @@ class SessionOverviewScreen extends StatelessWidget {
         final List<Session> sessions = List<Session>.empty(growable: true);
 
         for (final element in snapshot.data!.docs) {
-          if ((element['teacher'] as String).compareTo(activeUserId) != 0) {
+          final Session session = Session.fromFirestore(element);
+          if (session.teacher?.compareTo(activeUserId) != 0) {
             continue;
           }
 
           final List<String> studentsIds = List<String>.empty(growable: true);
-          for (final id in element['students']) {
-            studentsIds.add(id as String);
+          for (final id in session.studentsIds!) {
+            studentsIds.add(id);
           }
-
-          final session = Session(
-            lab: element['lab'] as String,
-            studentsIds: studentsIds,
-            subject: element['subject'] as String,
-            teacher: element['teacher'] as String,
-            timestamp: DateFormat('yyy-MM-dd kk:mm').format(
-              DateTime.fromMillisecondsSinceEpoch(
-                element['timestamp'].millisecondsSinceEpoch as int,
-              ),
-            ),
-          );
 
           sessions.add(session);
         }

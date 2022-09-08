@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
                   late String id;
 
                   if (user != null) {
-                    id = user.uid;
+                    id = user.email!.split('@').elementAt(0);
 
                     return FutureBuilder<DocumentSnapshot>(
                       future: users.doc(id).get(),
@@ -100,17 +100,8 @@ class MyApp extends StatelessWidget {
                         }
 
                         if (snapshot.connectionState == ConnectionState.done) {
-                          final Map<String, dynamic> data =
-                              snapshot.data!.data() as Map<String, dynamic>;
-
-                          final uniUser = UniUser(
-                            id: data['id'] as String,
-                            name: data['name'] as String,
-                            surname: data['surname'] as String,
-                            email: data['email'] as String,
-                            isTeacher: data['isTeacher'] as bool,
-                            image: data['image'] as String,
-                          );
+                          final UniUser uniUser =
+                              UniUser.fromFirestore(snapshot.data!);
 
                           Provider.of<UserProvider>(ctx, listen: false).user =
                               uniUser;

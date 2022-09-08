@@ -3,6 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/attendances.dart';
+import 'package:flutter_uni_access/models/labs.dart';
+import 'package:flutter_uni_access/models/session.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -79,7 +81,12 @@ class SessionProvider with ChangeNotifier {
         await labs.get().then(
           (value) {
             for (final element in value.docs) {
-              for (final access in element['access']) {
+              final Labs lab = Labs.fromFirestore(element);
+              if (lab.access == null) {
+                return;
+              }
+
+              for (final access in lab.access!) {
                 final Map<String, dynamic>? accessData =
                     access as Map<String, dynamic>?;
 
@@ -87,9 +94,9 @@ class SessionProvider with ChangeNotifier {
                   continue;
                 }
 
-                final String labName = element['name'] as String;
+                final String labName = lab.name!;
                 if (!_labs!.contains(labName)) {
-                  _labs?.add(element['name'] as String);
+                  _labs?.add(labName);
                 }
               }
             }
@@ -111,7 +118,11 @@ class SessionProvider with ChangeNotifier {
         await labs.where('name', isEqualTo: _selectedLab).get().then(
           (value) {
             for (final element in value.docs) {
-              for (final access in element['access']) {
+              final Labs lab = Labs.fromFirestore(element);
+              if (lab.access == null) {
+                return;
+              }
+              for (final access in lab.access!) {
                 final Map<String, dynamic>? accessData =
                     access as Map<String, dynamic>?;
                 if (!accessData!['users'].toString().contains(id)) {
@@ -150,7 +161,7 @@ class SessionProvider with ChangeNotifier {
     final CollectionReference users =
         FirebaseFirestore.instance.collection('users');
 
-    await users.where('id', isEqualTo: id).get().then(
+    await users.doc(id).get().then(
       (value) async {
         // Check if the user has rights
         final CollectionReference labs =
@@ -162,16 +173,7 @@ class SessionProvider with ChangeNotifier {
           return;
         }
 
-        final Map<String, dynamic>? data =
-            value.docs.first.data() as Map<String, dynamic>?;
-        final UniUser uniUser = UniUser(
-          id: data!['id'] as String,
-          name: data['name'] as String,
-          surname: data['surname'] as String,
-          email: data['email'] as String,
-          isTeacher: data['isTeacher'] as bool,
-          image: data['image'] as String,
-        );
+        final UniUser uniUser = UniUser.fromFirestore(value);
 
         if (_sessionUsersIds!.isEmpty) {
           canSave = true;
@@ -196,7 +198,11 @@ class SessionProvider with ChangeNotifier {
     await labs.get().then(
       (value) {
         for (final element in value.docs) {
-          for (final access in element['access']) {
+          final Labs lab = Labs.fromFirestore(element);
+          if (lab.access == null) {
+            return;
+          }
+          for (final access in lab.access!) {
             final Map<String, dynamic>? accessData =
                 access as Map<String, dynamic>?;
             final List<dynamic> userIdsList =
@@ -285,7 +291,7 @@ class SessionProvider with ChangeNotifier {
       print(error);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Could save session'),
+          content: const Text('Could not save session'),
           backgroundColor: Theme.of(context).errorColor,
         ),
       );
