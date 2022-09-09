@@ -34,8 +34,6 @@ class _AlertStudentProfileWidgetState extends State<AlertStudentProfileWidget>
       curve: Curves.easeInOut,
     );
 
-    animationController.addListener(() {});
-
     animationController.forward();
   }
 
