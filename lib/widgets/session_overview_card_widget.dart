@@ -35,7 +35,7 @@ class SessionOverviewCardWidget extends StatelessWidget {
             .map(
               (e) => ListTile(
                 leading: Text('${e.key + 1}'),
-                title: Center(child: Text(e.value)),
+                title: Center(child: Text(e.value as String)),
                 trailing: const Icon(Icons.person),
               ),
             )

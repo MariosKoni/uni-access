@@ -33,11 +33,11 @@ class _DialogWidgetState extends State<DialogWidget>
 
     animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 450),
+      duration: const Duration(milliseconds: 300),
     );
     scaleAnimation = CurvedAnimation(
       parent: animationController,
-      curve: Curves.elasticInOut,
+      curve: Curves.easeInOut,
     );
 
     animationController.addListener(() {});

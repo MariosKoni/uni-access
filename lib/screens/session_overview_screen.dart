@@ -44,7 +44,7 @@ class SessionOverviewScreen extends StatelessWidget {
 
           final List<String> studentsIds = List<String>.empty(growable: true);
           for (final id in session.studentsIds!) {
-            studentsIds.add(id);
+            studentsIds.add(id as String);
           }
 
           sessions.add(session);

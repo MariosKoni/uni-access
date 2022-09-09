@@ -14,6 +14,17 @@ class FiltersSessionOverviewDialogWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Container(
+              height: MediaQuery.of(context).size.height / 100,
+              width: MediaQuery.of(context).size.width / 7,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15.0),
+                color: Colors.grey,
+              ),
+            ),
+          ),
           Text(
             'Filters',
             style: Theme.of(context).textTheme.headline5,

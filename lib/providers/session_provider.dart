@@ -228,13 +228,35 @@ class SessionProvider with ChangeNotifier {
     );
   }
 
+  Future<void> addMissingAttendanceDocument(String id) async {
+    final attendance = <String, dynamic>{
+      'subject': _selectedSubject,
+      'attendants': {id: 1},
+    };
+
+    _attendants.putIfAbsent(id, () => 1);
+
+    await FirebaseFirestore.instance
+        .collection('attendances')
+        .doc(_selectedSubject)
+        .set(attendance)
+        .onError((error, stackTrace) {
+      print(error);
+    });
+  }
+
   Future<void> updateUserAttendance(String id) async {
     await FirebaseFirestore.instance
         .collection('attendances')
         .doc(_selectedSubject)
         .get()
         .then(
-      (value) {
+      (value) async {
+        if (!value.exists) {
+          await addMissingAttendanceDocument(id);
+          return;
+        }
+
         final Attendances attendance = Attendances.fromFirestore(value);
 
         attendance.attendants?.forEach((key, value) {
@@ -243,7 +265,7 @@ class SessionProvider with ChangeNotifier {
           }
         });
       },
-      onError: (e) => print(e),
+      onError: (e) => print('THIS IS A SERIOUS ERROR'),
     );
   }
 
