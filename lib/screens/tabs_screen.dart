@@ -95,7 +95,7 @@ class _TabsScreenState extends State<TabsScreen> {
       context: context,
       builder: (context) => DialogWidget(
         titleText: 'Authorization cancel',
-        contentText: 'Do you want to cancel the authorization process?',
+        content: const Text('Do you want to cancel the authorization process?'),
         confirmFunction: _confirmChangeTabFromNewSession,
         cancelFunction: _cancelChangeTabFromNewSession,
       ),
@@ -117,7 +117,7 @@ class _TabsScreenState extends State<TabsScreen> {
       context: context,
       builder: (context) => DialogWidget(
         titleText: 'Logout',
-        contentText: 'Are you sure you want to logout?',
+        content: const Text('Are you sure you want to logout?'),
         confirmFunction: _logout,
       ),
     );

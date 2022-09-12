@@ -1,12 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/widgets/attendence_widget.dart';
+import 'package:flutter_uni_access/widgets/dialog_widget.dart';
 import 'package:provider/provider.dart';
 
 class NewSessionScreen extends StatelessWidget {
-  Future<void> saveSession(BuildContext context) async {
-    await Provider.of<SessionProvider>(context, listen: false)
-        .saveSession(context);
+  Future<void> _showNewSessionReportDialog(BuildContext context) async {
+    final Map<String, bool> allStudents = Provider.of<SessionProvider>(
+      context,
+      listen: false,
+    ).allStudents!;
+    final List<String> allStudentsIds = allStudents.keys.toList();
+
+    return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => DialogWidget(
+        titleText: 'Session Report',
+        content: SizedBox(
+          height: 150,
+          width: 150,
+          child: SingleChildScrollView(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: allStudentsIds.length,
+              itemBuilder: (_, index) => ListTile(
+                leading: allStudents[allStudentsIds[index]] == true
+                    ? const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                      )
+                    : const Icon(
+                        Icons.close_rounded,
+                        color: Colors.red,
+                      ),
+                title: Text(allStudentsIds[index]),
+              ),
+            ),
+          ),
+        ),
+        asyncConfirmFunction: Provider.of<SessionProvider>(
+          context,
+          listen: false,
+        ).saveSession(context),
+      ),
+    );
   }
 
   @override
@@ -47,11 +85,8 @@ class NewSessionScreen extends StatelessWidget {
                         MediaQuery.of(context).size.height / 15,
                       ),
                     ),
-                    onPressed: () async => canSave
-                        ? await Provider.of<SessionProvider>(
-                            context,
-                            listen: false,
-                          ).saveSession(context)
+                    onPressed: canSave
+                        ? () async => _showNewSessionReportDialog(context)
                         : null,
                     icon: const Icon(Icons.save_rounded),
                     label: const Text('Save session'),

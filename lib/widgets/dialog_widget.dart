@@ -4,19 +4,22 @@ class DialogWidget extends StatefulWidget {
   const DialogWidget({
     Key? key,
     required String titleText,
-    required String contentText,
-    required VoidCallback confirmFunction,
+    required Widget content,
+    VoidCallback? confirmFunction,
     VoidCallback? cancelFunction,
+    Future<void>? asyncConfirmFunction,
   })  : _titleText = titleText,
-        _contentText = contentText,
+        _content = content,
         _confirmFunction = confirmFunction,
         _cancelFunction = cancelFunction,
+        _asyncConfirmFunction = asyncConfirmFunction,
         super(key: key);
 
   final String _titleText;
-  final String _contentText;
-  final VoidCallback _confirmFunction;
+  final Widget _content;
+  final VoidCallback? _confirmFunction;
   final VoidCallback? _cancelFunction;
+  final Future<void>? _asyncConfirmFunction;
 
   @override
   State<DialogWidget> createState() => _DialogWidgetState();
@@ -65,12 +68,13 @@ class _DialogWidgetState extends State<DialogWidget>
           widget._titleText,
           style: const TextStyle(color: Colors.black),
         ),
-        content: Text(widget._contentText),
+        content: widget._content,
         actions: [
           Tooltip(
             message: 'Confirm',
             child: TextButton(
-              onPressed: widget._confirmFunction,
+              onPressed: widget._confirmFunction ??
+                  () async => widget._asyncConfirmFunction,
               child: const Text('Confirm'),
             ),
           ),

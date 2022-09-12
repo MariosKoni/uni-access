@@ -1,10 +1,9 @@
-// ignore_for_file: avoid_dynamic_calls
+// ignore_for_file: avoid_dynamic_calls, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/attendances.dart';
 import 'package:flutter_uni_access/models/labs.dart';
-import 'package:flutter_uni_access/models/session.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -32,12 +31,15 @@ class SessionProvider with ChangeNotifier {
 
   final Map<String, int> _attendants;
 
+  final Map<String, bool>? allStudents;
+
   SessionProvider(
     this._sessionUsers,
     this._sessionUsersIds,
     this._labs,
     this._labSubjects,
     this._attendants,
+    this.allStudents,
   );
 
   List<UniUser> get sessionUsers {
@@ -115,23 +117,21 @@ class SessionProvider with ChangeNotifier {
       // load subjects
       case 2:
         final List<String> subjects = List.empty(growable: true);
-        await labs.where('name', isEqualTo: _selectedLab).get().then(
+        await labs.doc(_selectedLab).get().then(
           (value) {
-            for (final element in value.docs) {
-              final Labs lab = Labs.fromFirestore(element);
-              if (lab.access == null) {
-                return;
+            final Labs lab = Labs.fromFirestore(value);
+            if (lab.access == null) {
+              return;
+            }
+            for (final access in lab.access!) {
+              final Map<String, dynamic>? accessData =
+                  access as Map<String, dynamic>?;
+              if (!accessData!['users'].toString().contains(id)) {
+                continue;
               }
-              for (final access in lab.access!) {
-                final Map<String, dynamic>? accessData =
-                    access as Map<String, dynamic>?;
-                if (!accessData!['users'].toString().contains(id)) {
-                  continue;
-                }
-                subjects.add(
-                  '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
-                );
-              }
+              subjects.add(
+                '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
+              );
             }
           },
           onError: (e) {
@@ -164,10 +164,7 @@ class SessionProvider with ChangeNotifier {
     await users.doc(id).get().then(
       (value) async {
         // Check if the user has rights
-        final CollectionReference labs =
-            FirebaseFirestore.instance.collection('labs');
-
-        await checkIfUserHasAccess(labs, id);
+        await checkIfUserHasAccess(id);
 
         if (result == 2) {
           return;
@@ -191,31 +188,25 @@ class SessionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> checkIfUserHasAccess(
-    CollectionReference<Object?> labs,
-    String id,
-  ) async {
-    await labs.get().then(
+  Future<void> checkIfUserHasAccess(String id) async {
+    final CollectionReference labs =
+        FirebaseFirestore.instance.collection('labs');
+
+    await labs.doc(_selectedLab).get().then(
       (value) {
-        for (final element in value.docs) {
-          final Labs lab = Labs.fromFirestore(element);
-          if (lab.access == null) {
-            return;
-          }
-          for (final access in lab.access!) {
-            final Map<String, dynamic>? accessData =
-                access as Map<String, dynamic>?;
-            final List<dynamic> userIdsList =
-                accessData!['users'] as List<dynamic>;
-            if (userIdsList.contains(id) &&
-                ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
-                    _selectedSubject &&
-                element['name'].toString() == _selectedLab) {
-              result = 1;
-              break;
-            }
-          }
-          if (result == 1) {
+        final Labs lab = Labs.fromFirestore(value);
+        if (lab.access == null) {
+          return;
+        }
+        for (final access in lab.access!) {
+          final Map<String, dynamic>? accessData =
+              access as Map<String, dynamic>?;
+          final List<dynamic> userIdsList =
+              accessData!['users'] as List<dynamic>;
+          if (userIdsList.contains(id) &&
+              ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
+                  _selectedSubject) {
+            result = 1;
             break;
           }
         }
@@ -294,7 +285,40 @@ class SessionProvider with ChangeNotifier {
     currentAttendances.update({'attendants': _attendants});
   }
 
+  Future<void> findAllPermittedStudents() async {
+    final CollectionReference labs =
+        FirebaseFirestore.instance.collection('labs');
+
+    await labs.doc(_selectedLab).get().then(
+      (value) {
+        final Labs lab = Labs.fromFirestore(value);
+
+        for (final access in lab.access!) {
+          final Map<String, dynamic>? accessData =
+              access as Map<String, dynamic>?;
+          if ('${accessData?['info']['subjectName']}: ${accessData?['info']['date']}' ==
+              _selectedSubject) {
+            for (final String student in accessData?['users']) {
+              if (!student.startsWith('cs')) {
+                continue;
+              }
+
+              if (_sessionUsersIds!.contains(student)) {
+                allStudents?.putIfAbsent(student, () => true);
+              } else {
+                allStudents?.putIfAbsent(student, () => false);
+              }
+            }
+          }
+        }
+      },
+      onError: (e) => print(e),
+    );
+  }
+
   Future<void> saveSession(BuildContext context) async {
+    await findAllPermittedStudents();
+
     await updateAttendances(context);
 
     final session = <String, dynamic>{
