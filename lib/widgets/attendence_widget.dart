@@ -21,6 +21,9 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
   void initState() {
     super.initState();
 
+    Provider.of<SessionProvider>(context, listen: false)
+        .findAllPermittedStudents();
+
     // TODO: Make this run only one time!
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => ShowCaseWidget.of(context).startShowCase([_one]),
@@ -84,24 +87,38 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                         key: _one,
                         description: 'Tap on a user to see his/her profile',
                         child: Column(
-                          children: sessionUsers
+                          children: Provider.of<SessionProvider>(context)
+                              .subjectStudents
+                              .entries
                               .map(
                                 (e) => ListTile(
-                                  leading: const Icon(
-                                    Icons.check_circle_rounded,
-                                    color: Colors.green,
-                                    size: 35,
-                                  ),
+                                  leading: e.value
+                                      ? const Icon(
+                                          Icons.check_circle_rounded,
+                                          color: Colors.green,
+                                          size: 35,
+                                        )
+                                      : const Icon(
+                                          Icons.close_rounded,
+                                          color: Colors.red,
+                                          size: 35,
+                                        ),
                                   title: Text(
-                                    '${e.name.toString().capitalize()} ${e.surname.toString().capitalize()}',
+                                    '${sessionUsers.firstWhere((element) => element.id == e.key).name.toString().capitalize()} ${sessionUsers.firstWhere((element) => element.id == e.key).surname.toString().capitalize()}',
                                   ),
-                                  subtitle: e.isTeacher!
-                                      ? Text('Teacher - ${e.id}')
-                                      : Text('Student - ${e.id}'),
+                                  subtitle: sessionUsers
+                                          .firstWhere(
+                                            (element) => element.id == e.key,
+                                          )
+                                          .isTeacher!
+                                      ? Text('Teacher - ${e.key}')
+                                      : Text('Student - ${e.key}'),
                                   onTap: () async =>
                                       _showStudentProfileAlertDialog(
                                     context,
-                                    e,
+                                    sessionUsers.firstWhere(
+                                      (element) => element.id == e.key,
+                                    ),
                                   ),
                                 ),
                               )

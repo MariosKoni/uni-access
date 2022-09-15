@@ -395,6 +395,8 @@ class SessionProvider with ChangeNotifier {
   void stopSession() {
     _sessionUsers?.clear();
     _sessionUsersIds?.clear();
+    _attendants.clear();
+    subjectStudents.clear();
     startedScanning = false;
   }
 }
