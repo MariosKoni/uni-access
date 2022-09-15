@@ -14,11 +14,4 @@ class Attendances {
       attendants: snapshot.get('attendants') as Map<String, dynamic>,
     );
   }
-
-  Map<String, dynamic> toFirestore() {
-    return {
-      if (subject != null) 'subject': subject,
-      if (attendants != null) 'attendants': attendants,
-    };
-  }
 }

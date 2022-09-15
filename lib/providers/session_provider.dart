@@ -1,10 +1,9 @@
-// ignore_for_file: avoid_dynamic_calls
+// ignore_for_file: avoid_dynamic_calls, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/attendances.dart';
 import 'package:flutter_uni_access/models/labs.dart';
-import 'package:flutter_uni_access/models/session.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -72,6 +71,10 @@ class SessionProvider with ChangeNotifier {
   bool get startedScanning => _startedScanning;
 
   Future<void> populateFormData(int sw, String id, BuildContext context) async {
+    if (_labs!.isNotEmpty && _labSubjects!.isNotEmpty) {
+      return;
+    }
+
     final CollectionReference labs =
         FirebaseFirestore.instance.collection('labs');
 
@@ -135,7 +138,6 @@ class SessionProvider with ChangeNotifier {
             }
           },
           onError: (e) {
-            print(e);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Could not fetch subjects'),
@@ -152,7 +154,7 @@ class SessionProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addUserToSession(String id) async {
+  Future<void> addUserToSession(String id, BuildContext context) async {
     if (_sessionUsersIds!.contains(id)) {
       result = 3;
       return;
@@ -167,7 +169,7 @@ class SessionProvider with ChangeNotifier {
         final CollectionReference labs =
             FirebaseFirestore.instance.collection('labs');
 
-        await checkIfUserHasAccess(labs, id);
+        await checkIfUserHasAccess(labs, id, context);
 
         if (result == 2) {
           return;
@@ -183,9 +185,14 @@ class SessionProvider with ChangeNotifier {
         _sessionUsers?.add(uniUser);
         _sessionUsersIds?.add(id);
 
-        await updateUserAttendance(id);
+        await updateUserAttendance(id, context);
       },
-      onError: (e) => print(e),
+      onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not get user with id $id'),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      ),
     );
 
     notifyListeners();
@@ -194,6 +201,7 @@ class SessionProvider with ChangeNotifier {
   Future<void> checkIfUserHasAccess(
     CollectionReference<Object?> labs,
     String id,
+    BuildContext context,
   ) async {
     await labs.get().then(
       (value) {
@@ -224,11 +232,19 @@ class SessionProvider with ChangeNotifier {
           result = 2;
         }
       },
-      onError: (e) => print(e),
+      onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Could not fetch lab access data'),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      ),
     );
   }
 
-  Future<void> addMissingAttendanceDocument(String id) async {
+  Future<void> addMissingAttendanceDocument(
+    String id,
+    BuildContext context,
+  ) async {
     final attendance = <String, dynamic>{
       'subject': _selectedSubject,
       'attendants': {id: 1},
@@ -240,12 +256,17 @@ class SessionProvider with ChangeNotifier {
         .collection('attendances')
         .doc(_selectedSubject)
         .set(attendance)
-        .onError((error, stackTrace) {
-      print(error);
-    });
+        .onError(
+          (error, stackTrace) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Could not update attendance'),
+              backgroundColor: Theme.of(context).errorColor,
+            ),
+          ),
+        );
   }
 
-  Future<void> updateUserAttendance(String id) async {
+  Future<void> updateUserAttendance(String id, BuildContext context) async {
     await FirebaseFirestore.instance
         .collection('attendances')
         .doc(_selectedSubject)
@@ -253,7 +274,7 @@ class SessionProvider with ChangeNotifier {
         .then(
       (value) async {
         if (!value.exists) {
-          await addMissingAttendanceDocument(id);
+          await addMissingAttendanceDocument(id, context);
           return;
         }
 
@@ -265,11 +286,16 @@ class SessionProvider with ChangeNotifier {
           }
         });
       },
-      onError: (e) => print('THIS IS A SERIOUS ERROR'),
+      onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Could not fetch attendance data'),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      ),
     );
   }
 
-  Future<void> findStudentAttendances(String id) async {
+  Future<void> findStudentAttendances(String id, BuildContext context) async {
     final CollectionReference attendances =
         FirebaseFirestore.instance.collection('attendances');
 
@@ -282,7 +308,12 @@ class SessionProvider with ChangeNotifier {
           }
         });
       },
-      onError: (e) => print(e),
+      onError: (_) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Could not fetch student attendance data'),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      ),
     );
   }
 
@@ -310,7 +341,6 @@ class SessionProvider with ChangeNotifier {
         .doc()
         .set(session)
         .onError((error, stackTrace) {
-      print(error);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Could not save session'),

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
@@ -20,6 +21,7 @@ class TabsScreen extends StatefulWidget {
 class _TabsScreenState extends State<TabsScreen> {
   late List<Map<String, Object>> _pages;
   int _selectedIndex = 0;
+  bool _showFloatingActionButton = true;
 
   @override
   void initState() {
@@ -153,6 +155,8 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const duration = Duration(milliseconds: 300);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_pages[_selectedIndex]['title']! as String),
@@ -163,34 +167,58 @@ class _TabsScreenState extends State<TabsScreen> {
           )
         ],
       ),
-      body: _pages[_selectedIndex]['page']! as Widget,
+      body: NotificationListener<UserScrollNotification>(
+        onNotification: (notification) {
+          final ScrollDirection scrollDirection = notification.direction;
+          setState(() {
+            if (scrollDirection == ScrollDirection.reverse) {
+              _showFloatingActionButton = false;
+            } else if (scrollDirection == ScrollDirection.forward ||
+                scrollDirection == ScrollDirection.idle) {
+              _showFloatingActionButton = true;
+            }
+          });
+
+          return true;
+        },
+        child: _pages[_selectedIndex]['page']! as Widget,
+      ),
       floatingActionButton: (_selectedIndex == 2 &&
                   !Provider.of<SessionProvider>(context).startedScanning) ||
               _selectedIndex == 3
-          ? FloatingActionButton(
-              onPressed: _selectedIndex == 2
-                  ? () async {
-                      await Provider.of<SessionProvider>(
-                        context,
-                        listen: false,
-                      ).populateFormData(
-                        1,
-                        Provider.of<UserProvider>(context, listen: false)
-                            .user!
-                            .id!,
-                        context,
-                      );
-                      _showNewSessionDialog();
-                    }
-                  : () async => _showFiltersDialog(),
-              tooltip:
-                  _selectedIndex == 2 ? 'Add a new session' : 'Add filters',
-              backgroundColor: _selectedIndex == 2
-                  ? const Color.fromRGBO(232, 52, 93, 1.0)
-                  : const Color.fromARGB(255, 204, 170, 49),
-              child: _selectedIndex == 2
-                  ? const Icon(Icons.add)
-                  : const Icon(Icons.settings),
+          ? AnimatedSlide(
+              duration: duration,
+              offset:
+                  _showFloatingActionButton ? Offset.zero : const Offset(0, 2),
+              child: AnimatedOpacity(
+                duration: duration,
+                opacity: _showFloatingActionButton ? 1 : 0,
+                child: FloatingActionButton(
+                  onPressed: _selectedIndex == 2
+                      ? () async {
+                          await Provider.of<SessionProvider>(
+                            context,
+                            listen: false,
+                          ).populateFormData(
+                            1,
+                            Provider.of<UserProvider>(context, listen: false)
+                                .user!
+                                .id!,
+                            context,
+                          );
+                          _showNewSessionDialog();
+                        }
+                      : () async => _showFiltersDialog(),
+                  tooltip:
+                      _selectedIndex == 2 ? 'Add a new session' : 'Add filters',
+                  backgroundColor: _selectedIndex == 2
+                      ? const Color.fromRGBO(232, 52, 93, 1.0)
+                      : const Color.fromARGB(255, 204, 170, 49),
+                  child: _selectedIndex == 2
+                      ? const Icon(Icons.add)
+                      : const Icon(Icons.settings),
+                ),
+              ),
             )
           : null,
       bottomNavigationBar: BottomNavigationBar(

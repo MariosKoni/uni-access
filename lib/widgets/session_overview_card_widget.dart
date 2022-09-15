@@ -1,5 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/session.dart';
+import 'package:flutter_uni_access/models/uni_user.dart';
+import 'package:flutter_uni_access/providers/session_provider.dart';
+import 'package:flutter_uni_access/providers/user_provider.dart';
+import 'package:flutter_uni_access/widgets/alert_student_profile_widget.dart';
+import 'package:provider/provider.dart';
 
 class SessionOverviewCardWidget extends StatelessWidget {
   const SessionOverviewCardWidget({Key? key, required Session session})
@@ -7,6 +14,21 @@ class SessionOverviewCardWidget extends StatelessWidget {
         super(key: key);
 
   final Session _session;
+
+  Future<void> _showStudentProfileAlertDialog(
+    BuildContext context,
+    UniUser user,
+  ) async {
+    Provider.of<SessionProvider>(context, listen: false).selectedSubject =
+        _session.subject;
+    await Provider.of<SessionProvider>(context, listen: false)
+        .findStudentAttendances(user.id!, context);
+    return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertStudentProfileWidget(user: user),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +59,13 @@ class SessionOverviewCardWidget extends StatelessWidget {
                 leading: Text('${e.key + 1}'),
                 title: Center(child: Text(e.value as String)),
                 trailing: const Icon(Icons.person),
+                onTap: () async {
+                  final UniUser user =
+                      await Provider.of<UserProvider>(context, listen: false)
+                          .getUserFromId(e.value as String, context);
+
+                  return _showStudentProfileAlertDialog(context, user);
+                },
               ),
             )
             .toList(),

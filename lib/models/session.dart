@@ -34,14 +34,4 @@ class Session {
       ),
     );
   }
-
-  Map<String, dynamic> toFirestore() {
-    return {
-      if (lab != null) 'lab': lab,
-      if (studentsIds != null) 'students': studentsIds,
-      if (subject != null) 'subject': subject,
-      if (teacher != null) 'teacher': teacher,
-      if (timestamp != null) 'timestamp': timestamp,
-    };
-  }
 }

@@ -84,8 +84,10 @@ class _AlertStudentProfileWidgetState extends State<AlertStudentProfileWidget>
             const SizedBox(
               height: 10,
             ),
-            const Text('Surname',
-                style: TextStyle(fontWeight: FontWeight.w100)),
+            const Text(
+              'Surname',
+              style: TextStyle(fontWeight: FontWeight.w100),
+            ),
             Text(
               widget._user.surname.toString().capitalize(),
               style: const TextStyle(fontSize: 25),

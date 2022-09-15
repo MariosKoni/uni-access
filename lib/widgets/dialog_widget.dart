@@ -63,8 +63,10 @@ class _DialogWidgetState extends State<DialogWidget>
             bottomRight: Radius.circular(15.0),
           ),
         ),
-        title: Text(widget._titleText,
-            style: const TextStyle(color: Colors.black)),
+        title: Text(
+          widget._titleText,
+          style: const TextStyle(color: Colors.black),
+        ),
         content: Text(widget._contentText),
         actions: [
           Tooltip(
