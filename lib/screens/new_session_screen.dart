@@ -4,11 +4,6 @@ import 'package:flutter_uni_access/widgets/attendence_widget.dart';
 import 'package:provider/provider.dart';
 
 class NewSessionScreen extends StatelessWidget {
-  Future<void> saveSession(BuildContext context) async {
-    await Provider.of<SessionProvider>(context, listen: false)
-        .saveSession(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool canSave = Provider.of<SessionProvider>(context).canSave;
@@ -47,11 +42,11 @@ class NewSessionScreen extends StatelessWidget {
                         MediaQuery.of(context).size.height / 15,
                       ),
                     ),
-                    onPressed: () async => canSave
-                        ? await Provider.of<SessionProvider>(
-                            context,
-                            listen: false,
-                          ).saveSession(context)
+                    onPressed: canSave
+                        ? () => Provider.of<SessionProvider>(
+                              context,
+                              listen: false,
+                            ).saveSession(context)
                         : null,
                     icon: const Icon(Icons.save_rounded),
                     label: const Text('Save session'),

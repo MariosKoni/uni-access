@@ -30,6 +30,7 @@ class SessionProvider with ChangeNotifier {
   int? currentStudentAttendances;
 
   final Map<String, int> _attendants;
+  final Map<String, bool> subjectStudents;
 
   SessionProvider(
     this._sessionUsers,
@@ -37,6 +38,7 @@ class SessionProvider with ChangeNotifier {
     this._labs,
     this._labSubjects,
     this._attendants,
+    this.subjectStudents,
   );
 
   List<UniUser> get sessionUsers {
@@ -118,23 +120,21 @@ class SessionProvider with ChangeNotifier {
       // load subjects
       case 2:
         final List<String> subjects = List.empty(growable: true);
-        await labs.where('name', isEqualTo: _selectedLab).get().then(
+        await labs.doc(_selectedLab).get().then(
           (value) {
-            for (final element in value.docs) {
-              final Labs lab = Labs.fromFirestore(element);
-              if (lab.access == null) {
-                return;
+            final Labs lab = Labs.fromFirestore(value);
+            if (lab.access == null) {
+              return;
+            }
+            for (final access in lab.access!) {
+              final Map<String, dynamic>? accessData =
+                  access as Map<String, dynamic>?;
+              if (!accessData!['users'].toString().contains(id)) {
+                continue;
               }
-              for (final access in lab.access!) {
-                final Map<String, dynamic>? accessData =
-                    access as Map<String, dynamic>?;
-                if (!accessData!['users'].toString().contains(id)) {
-                  continue;
-                }
-                subjects.add(
-                  '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
-                );
-              }
+              subjects.add(
+                '${accessData['info']['subjectName']}: ${accessData['info']['date']}',
+              );
             }
           },
           onError: (e) {
@@ -203,27 +203,21 @@ class SessionProvider with ChangeNotifier {
     String id,
     BuildContext context,
   ) async {
-    await labs.get().then(
+    await labs.doc(_selectedLab).get().then(
       (value) {
-        for (final element in value.docs) {
-          final Labs lab = Labs.fromFirestore(element);
-          if (lab.access == null) {
-            return;
-          }
-          for (final access in lab.access!) {
-            final Map<String, dynamic>? accessData =
-                access as Map<String, dynamic>?;
-            final List<dynamic> userIdsList =
-                accessData!['users'] as List<dynamic>;
-            if (userIdsList.contains(id) &&
-                ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
-                    _selectedSubject &&
-                element['name'].toString() == _selectedLab) {
-              result = 1;
-              break;
-            }
-          }
-          if (result == 1) {
+        final Labs lab = Labs.fromFirestore(value);
+        if (lab.access == null) {
+          return;
+        }
+        for (final access in lab.access!) {
+          final Map<String, dynamic>? accessData =
+              access as Map<String, dynamic>?;
+          final List<dynamic> userIdsList =
+              accessData!['users'] as List<dynamic>;
+          if (userIdsList.contains(id) &&
+              ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
+                  _selectedSubject) {
+            result = 1;
             break;
           }
         }
@@ -325,7 +319,40 @@ class SessionProvider with ChangeNotifier {
     currentAttendances.update({'attendants': _attendants});
   }
 
+  Future<void> findAllPermittedStudents() async {
+    final CollectionReference labs =
+        FirebaseFirestore.instance.collection('labs');
+
+    await labs.doc(_selectedLab).get().then(
+      (value) {
+        final Labs lab = Labs.fromFirestore(value);
+
+        for (final access in lab.access!) {
+          final Map<String, dynamic>? accessData =
+              access as Map<String, dynamic>?;
+          if ('${accessData?['info']['subjectName']}: ${accessData?['info']['date']}' ==
+              _selectedSubject) {
+            for (final String student in accessData?['users']) {
+              if (!student.startsWith('cs')) {
+                continue;
+              }
+
+              if (_sessionUsersIds!.contains(student)) {
+                subjectStudents.putIfAbsent(student, () => true);
+              } else {
+                subjectStudents.putIfAbsent(student, () => false);
+              }
+            }
+          }
+        }
+      },
+      onError: (e) => print(e),
+    );
+  }
+
   Future<void> saveSession(BuildContext context) async {
+    await findAllPermittedStudents();
+
     await updateAttendances(context);
 
     final session = <String, dynamic>{

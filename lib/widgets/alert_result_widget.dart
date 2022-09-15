@@ -31,8 +31,6 @@ class _AlertResultWidgetState extends State<AlertResultWidget>
       curve: Curves.easeInOut,
     );
 
-    animationController.addListener(() {});
-
     animationController.forward();
   }
 

@@ -4,18 +4,18 @@ class DialogWidget extends StatefulWidget {
   const DialogWidget({
     Key? key,
     required String titleText,
-    required String contentText,
+    required Widget content,
     required VoidCallback confirmFunction,
     VoidCallback? cancelFunction,
   })  : _titleText = titleText,
-        _contentText = contentText,
+        _content = content,
         _confirmFunction = confirmFunction,
         _cancelFunction = cancelFunction,
         super(key: key);
 
   final String _titleText;
-  final String _contentText;
-  final VoidCallback _confirmFunction;
+  final Widget _content;
+  final VoidCallback? _confirmFunction;
   final VoidCallback? _cancelFunction;
 
   @override
@@ -39,8 +39,6 @@ class _DialogWidgetState extends State<DialogWidget>
       parent: animationController,
       curve: Curves.easeInOut,
     );
-
-    animationController.addListener(() {});
 
     animationController.forward();
   }
@@ -67,7 +65,7 @@ class _DialogWidgetState extends State<DialogWidget>
           widget._titleText,
           style: const TextStyle(color: Colors.black),
         ),
-        content: Text(widget._contentText),
+        content: widget._content,
         actions: [
           Tooltip(
             message: 'Confirm',
