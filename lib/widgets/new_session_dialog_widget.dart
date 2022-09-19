@@ -8,7 +8,7 @@ class NewSessionDialogWidget extends StatelessWidget {
 
   void _startSession(BuildContext context) {
     Provider.of<SessionProvider>(context, listen: false).startedScanning = true;
-    Provider.of<SessionProvider>(context, listen: false).canSave = false;
+    Provider.of<SessionProvider>(context, listen: false).canSaveSession = false;
     Navigator.of(context).pop();
   }
 

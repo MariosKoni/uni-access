@@ -25,6 +25,8 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
         .findAllPermittedStudents()
         .then((value) => print('ok'));
 
+    Provider.of<SessionProvider>(context, listen: false).canSaveSession = true;
+
     // TODO: Make this run only one time!
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => ShowCaseWidget.of(context).startShowCase([_one]),
@@ -69,11 +71,10 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                   description: 'Tap on a user to see his/her profile',
                   child: Column(
                     children: Provider.of<SessionProvider>(context)
-                        .subjectStudents
-                        .entries
+                        .sessionUsers
                         .map(
-                          (e) => ListTile(
-                            leading: e.value
+                          (user) => ListTile(
+                            leading: user.isAuthorized
                                 ? const Icon(
                                     Icons.check_circle_rounded,
                                     color: Colors.green,
@@ -85,20 +86,14 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                     size: 35,
                                   ),
                             title: Text(
-                              '${sessionUsers.firstWhere((element) => element.id == e.key).name.toString().capitalize()} ${sessionUsers.firstWhere((element) => element.id == e.key).surname.toString().capitalize()}',
+                              '${user.name.toString().capitalize()} ${user.surname.toString().capitalize()}',
                             ),
-                            subtitle: sessionUsers
-                                    .firstWhere(
-                                      (element) => element.id == e.key,
-                                    )
-                                    .isTeacher!
-                                ? Text('Teacher - ${e.key}')
-                                : Text('Student - ${e.key}'),
+                            subtitle: user.isTeacher!
+                                ? Text('Teacher - ${user.id}')
+                                : Text('Student - ${user.id}'),
                             onTap: () async => _showStudentProfileAlertDialog(
                               context,
-                              sessionUsers.firstWhere(
-                                (element) => element.id == e.key,
-                              ),
+                              user,
                             ),
                           ),
                         )

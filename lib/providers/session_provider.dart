@@ -13,7 +13,7 @@ class SessionProvider with ChangeNotifier {
   final List<UniUser>? _sessionUsers;
 
   final List<String>? _labs;
-  List<String>? _labSubjects;
+  List<String>? _subjects;
 
   String? _selectedLab;
   String? _selectedSubject;
@@ -21,22 +21,20 @@ class SessionProvider with ChangeNotifier {
   // 1 = authorized,
   // 2 = not authorized,
   // 3 = already authorized
-  int result = 0;
+  int authResult = 0;
 
   bool _startedScanning = false;
   bool abortSessionFromTabChange = false;
-  bool canSave = false;
-  int? currentStudentAttendances;
+  bool canSaveSession = false;
+  int? currentUserAttendance;
 
-  final Map<String, int> _attendants;
-  final Map<String, bool> subjectStudents;
+  final Map<String, int> _usersIdsAttendanceNumber;
 
   SessionProvider(
     this._sessionUsers,
     this._labs,
-    this._labSubjects,
-    this._attendants,
-    this.subjectStudents,
+    this._subjects,
+    this._usersIdsAttendanceNumber,
   );
 
   List<UniUser> get sessionUsers {
@@ -47,7 +45,7 @@ class SessionProvider with ChangeNotifier {
     return [..._labs!];
   }
 
-  List<String> get subjects => [...?_labSubjects];
+  List<String> get subjects => [...?_subjects];
 
   set selectedLab(String? lab) {
     _selectedLab = lab;
@@ -71,7 +69,7 @@ class SessionProvider with ChangeNotifier {
   bool get startedScanning => _startedScanning;
 
   Future<void> populateFormData(int sw, String id, BuildContext context) async {
-    if (_labs!.isNotEmpty && _labSubjects!.isNotEmpty) {
+    if (_labs!.isNotEmpty && _subjects!.isNotEmpty) {
       return;
     }
 
@@ -145,7 +143,7 @@ class SessionProvider with ChangeNotifier {
           },
         );
 
-        _labSubjects = subjects;
+        _subjects = subjects;
         notifyListeners();
 
         break;
@@ -172,11 +170,10 @@ class SessionProvider with ChangeNotifier {
                 continue;
               }
 
-              subjectStudents.putIfAbsent(student, () => false);
-
               await users.doc(student).get().then(
                 (value) {
                   final UniUser uniUser = UniUser.fromFirestore(value);
+                  uniUser.isAuthorized = false;
                   _sessionUsers?.add(uniUser);
                 },
                 onError: (e) => print(e),
@@ -191,17 +188,20 @@ class SessionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void authorizeUser(String id) {
+  Future<void> authorizeUser(String id, BuildContext context) async {
     try {
-      if (subjectStudents[id]!) {
-        result = 3;
+      if (_sessionUsers!
+          .firstWhere((element) => element.id == id)
+          .isAuthorized) {
+        authResult = 3;
       } else {
-        subjectStudents[id] = true;
-        result = 1;
+        _sessionUsers?.map((e) => e.id == id ? e.isAuthorized = true : null);
+        authResult = 1;
+        await updateUserAttendance(id, context);
       }
     } catch (e) {
       // id is not present in map
-      result = 2;
+      authResult = 2;
     }
 
     notifyListeners();
@@ -216,7 +216,7 @@ class SessionProvider with ChangeNotifier {
       'attendants': {id: 1},
     };
 
-    _attendants.putIfAbsent(id, () => 1);
+    _usersIdsAttendanceNumber.putIfAbsent(id, () => 1);
 
     await FirebaseFirestore.instance
         .collection('attendances')
@@ -248,7 +248,7 @@ class SessionProvider with ChangeNotifier {
 
         attendance.attendants?.forEach((key, value) {
           if (key == id) {
-            _attendants.putIfAbsent(key, () => value + 1 as int);
+            _usersIdsAttendanceNumber.putIfAbsent(key, () => value + 1 as int);
           }
         });
       },
@@ -267,10 +267,14 @@ class SessionProvider with ChangeNotifier {
 
     await attendances.doc(_selectedSubject).get().then(
       (value) {
+        if (!value.exists) {
+          currentUserAttendance = null;
+          return;
+        }
         final Attendances attendances = Attendances.fromFirestore(value);
         attendances.attendants?.forEach((key, value) {
           if (key == id) {
-            currentStudentAttendances = value as int;
+            currentUserAttendance = value as int;
           }
         });
       },
@@ -288,7 +292,7 @@ class SessionProvider with ChangeNotifier {
         .collection('attendances')
         .doc(_selectedSubject);
 
-    currentAttendances.update({'attendants': _attendants});
+    currentAttendances.update({'attendants': _usersIdsAttendanceNumber});
   }
 
   Future<void> saveSession(BuildContext context) async {
@@ -335,8 +339,7 @@ class SessionProvider with ChangeNotifier {
     _selectedLab = null;
     _selectedSubject = null;
     _sessionUsers?.clear();
-    _attendants.clear();
-    subjectStudents.clear();
+    _usersIdsAttendanceNumber.clear();
     startedScanning = false;
   }
 }
