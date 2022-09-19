@@ -22,7 +22,8 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
     super.initState();
 
     Provider.of<SessionProvider>(context, listen: false)
-        .findAllPermittedStudents();
+        .findAllPermittedStudents()
+        .then((value) => print('ok'));
 
     // TODO: Make this run only one time!
     WidgetsBinding.instance.addPostFrameCallback(
@@ -63,68 +64,47 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
             child: SizedBox(
               height: MediaQuery.of(context).size.height / 2,
               child: SingleChildScrollView(
-                child: sessionUsers.isEmpty
-                    ? Padding(
-                        padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height / 6,
-                        ),
-                        child: Center(
-                          child: Center(
-                            child: Column(
-                              children: const [
-                                Icon(
-                                  Icons.qr_code_scanner_rounded,
-                                  size: 100.0,
-                                  color: Colors.white,
-                                ),
-                                Text('Scan a barcode'),
-                              ],
+                child: Showcase(
+                  key: _one,
+                  description: 'Tap on a user to see his/her profile',
+                  child: Column(
+                    children: Provider.of<SessionProvider>(context)
+                        .subjectStudents
+                        .entries
+                        .map(
+                          (e) => ListTile(
+                            leading: e.value
+                                ? const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Colors.green,
+                                    size: 35,
+                                  )
+                                : const Icon(
+                                    Icons.close_rounded,
+                                    color: Colors.red,
+                                    size: 35,
+                                  ),
+                            title: Text(
+                              '${sessionUsers.firstWhere((element) => element.id == e.key).name.toString().capitalize()} ${sessionUsers.firstWhere((element) => element.id == e.key).surname.toString().capitalize()}',
+                            ),
+                            subtitle: sessionUsers
+                                    .firstWhere(
+                                      (element) => element.id == e.key,
+                                    )
+                                    .isTeacher!
+                                ? Text('Teacher - ${e.key}')
+                                : Text('Student - ${e.key}'),
+                            onTap: () async => _showStudentProfileAlertDialog(
+                              context,
+                              sessionUsers.firstWhere(
+                                (element) => element.id == e.key,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    : Showcase(
-                        key: _one,
-                        description: 'Tap on a user to see his/her profile',
-                        child: Column(
-                          children: Provider.of<SessionProvider>(context)
-                              .subjectStudents
-                              .entries
-                              .map(
-                                (e) => ListTile(
-                                  leading: e.value
-                                      ? const Icon(
-                                          Icons.check_circle_rounded,
-                                          color: Colors.green,
-                                          size: 35,
-                                        )
-                                      : const Icon(
-                                          Icons.close_rounded,
-                                          color: Colors.red,
-                                          size: 35,
-                                        ),
-                                  title: Text(
-                                    '${sessionUsers.firstWhere((element) => element.id == e.key).name.toString().capitalize()} ${sessionUsers.firstWhere((element) => element.id == e.key).surname.toString().capitalize()}',
-                                  ),
-                                  subtitle: sessionUsers
-                                          .firstWhere(
-                                            (element) => element.id == e.key,
-                                          )
-                                          .isTeacher!
-                                      ? Text('Teacher - ${e.key}')
-                                      : Text('Student - ${e.key}'),
-                                  onTap: () async =>
-                                      _showStudentProfileAlertDialog(
-                                    context,
-                                    sessionUsers.firstWhere(
-                                      (element) => element.id == e.key,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
+                        )
+                        .toList(),
+                  ),
+                ),
               ),
             ),
           ),

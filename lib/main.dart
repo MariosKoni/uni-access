@@ -37,7 +37,6 @@ class MyApp extends StatelessWidget {
             List.empty(growable: true),
             List.empty(growable: true),
             List.empty(growable: true),
-            List.empty(growable: true),
             {},
             {},
           ),

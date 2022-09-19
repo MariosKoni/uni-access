@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 // Defines a session provider
 class SessionProvider with ChangeNotifier {
   final List<UniUser>? _sessionUsers;
-  final List<String>? _sessionUsersIds;
 
   final List<String>? _labs;
   List<String>? _labSubjects;
@@ -34,7 +33,6 @@ class SessionProvider with ChangeNotifier {
 
   SessionProvider(
     this._sessionUsers,
-    this._sessionUsersIds,
     this._labs,
     this._labSubjects,
     this._attendants,
@@ -154,85 +152,59 @@ class SessionProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addUserToSession(String id, BuildContext context) async {
-    if (_sessionUsersIds!.contains(id)) {
-      result = 3;
-      return;
-    }
-
+  Future<void> findAllPermittedStudents() async {
+    final CollectionReference labs =
+        FirebaseFirestore.instance.collection('labs');
     final CollectionReference users =
         FirebaseFirestore.instance.collection('users');
 
-    await users.doc(id).get().then(
+    await labs.doc(_selectedLab).get().then(
       (value) async {
-        // Check if the user has rights
-        final CollectionReference labs =
-            FirebaseFirestore.instance.collection('labs');
+        final Labs lab = Labs.fromFirestore(value);
 
-        await checkIfUserHasAccess(labs, id, context);
+        for (final access in lab.access!) {
+          final Map<String, dynamic>? accessData =
+              access as Map<String, dynamic>?;
+          if ('${accessData?['info']['subjectName']}: ${accessData?['info']['date']}' ==
+              _selectedSubject) {
+            for (final String student in accessData?['users']) {
+              if (!student.startsWith('cs')) {
+                continue;
+              }
 
-        if (result == 2) {
-          return;
+              subjectStudents.putIfAbsent(student, () => false);
+
+              await users.doc(student).get().then(
+                (value) {
+                  final UniUser uniUser = UniUser.fromFirestore(value);
+                  _sessionUsers?.add(uniUser);
+                },
+                onError: (e) => print(e),
+              );
+            }
+          }
         }
-
-        final UniUser uniUser = UniUser.fromFirestore(value);
-
-        if (_sessionUsersIds!.isEmpty) {
-          canSave = true;
-          notifyListeners();
-        }
-
-        _sessionUsers?.add(uniUser);
-        _sessionUsersIds?.add(id);
-
-        await updateUserAttendance(id, context);
       },
-      onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not get user with id $id'),
-          backgroundColor: Theme.of(context).errorColor,
-        ),
-      ),
+      onError: (e) => print(e),
     );
 
     notifyListeners();
   }
 
-  Future<void> checkIfUserHasAccess(
-    CollectionReference<Object?> labs,
-    String id,
-    BuildContext context,
-  ) async {
-    await labs.doc(_selectedLab).get().then(
-      (value) {
-        final Labs lab = Labs.fromFirestore(value);
-        if (lab.access == null) {
-          return;
-        }
-        for (final access in lab.access!) {
-          final Map<String, dynamic>? accessData =
-              access as Map<String, dynamic>?;
-          final List<dynamic> userIdsList =
-              accessData!['users'] as List<dynamic>;
-          if (userIdsList.contains(id) &&
-              ('${accessData['info']['subjectName']}: ${accessData['info']['date']}') ==
-                  _selectedSubject) {
-            result = 1;
-            break;
-          }
-        }
+  void authorizeUser(String id) {
+    try {
+      if (subjectStudents[id]!) {
+        result = 3;
+      } else {
+        subjectStudents[id] = true;
+        result = 1;
+      }
+    } catch (e) {
+      // id is not present in map
+      result = 2;
+    }
 
-        if (result != 1) {
-          result = 2;
-        }
-      },
-      onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Could not fetch lab access data'),
-          backgroundColor: Theme.of(context).errorColor,
-        ),
-      ),
-    );
+    notifyListeners();
   }
 
   Future<void> addMissingAttendanceDocument(
@@ -253,7 +225,7 @@ class SessionProvider with ChangeNotifier {
         .onError(
           (error, stackTrace) => ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Could not update attendance'),
+              content: const Text('Could not initiate attendance'),
               backgroundColor: Theme.of(context).errorColor,
             ),
           ),
@@ -319,46 +291,13 @@ class SessionProvider with ChangeNotifier {
     currentAttendances.update({'attendants': _attendants});
   }
 
-  Future<void> findAllPermittedStudents() async {
-    final CollectionReference labs =
-        FirebaseFirestore.instance.collection('labs');
-
-    await labs.doc(_selectedLab).get().then(
-      (value) {
-        final Labs lab = Labs.fromFirestore(value);
-
-        for (final access in lab.access!) {
-          final Map<String, dynamic>? accessData =
-              access as Map<String, dynamic>?;
-          if ('${accessData?['info']['subjectName']}: ${accessData?['info']['date']}' ==
-              _selectedSubject) {
-            for (final String student in accessData?['users']) {
-              if (!student.startsWith('cs')) {
-                continue;
-              }
-
-              if (_sessionUsersIds!.contains(student)) {
-                subjectStudents.putIfAbsent(student, () => true);
-              } else {
-                subjectStudents.putIfAbsent(student, () => false);
-              }
-            }
-          }
-        }
-      },
-      onError: (e) => print(e),
-    );
-  }
-
   Future<void> saveSession(BuildContext context) async {
-    await findAllPermittedStudents();
-
     await updateAttendances(context);
 
     final session = <String, dynamic>{
       'lab': _selectedLab,
       'subject': _selectedSubject,
-      'students': _sessionUsersIds,
+      'students': _sessionUsers?.map((e) => e.id).toList(),
       'timestamp': DateTime.now(),
       'teacher': Provider.of<UserProvider>(context, listen: false).user?.id
     };
@@ -393,8 +332,9 @@ class SessionProvider with ChangeNotifier {
   }
 
   void stopSession() {
+    _selectedLab = null;
+    _selectedSubject = null;
     _sessionUsers?.clear();
-    _sessionUsersIds?.clear();
     _attendants.clear();
     subjectStudents.clear();
     startedScanning = false;

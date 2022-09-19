@@ -31,13 +31,20 @@ class ScanWidget extends StatelessWidget {
     return MobileScanner(
       onDetect: (barcode, args) async {
         if (barcode.rawValue == null) {
-          print('NULL BARCODE');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Barcode has no value'),
+              backgroundColor: Theme.of(context).errorColor,
+            ),
+          );
+
+          return;
         }
 
         final result = barcode.rawValue!;
         HapticFeedback.vibrate();
-        await Provider.of<SessionProvider>(context, listen: false)
-            .addUserToSession(result, context);
+        Provider.of<SessionProvider>(context, listen: false)
+            .authorizeUser(result);
 
         final int rightsResult =
             Provider.of<SessionProvider>(context, listen: false).result;
