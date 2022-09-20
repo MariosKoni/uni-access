@@ -73,15 +73,17 @@ class _AuthScreenState extends State<AuthScreen> {
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            // Show logo when keyboard is closed
+            if (MediaQuery.of(context).viewInsets.bottom == 0)
+              Image(
+                image: const AssetImage('assets/images/pada-logo.png'),
+                height: MediaQuery.of(context).size.height / 4,
+              ),
             const Text(
               'Welcome to UniAccess',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-            ),
-            Image(
-              image: const AssetImage('assets/images/pada-logo.png'),
-              height: MediaQuery.of(context).size.height / 4,
             ),
             AuthForm(_submitAuthForm, _isLoading),
           ],
