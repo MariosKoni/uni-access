@@ -43,8 +43,8 @@ class ScanWidget extends StatelessWidget {
 
         final result = barcode.rawValue!;
         HapticFeedback.vibrate();
-        await Provider.of<SessionProvider>(context, listen: false)
-            .authorizeUser(result, context);
+        Provider.of<SessionProvider>(context, listen: false)
+            .authorizeUser(result);
 
         final int rightsResult =
             Provider.of<SessionProvider>(context, listen: false).authResult;

@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 // Defines a session provider
 class SessionProvider with ChangeNotifier {
-  final List<UniUser>? _sessionUsers;
+  final List<UniUser>? sessionUsers;
 
   final List<String>? _labs;
   List<String>? _subjects;
@@ -28,18 +28,11 @@ class SessionProvider with ChangeNotifier {
   bool canSaveSession = false;
   int? currentUserAttendance;
 
-  final Map<String, int> _usersIdsAttendanceNumber;
-
   SessionProvider(
-    this._sessionUsers,
+    this.sessionUsers,
     this._labs,
     this._subjects,
-    this._usersIdsAttendanceNumber,
   );
-
-  List<UniUser> get sessionUsers {
-    return [..._sessionUsers!];
-  }
 
   List<String> get labs {
     return [..._labs!];
@@ -174,7 +167,7 @@ class SessionProvider with ChangeNotifier {
                 (value) {
                   final UniUser uniUser = UniUser.fromFirestore(value);
                   uniUser.isAuthorized = false;
-                  _sessionUsers?.add(uniUser);
+                  sessionUsers?.add(uniUser);
                 },
                 onError: (e) => print(e),
               );
@@ -188,35 +181,33 @@ class SessionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> authorizeUser(String id, BuildContext context) async {
-    try {
-      if (_sessionUsers!
-          .firstWhere((element) => element.id == id)
-          .isAuthorized) {
-        authResult = 3;
-      } else {
-        _sessionUsers?.map((e) => e.id == id ? e.isAuthorized = true : null);
-        authResult = 1;
-        await updateUserAttendance(id, context);
-      }
-    } catch (e) {
-      // id is not present in map
-      authResult = 2;
+  void authorizeUser(String id) {
+    print(sessionUsers!.firstWhere((user) => user.id == id).isAuthorized);
+    if (sessionUsers!.firstWhere((user) => user.id == id).isAuthorized) {
+      print('already');
+      authResult = 3;
+    } else {
+      print('new');
+      sessionUsers
+          ?.map((user) => user.id == id ? user.isAuthorized = true : null);
+      authResult = 1;
     }
 
+    print(sessionUsers!.firstWhere((user) => user.id == id).isAuthorized);
     notifyListeners();
   }
 
   Future<void> addMissingAttendanceDocument(
-    String id,
     BuildContext context,
   ) async {
+    sessionUsers?.map((user) => user.attendaces = 1);
+
     final attendance = <String, dynamic>{
       'subject': _selectedSubject,
-      'attendants': {id: 1},
+      'attendants': {
+        for (final user in sessionUsers!) user.id: user.attendaces
+      },
     };
-
-    _usersIdsAttendanceNumber.putIfAbsent(id, () => 1);
 
     await FirebaseFirestore.instance
         .collection('attendances')
@@ -232,7 +223,7 @@ class SessionProvider with ChangeNotifier {
         );
   }
 
-  Future<void> updateUserAttendance(String id, BuildContext context) async {
+  Future<void> updateUserAttendance(BuildContext context) async {
     await FirebaseFirestore.instance
         .collection('attendances')
         .doc(_selectedSubject)
@@ -240,16 +231,17 @@ class SessionProvider with ChangeNotifier {
         .then(
       (value) async {
         if (!value.exists) {
-          await addMissingAttendanceDocument(id, context);
+          await addMissingAttendanceDocument(context);
           return;
         }
 
         final Attendances attendance = Attendances.fromFirestore(value);
 
         attendance.attendants?.forEach((key, value) {
-          if (key == id) {
-            _usersIdsAttendanceNumber.putIfAbsent(key, () => value + 1 as int);
-          }
+          sessionUsers?.map(
+            (user) =>
+                user.id == key ? user.attendaces = value + 1 as int : null,
+          );
         });
       },
       onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
@@ -292,16 +284,20 @@ class SessionProvider with ChangeNotifier {
         .collection('attendances')
         .doc(_selectedSubject);
 
-    currentAttendances.update({'attendants': _usersIdsAttendanceNumber});
+    currentAttendances.update({
+      'attendants': {for (final user in sessionUsers!) user.id: user.attendaces}
+    });
   }
 
   Future<void> saveSession(BuildContext context) async {
+    await updateUserAttendance(context);
+
     await updateAttendances(context);
 
     final session = <String, dynamic>{
       'lab': _selectedLab,
       'subject': _selectedSubject,
-      'students': _sessionUsers?.map((e) => e.id).toList(),
+      'students': sessionUsers?.map((e) => e.id).toList(),
       'timestamp': DateTime.now(),
       'teacher': Provider.of<UserProvider>(context, listen: false).user?.id
     };
@@ -338,8 +334,7 @@ class SessionProvider with ChangeNotifier {
   void stopSession() {
     _selectedLab = null;
     _selectedSubject = null;
-    _sessionUsers?.clear();
-    _usersIdsAttendanceNumber.clear();
+    sessionUsers?.clear();
     startedScanning = false;
   }
 }

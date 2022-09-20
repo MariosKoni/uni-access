@@ -48,8 +48,6 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final sessionUsers = Provider.of<SessionProvider>(context).sessionUsers;
-
     return Column(
       children: [
         Padding(
@@ -71,7 +69,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                   description: 'Tap on a user to see his/her profile',
                   child: Column(
                     children: Provider.of<SessionProvider>(context)
-                        .sessionUsers
+                        .sessionUsers!
                         .map(
                           (user) => ListTile(
                             leading: user.isAuthorized
