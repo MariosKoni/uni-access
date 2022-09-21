@@ -55,14 +55,14 @@ class SessionOverviewCardWidget extends StatelessWidget {
             .asMap()
             .entries
             .map(
-              (e) => ListTile(
-                leading: Text('${e.key + 1}'),
-                title: Center(child: Text(e.value as String)),
+              (studentId) => ListTile(
+                leading: Text('${studentId.key + 1}'),
+                title: Center(child: Text(studentId.value as String)),
                 trailing: const Icon(Icons.person),
                 onTap: () async {
-                  final UniUser user =
+                  final user =
                       await Provider.of<UserProvider>(context, listen: false)
-                          .getUserFromId(e.value as String, context);
+                          .getUserFromId(studentId.value as String, context);
 
                   return _showStudentProfileAlertDialog(context, user);
                 },

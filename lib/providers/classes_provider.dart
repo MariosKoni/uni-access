@@ -17,9 +17,8 @@ class ClassesProvider with ChangeNotifier {
     for (final element in snapshot.data!.docs) {
       final subjectsOfLab = List<Map<String, dynamic>>.empty(growable: true);
       for (final access in element['access']) {
-        final Map<String, dynamic>? accessData =
-            access as Map<String, dynamic>?;
-        final List<dynamic> userIdsList = accessData!['users'] as List<dynamic>;
+        final accessData = access as Map<String, dynamic>?;
+        final userIdsList = accessData!['users'] as List<dynamic>;
         if (userIdsList.contains(userId)) {
           subjectsOfLab.add({
             access!['info']['subjectName'] as String:

@@ -8,8 +8,8 @@ class UniUser {
   final String? email;
   final bool? isTeacher;
   final String? image;
-  late bool isAuthorized;
-  late int? attendaces;
+  bool isAuthorized = false;
+  int attendaces = 0;
 
   UniUser({
     required this.id,

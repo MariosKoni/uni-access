@@ -2,7 +2,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_uni_access/models/student_classes_card.dart';
 import 'package:flutter_uni_access/providers/classes_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/widgets/display_user_classes_widget.dart';
@@ -13,13 +12,12 @@ class UserClassesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final CollectionReference labs =
         FirebaseFirestore.instance.collection('labs');
-    final String userId =
-        Provider.of<UserProvider>(context, listen: false).user!.id!;
+    final userId = Provider.of<UserProvider>(context, listen: false).user!.id!;
     final studentClassesLength =
         Provider.of<ClassesProvider>(context, listen: false)
             .studentClasses
             ?.length;
-    List<StudentClassesCard>? userClasses =
+    var userClasses =
         Provider.of<ClassesProvider>(context, listen: false).studentClasses;
 
     return studentClassesLength == 0

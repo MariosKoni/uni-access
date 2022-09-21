@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/screens/new_session_screen.dart';
@@ -25,8 +24,7 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   void initState() {
-    final UniUser user =
-        Provider.of<UserProvider>(context, listen: false).user!;
+    final user = Provider.of<UserProvider>(context, listen: false).user!;
 
     if (!user.isTeacher!) {
       _pages = [
@@ -55,8 +53,7 @@ class _TabsScreenState extends State<TabsScreen> {
     int index,
     bool abortFromTabChange,
   ) async {
-    final UniUser user =
-        Provider.of<UserProvider>(context, listen: false).user!;
+    final user = Provider.of<UserProvider>(context, listen: false).user!;
 
     if (user.isTeacher!) {
       // We are on sessions screen and
@@ -169,7 +166,7 @@ class _TabsScreenState extends State<TabsScreen> {
       ),
       body: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
-          final ScrollDirection scrollDirection = notification.direction;
+          final scrollDirection = notification.direction;
           setState(() {
             if (scrollDirection == ScrollDirection.reverse) {
               _showFloatingActionButton = false;

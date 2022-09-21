@@ -26,8 +26,7 @@ class _SessionOverviewFilterListWidgetState
 
   @override
   Widget build(BuildContext A) {
-    final List<String> filters =
-        Provider.of<SessionOverviewProvider>(context).filters!;
+    final filters = Provider.of<SessionOverviewProvider>(context).filters!;
 
     return SizedBox(
       height: MediaQuery.of(context).size.height / 16,

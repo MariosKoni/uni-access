@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/session_provider.dart';

@@ -26,7 +26,7 @@ class SessionProvider with ChangeNotifier {
   bool _startedScanning = false;
   bool abortSessionFromTabChange = false;
   bool canSaveSession = false;
-  int? currentUserAttendance;
+  int? currentUserAttendanceInSessionOverview;
 
   SessionProvider(
     this.sessionUsers,
@@ -75,20 +75,19 @@ class SessionProvider with ChangeNotifier {
         await labs.get().then(
           (value) {
             for (final element in value.docs) {
-              final Labs lab = Labs.fromFirestore(element);
+              final lab = Labs.fromFirestore(element);
               if (lab.access == null) {
                 return;
               }
 
               for (final access in lab.access!) {
-                final Map<String, dynamic>? accessData =
-                    access as Map<String, dynamic>?;
+                final accessData = access as Map<String, dynamic>?;
 
                 if (!accessData!['users'].toString().contains(id)) {
                   continue;
                 }
 
-                final String labName = lab.name!;
+                final labName = lab.name!;
                 if (!_labs!.contains(labName)) {
                   _labs?.add(labName);
                 }
@@ -108,16 +107,15 @@ class SessionProvider with ChangeNotifier {
         break;
       // load subjects
       case 2:
-        final List<String> subjects = List.empty(growable: true);
+        final subjects = List<String>.empty(growable: true);
         await labs.doc(_selectedLab).get().then(
           (value) {
-            final Labs lab = Labs.fromFirestore(value);
+            final lab = Labs.fromFirestore(value);
             if (lab.access == null) {
               return;
             }
             for (final access in lab.access!) {
-              final Map<String, dynamic>? accessData =
-                  access as Map<String, dynamic>?;
+              final accessData = access as Map<String, dynamic>?;
               if (!accessData!['users'].toString().contains(id)) {
                 continue;
               }
@@ -149,58 +147,53 @@ class SessionProvider with ChangeNotifier {
     final CollectionReference users =
         FirebaseFirestore.instance.collection('users');
 
-    await labs.doc(_selectedLab).get().then(
-      (value) async {
-        final Labs lab = Labs.fromFirestore(value);
+    await labs.doc(_selectedLab).get().then((value) async {
+      final lab = Labs.fromFirestore(value);
 
-        for (final access in lab.access!) {
-          final Map<String, dynamic>? accessData =
-              access as Map<String, dynamic>?;
-          if ('${accessData?['info']['subjectName']}: ${accessData?['info']['date']}' ==
-              _selectedSubject) {
-            for (final String student in accessData?['users']) {
-              if (!student.startsWith('cs')) {
-                continue;
-              }
-
-              await users.doc(student).get().then(
-                (value) {
-                  final UniUser uniUser = UniUser.fromFirestore(value);
-                  uniUser.isAuthorized = false;
-                  sessionUsers?.add(uniUser);
-                },
-                onError: (e) => print(e),
-              );
+      for (final access in lab.access!) {
+        final accessData = access as Map<String, dynamic>?;
+        if ('${accessData?['info']['subjectName']}: ${accessData?['info']['date']}' ==
+            _selectedSubject) {
+          for (final String student in accessData?['users']) {
+            if (!student.startsWith('cs')) {
+              continue;
             }
+
+            await users.doc(student).get().then((value) {
+              final uniUser = UniUser.fromFirestore(value);
+              uniUser.isAuthorized = false;
+              sessionUsers?.add(uniUser);
+            });
           }
         }
-      },
-      onError: (e) => print(e),
-    );
+      }
+    });
 
     notifyListeners();
   }
 
   void authorizeUser(String id) {
-    print(sessionUsers!.firstWhere((user) => user.id == id).isAuthorized);
     if (sessionUsers!.firstWhere((user) => user.id == id).isAuthorized) {
-      print('already');
       authResult = 3;
     } else {
-      print('new');
-      sessionUsers
-          ?.map((user) => user.id == id ? user.isAuthorized = true : null);
+      for (final user in sessionUsers!) {
+        if (user.id == id) {
+          user.isAuthorized = true;
+          break;
+        }
+      }
       authResult = 1;
     }
 
-    print(sessionUsers!.firstWhere((user) => user.id == id).isAuthorized);
     notifyListeners();
   }
 
   Future<void> addMissingAttendanceDocument(
     BuildContext context,
   ) async {
-    sessionUsers?.map((user) => user.attendaces = 1);
+    for (final user in sessionUsers!) {
+      user.isAuthorized ? user.attendaces = 1 : user.attendaces = 0;
+    }
 
     final attendance = <String, dynamic>{
       'subject': _selectedSubject,
@@ -235,13 +228,16 @@ class SessionProvider with ChangeNotifier {
           return;
         }
 
-        final Attendances attendance = Attendances.fromFirestore(value);
+        final attendance = Attendances.fromFirestore(value);
 
         attendance.attendants?.forEach((key, value) {
-          sessionUsers?.map(
-            (user) =>
-                user.id == key ? user.attendaces = value + 1 as int : null,
-          );
+          for (final user in sessionUsers!) {
+            if (user.id == key && user.isAuthorized) {
+              user.attendaces = (value as int) + 1;
+            } else if (user.id == key) {
+              user.attendaces = value as int;
+            }
+          }
         });
       },
       onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
@@ -260,13 +256,13 @@ class SessionProvider with ChangeNotifier {
     await attendances.doc(_selectedSubject).get().then(
       (value) {
         if (!value.exists) {
-          currentUserAttendance = null;
+          currentUserAttendanceInSessionOverview = null;
           return;
         }
-        final Attendances attendances = Attendances.fromFirestore(value);
+        final attendances = Attendances.fromFirestore(value);
         attendances.attendants?.forEach((key, value) {
           if (key == id) {
-            currentUserAttendance = value as int;
+            currentUserAttendanceInSessionOverview = value as int;
           }
         });
       },
@@ -279,7 +275,7 @@ class SessionProvider with ChangeNotifier {
     );
   }
 
-  Future<void> updateAttendances(BuildContext context) async {
+  Future<void> updateAttendanceCollection(BuildContext context) async {
     final currentAttendances = FirebaseFirestore.instance
         .collection('attendances')
         .doc(_selectedSubject);
@@ -292,12 +288,17 @@ class SessionProvider with ChangeNotifier {
   Future<void> saveSession(BuildContext context) async {
     await updateUserAttendance(context);
 
-    await updateAttendances(context);
+    await updateAttendanceCollection(context);
+
+    final students = List<String>.empty(growable: true);
+    for (final user in sessionUsers!) {
+      if (user.isAuthorized) students.add(user.id!);
+    }
 
     final session = <String, dynamic>{
       'lab': _selectedLab,
       'subject': _selectedSubject,
-      'students': sessionUsers?.map((e) => e.id).toList(),
+      'students': students,
       'timestamp': DateTime.now(),
       'teacher': Provider.of<UserProvider>(context, listen: false).user?.id
     };
@@ -315,7 +316,6 @@ class SessionProvider with ChangeNotifier {
       );
     });
 
-    // TODO: Move it to frontend
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Session saved'),

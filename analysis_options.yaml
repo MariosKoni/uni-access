@@ -25,3 +25,4 @@ linter:
     # Choose wisely, but you don't have to
     # prefer_double_quotes: true
     # prefer_single_quotes: true
+    - omit_local_variable_types

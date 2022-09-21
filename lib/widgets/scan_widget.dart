@@ -46,10 +46,10 @@ class ScanWidget extends StatelessWidget {
         Provider.of<SessionProvider>(context, listen: false)
             .authorizeUser(result);
 
-        final int rightsResult =
+        final rightsResult =
             Provider.of<SessionProvider>(context, listen: false).authResult;
 
-        String msg = '';
+        var msg = '';
         switch (rightsResult) {
           case 1:
             msg = 'User Authorized';

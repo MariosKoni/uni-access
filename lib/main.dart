@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
               stream: FirebaseAuth.instance.authStateChanges(),
               builder: (ctx, userSnapshot) {
                 if (userSnapshot.hasData) {
-                  late final User? user = FirebaseAuth.instance.currentUser;
+                  late final user = FirebaseAuth.instance.currentUser;
                   late final CollectionReference users =
                       FirebaseFirestore.instance.collection('users');
 
@@ -98,8 +98,7 @@ class MyApp extends StatelessWidget {
                         }
 
                         if (snapshot.connectionState == ConnectionState.done) {
-                          final UniUser uniUser =
-                              UniUser.fromFirestore(snapshot.data!);
+                          final uniUser = UniUser.fromFirestore(snapshot.data!);
 
                           Provider.of<UserProvider>(ctx, listen: false).user =
                               uniUser;

@@ -16,7 +16,7 @@ class SessionOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late final String activeUserId =
+    late final activeUserId =
         Provider.of<UserProvider>(context, listen: false).user!.id!;
 
     return StreamBuilder(
@@ -34,15 +34,15 @@ class SessionOverviewScreen extends StatelessWidget {
           return const Center(child: Text('Data is null.'));
         }
 
-        final List<Session> sessions = List<Session>.empty(growable: true);
+        final sessions = List<Session>.empty(growable: true);
 
         for (final element in snapshot.data!.docs) {
-          final Session session = Session.fromFirestore(element);
+          final session = Session.fromFirestore(element);
           if (session.teacher?.compareTo(activeUserId) != 0) {
             continue;
           }
 
-          final List<String> studentsIds = List<String>.empty(growable: true);
+          final studentsIds = List<String>.empty(growable: true);
           for (final id in session.studentsIds!) {
             studentsIds.add(id as String);
           }

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 class NewSessionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final bool canSave = Provider.of<SessionProvider>(context).canSaveSession;
+    final canSave = Provider.of<SessionProvider>(context).canSaveSession;
 
     return Card(
       color: Theme.of(context).colorScheme.secondary,

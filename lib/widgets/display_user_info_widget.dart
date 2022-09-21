@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_uni_access/models/uni_user.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:flutter_uni_access/utils/capitalize_first_letter.dart';
 import 'package:flutter_uni_access/widgets/custom_bottom_outline_button.dart';
@@ -20,8 +19,7 @@ class DisplayUserInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UniUser uniUser =
-        Provider.of<UserProvider>(context, listen: false).user!;
+    final uniUser = Provider.of<UserProvider>(context, listen: false).user!;
     int denominator;
 
     if (uniUser.isTeacher!) {

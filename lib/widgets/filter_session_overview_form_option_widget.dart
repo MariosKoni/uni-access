@@ -51,7 +51,7 @@ class _FilterSessionOverviewFormOptionWidgetState
             child: Icon(Icons.arrow_drop_down_rounded),
           ),
           onChanged: (String? newValue) {
-            final List<String>? filters =
+            final filters =
                 Provider.of<SessionOverviewProvider>(context, listen: false)
                     .filters;
             if (!filters!.contains(newValue)) {

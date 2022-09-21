@@ -19,12 +19,12 @@ class SessionOverviewProvider with ChangeNotifier {
 
   void populateLists() {
     for (final session in sessions!) {
-      final String? lab = session.lab;
+      final lab = session.lab;
       if (!labs!.contains(lab)) {
         labs?.add(lab!);
       }
 
-      final String? subject = session.subject;
+      final subject = session.subject;
       if (!subjects!.contains(subject)) {
         subjects?.add(subject!);
       }
@@ -42,7 +42,7 @@ class SessionOverviewProvider with ChangeNotifier {
       sessions = allSessions;
     }
 
-    List<Session> filteredSessions = List.empty();
+    var filteredSessions = List<Session>.empty();
     filteredSessions = sessions!
         .where(
           (element) =>

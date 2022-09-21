@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_uni_access/models/session.dart';
 import 'package:flutter_uni_access/providers/session_overview_provider.dart';
 import 'package:flutter_uni_access/widgets/session_overview_card_widget.dart';
 import 'package:flutter_uni_access/widgets/session_overview_filter_list_widget.dart';
@@ -10,9 +9,9 @@ class SessionOverviewsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Session> filteredSessions =
+    final filteredSessions =
         Provider.of<SessionOverviewProvider>(context).sessions!;
-    final List<String> filters =
+    final filters =
         Provider.of<SessionOverviewProvider>(context, listen: false).filters!;
 
     return SingleChildScrollView(

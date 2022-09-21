@@ -107,7 +107,7 @@ class _AlertStudentProfileWidgetState extends State<AlertStudentProfileWidget>
             ),
             Text(
               Provider.of<SessionProvider>(context, listen: false)
-                  .currentUserAttendance
+                  .currentUserAttendanceInSessionOverview
                   .toString(),
               style: const TextStyle(fontSize: 25),
             ),
