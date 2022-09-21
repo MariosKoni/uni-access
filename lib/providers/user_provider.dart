@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uni_access/models/uni_user.dart';
 
 // Defines a user provider
 class UserProvider with ChangeNotifier {
   UniUser? user;
-  bool showAnimation = true;
+  Uint8List? userImageData;
 
   Future<UniUser> getUserFromId(String id, BuildContext context) async {
     final CollectionReference users =
@@ -23,5 +25,13 @@ class UserProvider with ChangeNotifier {
         );
 
     return uniUser;
+  }
+
+  Future<void> setImageData(String id) async {
+    try {
+      const size = 800 * 600;
+      userImageData =
+          await FirebaseStorage.instance.ref().child('$id.jpg').getData(size);
+    } on FirebaseException catch (_) {}
   }
 }

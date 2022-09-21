@@ -49,7 +49,7 @@ class DisplayUserInfo extends StatelessWidget {
                   bottomRight: Radius.circular(15.0),
                 ),
                 image: DecorationImage(
-                  image: NetworkImage(uniUser.image!),
+                  image: Image.memory(uniUser.image!).image,
                   fit: BoxFit.cover,
                 ),
               ),

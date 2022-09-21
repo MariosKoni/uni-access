@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 // Defines a User (student or teacher)
 class UniUser {
@@ -7,7 +8,7 @@ class UniUser {
   final String? surname;
   final String? email;
   final bool? isTeacher;
-  final String? image;
+  late Uint8List? image;
   bool isAuthorized = false;
   int attendaces = 0;
 
@@ -17,7 +18,6 @@ class UniUser {
     required this.surname,
     required this.email,
     required this.isTeacher,
-    required this.image,
   });
 
   factory UniUser.fromFirestore(DocumentSnapshot<Object?> snapshot) {
@@ -27,7 +27,6 @@ class UniUser {
       surname: snapshot.get('surname') as String,
       email: snapshot.get('email') as String,
       isTeacher: snapshot.get('isTeacher') as bool,
-      image: snapshot.get('image') as String,
     );
   }
 }

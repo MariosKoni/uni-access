@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, cast_nullable_to_non_nullable
+// ignore_for_file: depend_on_referenced_packages, cast_nullable_to_non_nullable, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -81,9 +81,13 @@ class MyApp extends StatelessWidget {
                   if (user != null) {
                     id = user.email!.split('@').elementAt(0);
 
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: users.doc(id).get(),
-                      builder: (_, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    return FutureBuilder<List<dynamic>>(
+                      future: Future.wait([
+                        users.doc(id).get(),
+                        Provider.of<UserProvider>(ctx, listen: false)
+                            .setImageData(id)
+                      ]),
+                      builder: (_, AsyncSnapshot<List<dynamic>> snapshot) {
                         if (snapshot.hasError) {
                           return Center(
                             child: Text(snapshot.error.toString()),
@@ -91,14 +95,21 @@ class MyApp extends StatelessWidget {
                         }
 
                         if (snapshot.hasData &&
-                            (snapshot.data == null || !snapshot.data!.exists)) {
+                            (snapshot.data == null || snapshot.data!.isEmpty)) {
                           return const Center(
                             child: Text('Document does not exist'),
                           );
                         }
 
                         if (snapshot.connectionState == ConnectionState.done) {
-                          final uniUser = UniUser.fromFirestore(snapshot.data!);
+                          final uniUser = UniUser.fromFirestore(
+                            snapshot.data!.elementAt(0)
+                                as DocumentSnapshot<Object?>,
+                          );
+
+                          uniUser.image =
+                              Provider.of<UserProvider>(ctx, listen: false)
+                                  .userImageData;
 
                           Provider.of<UserProvider>(ctx, listen: false).user =
                               uniUser;

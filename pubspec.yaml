@@ -41,6 +41,7 @@ dependencies:
   provider: ^6.0.3
   showcaseview: ^1.1.8
   intl: ^0.17.0
+  firebase_storage: ^10.3.8
 
 dev_dependencies:
   flutter_test:
