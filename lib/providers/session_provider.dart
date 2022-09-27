@@ -62,10 +62,6 @@ class SessionProvider with ChangeNotifier {
   bool get startedScanning => _startedScanning;
 
   Future<void> populateFormData(int sw, String id, BuildContext context) async {
-    if (_labs!.isNotEmpty && _subjects!.isNotEmpty) {
-      return;
-    }
-
     final CollectionReference labs =
         FirebaseFirestore.instance.collection('labs');
 

@@ -3,7 +3,6 @@ import 'package:flutter_uni_access/providers/session_provider.dart';
 import 'package:flutter_uni_access/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
-// ignore: must_be_immutable
 class NewSessionFormOptionWidget extends StatefulWidget {
   const NewSessionFormOptionWidget({
     Key? key,

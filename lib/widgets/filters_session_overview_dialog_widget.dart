@@ -11,11 +11,12 @@ class FiltersSessionOverviewDialogWidget extends StatelessWidget {
     return SizedBox(
       height: MediaQuery.of(context).size.height / 3,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).size.height / 100,
+            ),
             child: Container(
               height: MediaQuery.of(context).size.height / 100,
               width: MediaQuery.of(context).size.width / 7,
@@ -24,6 +25,9 @@ class FiltersSessionOverviewDialogWidget extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height / 20,
           ),
           Text(
             'Filters',
