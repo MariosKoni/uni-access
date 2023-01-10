@@ -18,7 +18,7 @@ class UserProvider with ChangeNotifier {
           (value) => uniUser = UniUser.fromFirestore(value),
           onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Could not fetch subjects'),
+              content: const Text('Could not fetch user'),
               backgroundColor: Theme.of(context).errorColor,
             ),
           ),
