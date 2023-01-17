@@ -6,6 +6,8 @@ import 'package:flutter_uni_access/widgets/qr_image_widget.dart';
 import 'package:provider/provider.dart';
 
 class DisplayUserInfo extends StatelessWidget {
+  // This method displays a popup
+  // showing the qr code of the user
   Future<void> _showUserQrCode(
     BuildContext context,
     String? id,
@@ -19,9 +21,16 @@ class DisplayUserInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get current user
     final uniUser = Provider.of<UserProvider>(context, listen: false).user!;
+    // With what number we will divide
+    // the height of the screen
     int denominator;
 
+    // If the user is a teacher
+    // then the image can be bigger
+    // since we don't need space for
+    // the qr code button
     if (uniUser.isTeacher!) {
       denominator = 2;
     } else {

@@ -18,14 +18,21 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
-  late List<Map<String, Object>> _pages;
+  // all the possible pages / screens of the app
+  late final List<Map<String, Object>> _pages;
+  // current page shown
   int _selectedIndex = 0;
+  // whether to show or not the floating action button
   bool _showFloatingActionButton = true;
 
+  // When the widget (TabsScreen) is added to the tree
+  // it will fire this method.
   @override
   void initState() {
+    // take the current user in our UserProvider
     final user = Provider.of<UserProvider>(context, listen: false).user!;
 
+    // Load seperate pages for each type of user
     if (!user.isTeacher!) {
       _pages = [
         {'page': UsertInfoScreen(), 'title': 'Info'},
@@ -43,44 +50,66 @@ class _TabsScreenState extends State<TabsScreen> {
     super.initState();
   }
 
+  // This method is being called
+  // when the user changes screen
+  // taps at tab button.
+  // it uses setState which
+  // rebuilds the whole screen
+  // and as such loads the next screen.
+  // It takes the the index of the screen
+  // in which the user wants to go
   void _changeTab(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  // This method checks whether
+  // the user is in a Session state when trying
+  // to change screen.
+  // It takes the index of the screen in which the user
+  // is currently in and whether has confirmed that
+  // he/she will
   Future<void> _checkIfUserExitsFromSession(
     int index,
     bool abortFromTabChange,
   ) async {
+    // Take the current user
     final user = Provider.of<UserProvider>(context, listen: false).user!;
 
-    if (user.isTeacher!) {
-      // We are on sessions screen and
-      //authorization process has started
-      if (_selectedIndex == 2 &&
-          index != _selectedIndex &&
-          Provider.of<SessionProvider>(context, listen: false)
-              .startedScanning) {
-        await _showExitDialog(context);
-      } else {
-        _changeTab(index);
-      }
+    // If the user is not a teacher
+    // then we don't care
+    // and change page
+    if (!user.isTeacher!) {
+      _changeTab(index);
+      return;
+    }
 
-      if (abortFromTabChange) {
-        _changeTab(index);
-      }
+    // We are on sessions screen and
+    //authorization process has started
+    if (_selectedIndex == 2 &&
+        index != _selectedIndex &&
+        Provider.of<SessionProvider>(context, listen: false).startedScanning) {
+      await _showExitDialog(context);
     } else {
+      _changeTab(index);
+    }
+
+    if (abortFromTabChange) {
       _changeTab(index);
     }
   }
 
+  // Helper function for the showDialog widget.
+  // It closes popup if the user presses cancel
   void _cancelChangeTabFromNewSession() {
     Provider.of<SessionProvider>(context, listen: false)
         .abortSessionFromTabChange = false;
     Navigator.of(context).pop();
   }
 
+  // Helper function for the showDialog widget.
+  // It aborts the session that the user initiated
   void _confirmChangeTabFromNewSession() {
     Provider.of<SessionProvider>(context, listen: false)
         .abortSessionFromTabChange = true;
@@ -88,6 +117,8 @@ class _TabsScreenState extends State<TabsScreen> {
     Navigator.of(context).pop();
   }
 
+  // It shows a popup that warns the user that he/she's trying
+  // to cancel the authorization process
   Future<void> _showExitDialog(BuildContext context) async {
     return showDialog(
       barrierDismissible: false,
@@ -101,6 +132,8 @@ class _TabsScreenState extends State<TabsScreen> {
     );
   }
 
+  // Signs out the user from the app.
+  // If a session is underway, it stops it.
   Future<void> _logout() async {
     if (Provider.of<SessionProvider>(context, listen: false).startedScanning) {
       Provider.of<SessionProvider>(context, listen: false).stopSession();
@@ -110,6 +143,8 @@ class _TabsScreenState extends State<TabsScreen> {
     await FirebaseAuth.instance.signOut();
   }
 
+  // If the user pressess the logout button
+  // a popup is shown warning him
   Future<void> _showLogoutDialog(BuildContext context) async {
     return showDialog(
       barrierDismissible: false,
@@ -122,6 +157,10 @@ class _TabsScreenState extends State<TabsScreen> {
     );
   }
 
+  // When a user wants to start a new session
+  // A bottom popup is being displayed giving him
+  // all the options to choose
+  // This popup can't be dismissed!
   Future<void> _showNewSessionDialog() async {
     return showModalBottomSheet<void>(
       isDismissible: false,
@@ -137,6 +176,8 @@ class _TabsScreenState extends State<TabsScreen> {
     );
   }
 
+  // When the user wants to filter his/her sessions
+  // a bottom popup is being shown with all the options
   Future<void> _showFiltersDialog() async {
     return showModalBottomSheet<void>(
       context: context,
@@ -152,6 +193,7 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Duration of the animation of the floating action button
     const duration = Duration(milliseconds: 300);
 
     return Scaffold(
@@ -164,6 +206,9 @@ class _TabsScreenState extends State<TabsScreen> {
           )
         ],
       ),
+      // NotificationListener widget is used to determine
+      // whether the user reached the end of the scrollable
+      // page and hide the floating action button (session overview)
       body: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           final scrollDirection = notification.direction;

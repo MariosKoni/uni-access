@@ -11,14 +11,12 @@ import 'package:provider/provider.dart';
 class SessionOverviewScreen extends StatelessWidget {
   SessionOverviewScreen({Key? key}) : super(key: key);
 
+  // Get a reference to the sessions collection as a stream
   late final Stream<QuerySnapshot> _sessionOverviewStream =
       FirebaseFirestore.instance.collection('sessions').snapshots();
 
   @override
   Widget build(BuildContext context) {
-    late final activeUserId =
-        Provider.of<UserProvider>(context, listen: false).user!.id!;
-
     return StreamBuilder(
       stream: _sessionOverviewStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -38,7 +36,11 @@ class SessionOverviewScreen extends StatelessWidget {
 
         for (final element in snapshot.data!.docs) {
           final session = Session.fromFirestore(element);
-          if (session.teacher?.compareTo(activeUserId) != 0) {
+          // If the session's teacher is not the current user, ingore it
+          if (session.teacher?.compareTo(
+                Provider.of<UserProvider>(context, listen: false).user!.id!,
+              ) !=
+              0) {
             continue;
           }
 

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 class NewSessionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Whether the user can save the session
     final canSave = Provider.of<SessionProvider>(context).canSaveSession;
 
     return Card(

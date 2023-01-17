@@ -71,7 +71,7 @@ class _AlertQrImageWidgetState extends State<AlertQrImageWidget>
                 ),
               ),
               Tooltip(
-                message: 'Show QR code',
+                message: 'Close popup',
                 child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Close'),

@@ -10,16 +10,24 @@ import 'package:provider/provider.dart';
 class UserClassesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final CollectionReference labs =
+    // Reference to the labs collection
+    late final CollectionReference labs =
         FirebaseFirestore.instance.collection('labs');
-    final userId = Provider.of<UserProvider>(context, listen: false).user!.id!;
-    final studentClassesLength =
+    // Current user ID
+    late final userId =
+        Provider.of<UserProvider>(context, listen: false).user!.id!;
+    // Number of classes the user is attending
+    late final studentClassesLength =
         Provider.of<ClassesProvider>(context, listen: false)
             .studentClasses
             ?.length;
+    // The classes the user attends
     var userClasses =
         Provider.of<ClassesProvider>(context, listen: false).studentClasses;
 
+    // If we don't have the student classes in cache
+    // then ask firebase.
+    // Else serve them
     return studentClassesLength == 0
         ? FutureBuilder(
             future: labs.get(),

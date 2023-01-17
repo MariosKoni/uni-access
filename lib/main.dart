@@ -15,21 +15,32 @@ import 'package:flutter_uni_access/screens/tabs_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
+// Entrypoint of the app
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Sets the orientation of the app to portrait only
   SystemChrome.setPreferredOrientations(
     [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
   );
+
+  // Inits firebase
   await Firebase.initializeApp();
 
+  // Run the app with MyApp as the first widget
   runApp(const MyApp());
 }
 
+// Father of all the widgets in the tree
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Since we have multiple providers in the app
+    // we use MultiProvider and init all of them
+    // in the first component of the tree as to
+    // pass the down
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -55,6 +66,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ],
+
+      // Create the app
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'UniAccess',
@@ -69,62 +82,89 @@ class MyApp extends StatelessWidget {
         home: ShowCaseWidget(
           builder: Builder(
             builder: (_) => StreamBuilder(
+              // We subscibe to this stream in order
+              // to keep track of the user's login status
+              // every time it changes it will fire this
+              // builder function
               stream: FirebaseAuth.instance.authStateChanges(),
               builder: (ctx, userSnapshot) {
-                if (userSnapshot.hasData) {
-                  late final user = FirebaseAuth.instance.currentUser;
-                  late final CollectionReference users =
-                      FirebaseFirestore.instance.collection('users');
-
-                  late String id;
-
-                  if (user != null) {
-                    id = user.email!.split('@').elementAt(0);
-
-                    return FutureBuilder<List<dynamic>>(
-                      future: Future.wait([
-                        users.doc(id).get(),
-                        Provider.of<UserProvider>(ctx, listen: false)
-                            .setImageData(id)
-                      ]),
-                      builder: (_, AsyncSnapshot<List<dynamic>> snapshot) {
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text(snapshot.error.toString()),
-                          );
-                        }
-
-                        if (snapshot.hasData &&
-                            (snapshot.data == null || snapshot.data!.isEmpty)) {
-                          return const Center(
-                            child: Text('Document does not exist'),
-                          );
-                        }
-
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          final uniUser = UniUser.fromFirestore(
-                            snapshot.data!.elementAt(0)
-                                as DocumentSnapshot<Object?>,
-                          );
-
-                          uniUser.image =
-                              Provider.of<UserProvider>(ctx, listen: false)
-                                  .userImageData;
-
-                          Provider.of<UserProvider>(ctx, listen: false).user =
-                              uniUser;
-
-                          return TabsScreen();
-                        }
-
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      },
-                    );
-                  }
+                // If there are not data
+                // redirect to the auth screen
+                if (!userSnapshot.hasData) {
+                  return const AuthScreen();
                 }
-                return const AuthScreen();
+
+                // current user if any
+                late final user = FirebaseAuth.instance.currentUser;
+
+                // users collections back at firebase
+                late final CollectionReference users =
+                    FirebaseFirestore.instance.collection('users');
+
+                // id of the current user
+                late String id;
+
+                // If no user is present
+                // redirect to auth screen
+                if (user == null) {
+                  return const AuthScreen();
+                }
+
+                // since id is included from the email
+                // and we have easy access to the user email
+                // from FirebaseAuth, take it from there
+                id = user.email!.split('@').elementAt(0);
+
+                // Find the user with the above id
+                // Set the image for the given user
+                // When all of this is done, procceed
+                return FutureBuilder<List<dynamic>>(
+                  future: Future.wait([
+                    users.doc(id).get(),
+                    Provider.of<UserProvider>(ctx, listen: false)
+                        .setImageData(id)
+                  ]),
+                  builder: (_, AsyncSnapshot<List<dynamic>> snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(snapshot.error.toString()),
+                      );
+                    }
+
+                    if (snapshot.hasData &&
+                        (snapshot.data == null || snapshot.data!.isEmpty)) {
+                      return const Center(
+                        child: Text('Document does not exist'),
+                      );
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      // Get the user from the snapshot data
+                      final uniUser = UniUser.fromFirestore(
+                        snapshot.data!.elementAt(0)
+                            as DocumentSnapshot<Object?>,
+                      );
+
+                      // Set his/her image
+                      uniUser.image =
+                          Provider.of<UserProvider>(ctx, listen: false)
+                              .userImageData;
+
+                      // Store the user in the UserProvider
+                      // since we will need it down the line
+                      Provider.of<UserProvider>(ctx, listen: false).user =
+                          uniUser;
+
+                      // Proccedd to the TabsScreen
+                      // i.e the core app
+                      return TabsScreen();
+                    }
+
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
+                );
               },
             ),
           ),
