@@ -265,7 +265,7 @@ class _TabsScreenState extends State<TabsScreen> {
           : null,
       bottomNavigationBar: BottomNavigationBar(
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
-        selectedItemColor: Theme.of(context).backgroundColor,
+        selectedItemColor: Theme.of(context).colorScheme.background,
         type: BottomNavigationBarType.shifting,
         items:
             Provider.of<UserProvider>(context, listen: false).user!.isTeacher!

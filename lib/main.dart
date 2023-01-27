@@ -75,9 +75,9 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSwatch().copyWith(
             primary: const Color.fromRGBO(36, 110, 233, 1.0),
             secondary: const Color.fromRGBO(240, 242, 245, 1.0),
+            background: Colors.white,
           ),
           fontFamily: 'RobotoCondensed',
-          backgroundColor: Colors.white,
         ),
         home: ShowCaseWidget(
           builder: Builder(

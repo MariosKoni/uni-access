@@ -37,7 +37,7 @@ class NewSessionScreen extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: canSave
                           ? const Color.fromRGBO(232, 52, 93, 1.0)
-                          : Theme.of(context).backgroundColor,
+                          : Theme.of(context).colorScheme.background,
                       fixedSize: Size(
                         MediaQuery.of(context).size.width / 2,
                         MediaQuery.of(context).size.height / 15,

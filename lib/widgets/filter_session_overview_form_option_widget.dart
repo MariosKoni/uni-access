@@ -43,7 +43,7 @@ class _FilterSessionOverviewFormOptionWidgetState
             bottomLeft: Radius.circular(15.0),
             bottomRight: Radius.circular(15.0),
           ),
-          dropdownColor: Theme.of(context).backgroundColor,
+          dropdownColor: Theme.of(context).colorScheme.background,
           hint: Text(widget._titleOption),
           value: _selectedItem ??= null,
           icon: const Tooltip(

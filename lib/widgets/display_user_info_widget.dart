@@ -69,11 +69,11 @@ class DisplayUserInfo extends StatelessWidget {
               children: [
                 Text(
                   'ID: ',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 Text(
                   uniUser.id!,
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 )
               ],
             ),
@@ -82,11 +82,11 @@ class DisplayUserInfo extends StatelessWidget {
               children: [
                 Text(
                   'Name: ',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 Text(
                   '${uniUser.name.toString().capitalize()} ${uniUser.surname.toString().capitalize()}',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 )
               ],
             ),
@@ -95,11 +95,11 @@ class DisplayUserInfo extends StatelessWidget {
               children: [
                 Text(
                   'E-mail: ',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 Text(
                   '${uniUser.email}',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 )
               ],
             ),
@@ -108,11 +108,11 @@ class DisplayUserInfo extends StatelessWidget {
               children: [
                 Text(
                   'Role: ',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 Text(
                   !uniUser.isTeacher! ? 'Student' : 'Teacher',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 )
               ],
             ),

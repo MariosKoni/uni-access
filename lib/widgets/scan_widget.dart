@@ -34,7 +34,7 @@ class ScanWidget extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Barcode has no value'),
-              backgroundColor: Theme.of(context).errorColor,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
 

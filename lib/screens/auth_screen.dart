@@ -35,7 +35,7 @@ class _AuthScreenState extends State<AuthScreen> {
       ScaffoldMessenger.of(ctx).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Theme.of(ctx).errorColor,
+          backgroundColor: Theme.of(ctx).colorScheme.error,
         ),
       );
 
@@ -52,7 +52,7 @@ class _AuthScreenState extends State<AuthScreen> {
       ScaffoldMessenger.of(ctx).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Theme.of(ctx).errorColor,
+          backgroundColor: Theme.of(ctx).colorScheme.error,
         ),
       );
 
@@ -71,7 +71,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [

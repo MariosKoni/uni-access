@@ -22,7 +22,7 @@ class NewSessionDialogWidget extends StatelessWidget {
         children: [
           Text(
             'Register a new session',
-            style: Theme.of(context).textTheme.headline5,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 10),
           NewSessionFormOptionWidget(

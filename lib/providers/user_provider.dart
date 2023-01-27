@@ -19,7 +19,7 @@ class UserProvider with ChangeNotifier {
           onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Could not fetch user'),
-              backgroundColor: Theme.of(context).errorColor,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           ),
         );

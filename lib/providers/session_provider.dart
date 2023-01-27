@@ -94,7 +94,7 @@ class SessionProvider with ChangeNotifier {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Could not fetch labs'),
-                backgroundColor: Theme.of(context).errorColor,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           },
@@ -124,7 +124,7 @@ class SessionProvider with ChangeNotifier {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Could not fetch subjects'),
-                backgroundColor: Theme.of(context).errorColor,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           },
@@ -206,7 +206,7 @@ class SessionProvider with ChangeNotifier {
           (error, stackTrace) => ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Could not initiate attendance'),
-              backgroundColor: Theme.of(context).errorColor,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           ),
         );
@@ -239,7 +239,7 @@ class SessionProvider with ChangeNotifier {
       onError: (e) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Could not fetch attendance data'),
-          backgroundColor: Theme.of(context).errorColor,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       ),
     );
@@ -265,7 +265,7 @@ class SessionProvider with ChangeNotifier {
       onError: (_) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Could not fetch student attendance data'),
-          backgroundColor: Theme.of(context).errorColor,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       ),
     );
@@ -307,7 +307,7 @@ class SessionProvider with ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Could not save session'),
-          backgroundColor: Theme.of(context).errorColor,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     });
