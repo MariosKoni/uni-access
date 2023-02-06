@@ -163,7 +163,6 @@ class _TabsScreenState extends State<TabsScreen> {
   // This popup can't be dismissed!
   Future<void> _showNewSessionDialog() async {
     return showModalBottomSheet<void>(
-      isDismissible: false,
       enableDrag: false,
       context: context,
       shape: const RoundedRectangleBorder(

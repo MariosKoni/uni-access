@@ -169,18 +169,25 @@ class SessionProvider with ChangeNotifier {
   }
 
   void authorizeUser(String id) {
-    if (sessionUsers!.firstWhere((user) => user.id == id).isAuthorized) {
-      authResult = 3;
-    } else {
-      for (final user in sessionUsers!) {
-        if (user.id == id) {
-          user.isAuthorized = true;
-          break;
-        }
-      }
-      authResult = 1;
+    if (sessionUsers!.any((user) => user.id != id)) {
+      authResult = 2;
+      notifyListeners();
+
+      return;
     }
 
+    if (sessionUsers!.firstWhere((user) => user.id == id).isAuthorized) {
+      authResult = 3;
+      notifyListeners();
+
+      return;
+    }
+
+    authResult = 1;
+    sessionUsers!.firstWhere((user) => user.id == id).isAuthorized = true;
+    if (!canSaveSession) {
+      canSaveSession = true;
+    }
     notifyListeners();
   }
 

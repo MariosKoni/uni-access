@@ -30,7 +30,8 @@ class Session {
       timestamp: DateFormat('yyy-MM-dd kk:mm').format(
         DateTime.fromMillisecondsSinceEpoch(
           snapshot.get('timestamp').millisecondsSinceEpoch as int,
-        ),
+          isUtc: true,
+        ).toLocal(),
       ),
     );
   }

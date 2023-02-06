@@ -27,7 +27,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
         .findAllPermittedStudents()
         .then((value) => print('ok'));
 
-    Provider.of<SessionProvider>(context, listen: false).canSaveSession = true;
+    // Provider.of<SessionProvider>(context, listen: false).canSaveSession = true;
 
     // TODO: Make this run only one time!
     WidgetsBinding.instance.addPostFrameCallback(
