@@ -29,8 +29,8 @@ class ScanWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MobileScanner(
-      onDetect: (barcode, args) async {
-        if (barcode.rawValue == null) {
+      onDetect: (barcode) async {
+        if (barcode.raw == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Barcode has no value'),
@@ -41,10 +41,10 @@ class ScanWidget extends StatelessWidget {
           return;
         }
 
-        final result = barcode.rawValue!;
+        final result = barcode.raw;
         HapticFeedback.vibrate();
         Provider.of<SessionProvider>(context, listen: false)
-            .authorizeUser(result);
+            .authorizeUser(result as String);
 
         final rightsResult =
             Provider.of<SessionProvider>(context, listen: false).authResult;

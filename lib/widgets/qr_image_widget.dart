@@ -64,7 +64,7 @@ class _AlertQrImageWidgetState extends State<AlertQrImageWidget>
           child: Column(
             children: [
               Center(
-                child: QrImage(
+                child: QrImageView(
                   data: widget.id,
                   size: 200,
                   backgroundColor: Colors.white,

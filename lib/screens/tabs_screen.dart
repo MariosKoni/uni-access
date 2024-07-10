@@ -163,8 +163,8 @@ class _TabsScreenState extends State<TabsScreen> {
   // This popup can't be dismissed!
   Future<void> _showNewSessionDialog() async {
     return showModalBottomSheet<void>(
-      enableDrag: false,
       context: context,
+      enableDrag: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(15.0),
@@ -202,7 +202,7 @@ class _TabsScreenState extends State<TabsScreen> {
           IconButton(
             onPressed: () => _showLogoutDialog(context),
             icon: const Tooltip(message: 'Logout', child: Icon(Icons.logout)),
-          )
+          ),
         ],
       ),
       // NotificationListener widget is used to determine
@@ -264,7 +264,7 @@ class _TabsScreenState extends State<TabsScreen> {
           : null,
       bottomNavigationBar: BottomNavigationBar(
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
-        selectedItemColor: Theme.of(context).colorScheme.background,
+        selectedItemColor: Theme.of(context).colorScheme.surface,
         type: BottomNavigationBarType.shifting,
         items:
             Provider.of<UserProvider>(context, listen: false).user!.isTeacher!

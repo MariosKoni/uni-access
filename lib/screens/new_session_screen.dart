@@ -56,20 +56,18 @@ class NewSessionScreen extends StatelessWidget {
               ],
             )
           else
-            Column(
+            const Column(
               children: [
-                SizedBox(
-                  child: Center(
-                    child: Column(
-                      children: const [
-                        Icon(
-                          Icons.class_rounded,
-                          size: 100.0,
-                          color: Colors.white,
-                        ),
-                        Text('Register a new session')
-                      ],
-                    ),
+                Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.class_rounded,
+                        size: 100.0,
+                        color: Colors.white,
+                      ),
+                      Text('Register a new session'),
+                    ],
                   ),
                 ),
               ],

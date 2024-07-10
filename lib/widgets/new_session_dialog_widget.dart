@@ -14,31 +14,26 @@ class NewSessionDialogWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height / 3,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Wrap(
+        direction: Axis.vertical,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
             'Register a new session',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          const SizedBox(height: 10),
           NewSessionFormOptionWidget(
             key: const Key('lab'),
             option: Provider.of<SessionProvider>(context, listen: false).labs,
             titleOption: 'Lab',
-          ),
-          const SizedBox(
-            height: 10,
           ),
           NewSessionFormOptionWidget(
             key: const Key('subject'),
             option: Provider.of<SessionProvider>(context).subjects,
             titleOption: 'Subject',
           ),
-          const SizedBox(height: 10),
           Tooltip(
             message: 'Start the authorization process',
             child: ElevatedButton(

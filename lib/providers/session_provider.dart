@@ -150,7 +150,7 @@ class SessionProvider with ChangeNotifier {
         final accessData = access as Map<String, dynamic>?;
         if ('${accessData?['info']['subjectName']}: ${accessData?['info']['date']}' ==
             _selectedSubject) {
-          for (final String student in accessData?['users']) {
+          for (final student in accessData?['users'] as List<String>) {
             if (!student.startsWith('cs')) {
               continue;
             }
