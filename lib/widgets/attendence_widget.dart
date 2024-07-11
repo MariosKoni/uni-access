@@ -23,16 +23,17 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
   void initState() {
     super.initState();
 
-    Provider.of<SessionProvider>(context, listen: false)
-        .findAllPermittedStudents()
-        .then((value) => print('ok'));
-
     // Provider.of<SessionProvider>(context, listen: false).canSaveSession = true;
 
     // TODO: Make this run only one time!
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ShowCaseWidget.of(context).startShowCase([_one]),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Provider.of<SessionProvider>(context, listen: false)
+          .findAllPermittedStudents();
+
+      if (!mounted) return;
+
+      // ShowCaseWidget.of(context).startShowCase([_one]);
+    });
   }
 
   Future<void> _showStudentProfileAlertDialog(
@@ -41,6 +42,9 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
   ) async {
     await Provider.of<SessionProvider>(context, listen: false)
         .findStudentAttendances(user.id!, context);
+
+    if (!context.mounted) return;
+
     return showDialog(
       barrierDismissible: false,
       context: context,
@@ -66,39 +70,35 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
             child: SizedBox(
               height: MediaQuery.of(context).size.height / 2,
               child: SingleChildScrollView(
-                child: Showcase(
-                  key: _one,
-                  description: 'Tap on a user to see his/her profile',
-                  child: Column(
-                    children: Provider.of<SessionProvider>(context)
-                        .sessionUsers!
-                        .map(
-                          (user) => ListTile(
-                            leading: user.isAuthorized
-                                ? const Icon(
-                                    Icons.check_circle_rounded,
-                                    color: Colors.green,
-                                    size: 35,
-                                  )
-                                : const Icon(
-                                    Icons.close_rounded,
-                                    color: Colors.red,
-                                    size: 35,
-                                  ),
-                            title: Text(
-                              '${user.name.toString().capitalize()} ${user.surname.toString().capitalize()}',
-                            ),
-                            subtitle: user.isTeacher!
-                                ? Text('Teacher - ${user.id}')
-                                : Text('Student - ${user.id}'),
-                            onTap: () async => _showStudentProfileAlertDialog(
-                              context,
-                              user,
-                            ),
+                child: Column(
+                  children: Provider.of<SessionProvider>(context)
+                      .sessionUsers!
+                      .map(
+                        (user) => ListTile(
+                          leading: user.isAuthorized
+                              ? const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Colors.green,
+                                  size: 35,
+                                )
+                              : const Icon(
+                                  Icons.close_rounded,
+                                  color: Colors.red,
+                                  size: 35,
+                                ),
+                          title: Text(
+                            '${user.name.toString().capitalize()} ${user.surname.toString().capitalize()}',
                           ),
-                        )
-                        .toList(),
-                  ),
+                          subtitle: user.isTeacher!
+                              ? Text('Teacher - ${user.id}')
+                              : Text('Student - ${user.id}'),
+                          onTap: () async => _showStudentProfileAlertDialog(
+                            context,
+                            user,
+                          ),
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
             ),
@@ -106,7 +106,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
         ),
         Center(
           child: Tooltip(
-            message: 'Scan a barcode',
+            message: 'Scan a QR code',
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(232, 52, 93, 1.0),
@@ -117,7 +117,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
               child: const Text('Scan'),
             ),
           ),
-        )
+        ),
       ],
     );
   }

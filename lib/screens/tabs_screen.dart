@@ -29,6 +29,8 @@ class _TabsScreenState extends State<TabsScreen> {
   // it will fire this method.
   @override
   void initState() {
+    super.initState();
+
     // take the current user in our UserProvider
     final user = Provider.of<UserProvider>(context, listen: false).user!;
 
@@ -46,8 +48,6 @@ class _TabsScreenState extends State<TabsScreen> {
         {'page': SessionOverviewScreen(), 'title': 'Sessions Overview'},
       ];
     }
-
-    super.initState();
   }
 
   // This method is being called
@@ -164,6 +164,7 @@ class _TabsScreenState extends State<TabsScreen> {
   Future<void> _showNewSessionDialog() async {
     return showModalBottomSheet<void>(
       context: context,
+      constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
       enableDrag: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -180,6 +181,8 @@ class _TabsScreenState extends State<TabsScreen> {
   Future<void> _showFiltersDialog() async {
     return showModalBottomSheet<void>(
       context: context,
+      showDragHandle: true,
+      constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(15.0),

@@ -13,22 +13,6 @@ class FiltersSessionOverviewDialogWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height / 100,
-            ),
-            child: Container(
-              height: MediaQuery.of(context).size.height / 100,
-              width: MediaQuery.of(context).size.width / 7,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height / 20,
-          ),
           Text(
             'Filters',
             style: Theme.of(context).textTheme.headlineSmall,

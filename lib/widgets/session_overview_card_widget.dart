@@ -43,54 +43,50 @@ class _SessionOverviewCardWidgetState extends State<SessionOverviewCardWidget> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ShowCaseWidget.of(context).startShowCase([_one]),
-    );
+    // WidgetsBinding.instance.addPostFrameCallback(
+    //   (_) => ShowCaseWidget.of(context).startShowCase([_one]),
+    // );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Showcase(
-      key: _one,
-      description: 'Tap for more details',
-      child: Card(
-        elevation: 5,
-        margin: const EdgeInsets.all(10),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(15.0),
-            bottomRight: Radius.circular(15.0),
-          ),
+    return Card(
+      elevation: 5,
+      margin: const EdgeInsets.all(10),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(15.0),
+          bottomRight: Radius.circular(15.0),
         ),
-        color: Theme.of(context).colorScheme.secondary,
-        child: ExpansionTile(
-          leading: const Icon(Icons.list_alt_rounded),
-          title: Text(
-            '${widget._session.lab} - ${widget._session.subject!}',
-            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text('Saved at ${widget._session.timestamp}'),
-          collapsedIconColor: const Color.fromARGB(255, 204, 170, 49),
-          childrenPadding: const EdgeInsets.all(8.0),
-          children: widget._session.studentsIds!
-              .asMap()
-              .entries
-              .map(
-                (studentId) => ListTile(
-                  leading: Text('${studentId.key + 1}'),
-                  title: Center(child: Text(studentId.value as String)),
-                  trailing: const Icon(Icons.person),
-                  onTap: () async {
-                    final user =
-                        await Provider.of<UserProvider>(context, listen: false)
-                            .getUserFromId(studentId.value as String, context);
+      ),
+      color: Theme.of(context).colorScheme.secondary,
+      child: ExpansionTile(
+        leading: const Icon(Icons.list_alt_rounded),
+        title: Text(
+          '${widget._session.lab} - ${widget._session.subject!}',
+          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('Saved at ${widget._session.timestamp}'),
+        collapsedIconColor: const Color.fromARGB(255, 204, 170, 49),
+        childrenPadding: const EdgeInsets.all(8.0),
+        children: widget._session.studentsIds!
+            .asMap()
+            .entries
+            .map(
+              (studentId) => ListTile(
+                leading: Text('${studentId.key + 1}'),
+                title: Center(child: Text(studentId.value as String)),
+                trailing: const Icon(Icons.person),
+                onTap: () async {
+                  final user =
+                      await Provider.of<UserProvider>(context, listen: false)
+                          .getUserFromId(studentId.value as String, context);
 
-                    return _showStudentProfileAlertDialog(context, user);
-                  },
-                ),
-              )
-              .toList(),
-        ),
+                  return _showStudentProfileAlertDialog(context, user);
+                },
+              ),
+            )
+            .toList(),
       ),
     );
   }

@@ -52,7 +52,7 @@ class NewSessionScreen extends StatelessWidget {
                     icon: const Icon(Icons.save_rounded),
                     label: const Text('Save session'),
                   ),
-                )
+                ),
               ],
             )
           else
